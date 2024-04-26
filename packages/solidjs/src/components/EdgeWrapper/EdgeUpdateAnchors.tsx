@@ -4,6 +4,8 @@ import { XYHandle, type Connection, EdgePosition } from '@xyflow/system';
 import { EdgeAnchor } from '../Edges/EdgeAnchor';
 import type { EdgeWrapperProps, Edge } from '../../types/edges';
 import { useStoreApi } from '../../hooks/useStore';
+import { Match, Switch } from 'solid-js';
+import { SolidEvent } from '../../types';
 
 type EdgeUpdateAnchorsProps<EdgeType extends Edge = Edge> = {
   edge: EdgeType;
@@ -18,27 +20,30 @@ type EdgeUpdateAnchorsProps<EdgeType extends Edge = Edge> = {
   setUpdating: (updating: boolean) => void;
 } & EdgePosition;
 
-export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>({
-  isUpdatable,
-  edgeUpdaterRadius,
-  edge,
-  targetHandleId,
-  sourceHandleId,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  sourcePosition,
-  targetPosition,
-  onEdgeUpdate,
-  onEdgeUpdateStart,
-  onEdgeUpdateEnd,
-  setUpdating,
-  setUpdateHover,
-}: EdgeUpdateAnchorsProps<EdgeType>) {
+export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>(
+  p: EdgeUpdateAnchorsProps<EdgeType>
+  //   {
+  //   isUpdatable,
+  //   edgeUpdaterRadius,
+  //   edge,
+  //   targetHandleId,
+  //   sourceHandleId,
+  //   sourceX,
+  //   sourceY,
+  //   targetX,
+  //   targetY,
+  //   sourcePosition,
+  //   targetPosition,
+  //   onEdgeUpdate,
+  //   onEdgeUpdateStart,
+  //   onEdgeUpdateEnd,
+  //   setUpdating,
+  //   setUpdateHover,
+  // }: EdgeUpdateAnchorsProps<EdgeType>) {
+) {
   const store = useStoreApi();
 
-  const handleEdgeUpdater = (event: React.MouseEvent<SVGGElement, MouseEvent>, isSourceHandle: boolean) => {
+  const handleEdgeUpdater = (event: SolidEvent<SVGGElement, MouseEvent>, isSourceHandle: boolean) => {
     // avoid triggering edge updater if mouse btn is not left
     if (event.button !== 0) {
       return;
@@ -58,33 +63,33 @@ export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>({
       rfId: flowId,
       panBy,
       updateConnection,
-    } = store.getState();
-    const nodeId = isSourceHandle ? edge.target : edge.source;
-    const handleId = (isSourceHandle ? targetHandleId : sourceHandleId) || null;
-    const handleType = isSourceHandle ? 'target' : 'source';
+    } = store().getState();
+    const nodeId = () => (isSourceHandle ? p.edge.target : p.edge.source);
+    const handleId = () => (isSourceHandle ? p.targetHandleId : p.sourceHandleId) || null;
+    const handleType = () => (isSourceHandle ? 'target' : 'source');
 
     const isTarget = isSourceHandle;
 
-    setUpdating(true);
-    onEdgeUpdateStart?.(event, edge, handleType);
+    p.setUpdating(true);
+    p.onEdgeUpdateStart?.(event, p.edge, handleType());
 
     const _onEdgeUpdateEnd = (evt: MouseEvent | TouchEvent) => {
-      setUpdating(false);
-      onEdgeUpdateEnd?.(evt, edge, handleType);
+      p.setUpdating(false);
+      p.onEdgeUpdateEnd?.(evt, p.edge, handleType());
     };
 
-    const onConnectEdge = (connection: Connection) => onEdgeUpdate?.(edge, connection);
+    const onConnectEdge = (connection: Connection) => p.onEdgeUpdate?.(p.edge, connection);
 
-    XYHandle.onPointerDown(event.nativeEvent, {
+    XYHandle.onPointerDown(event, {
       autoPanOnConnect,
       connectionMode,
       connectionRadius,
       domNode,
-      handleId,
-      nodeId,
+      handleId: handleId(),
+      nodeId: nodeId(),
       nodeLookup,
       isTarget,
-      edgeUpdaterType: handleType,
+      edgeUpdaterType: handleType(),
       lib,
       flowId,
       cancelConnection,
@@ -95,44 +100,45 @@ export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>({
       onConnectEnd,
       onEdgeUpdateEnd: _onEdgeUpdateEnd,
       updateConnection,
-      getTransform: () => store.getState().transform,
-      getConnectionStartHandle: () => store.getState().connectionStartHandle,
+      getTransform: () => store().getState().transform,
+      getConnectionStartHandle: () => store().getState().connectionStartHandle,
     });
   };
 
-  const onEdgeUpdaterSourceMouseDown = (event: React.MouseEvent<SVGGElement, MouseEvent>): void =>
+  const onEdgeUpdaterSourceMouseDown = (event: SolidEvent<SVGGElement, MouseEvent>): void =>
     handleEdgeUpdater(event, true);
-  const onEdgeUpdaterTargetMouseDown = (event: React.MouseEvent<SVGGElement, MouseEvent>): void =>
+  const onEdgeUpdaterTargetMouseDown = (event: SolidEvent<SVGGElement, MouseEvent>): void =>
     handleEdgeUpdater(event, false);
-  const onEdgeUpdaterMouseEnter = () => setUpdateHover(true);
-  const onEdgeUpdaterMouseOut = () => setUpdateHover(false);
+  const onEdgeUpdaterMouseEnter = () => p.setUpdateHover(true);
+  const onEdgeUpdaterMouseOut = () => p.setUpdateHover(false);
 
   return (
-    <>
-      {(isUpdatable === 'source' || isUpdatable === true) && (
+    <Switch>
+      <Match when={p.isUpdatable === 'source' || p.isUpdatable === true}>
         <EdgeAnchor
-          position={sourcePosition}
-          centerX={sourceX}
-          centerY={sourceY}
-          radius={edgeUpdaterRadius}
+          position={p.sourcePosition}
+          centerX={p.sourceX}
+          centerY={p.sourceY}
+          radius={p.edgeUpdaterRadius}
           onMouseDown={onEdgeUpdaterSourceMouseDown}
           onMouseEnter={onEdgeUpdaterMouseEnter}
           onMouseOut={onEdgeUpdaterMouseOut}
           type="source"
         />
-      )}
-      {(isUpdatable === 'target' || isUpdatable === true) && (
+      </Match>
+
+      <Match when={p.isUpdatable === 'target' || p.isUpdatable === true}>
         <EdgeAnchor
-          position={targetPosition}
-          centerX={targetX}
-          centerY={targetY}
-          radius={edgeUpdaterRadius}
+          position={p.targetPosition}
+          centerX={p.targetX}
+          centerY={p.targetY}
+          radius={p.edgeUpdaterRadius}
           onMouseDown={onEdgeUpdaterTargetMouseDown}
           onMouseEnter={onEdgeUpdaterMouseEnter}
           onMouseOut={onEdgeUpdaterMouseOut}
           type="target"
         />
-      )}
-    </>
+      </Match>
+    </Switch>
   );
 }
