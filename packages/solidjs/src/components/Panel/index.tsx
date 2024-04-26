@@ -2,12 +2,11 @@
 import cc from 'classcat';
 import type { PanelPosition } from '@xyflow/system';
 
-
 import { useStore } from '../../hooks/useStore';
 import type { ReactFlowState } from '../../types';
 import { ParentProps, mergeProps, JSX } from 'solid-js';
 
-export interface PanelProps extends JSX.HTMLAttributes<HTMLDivElement>  {
+export interface PanelProps extends JSX.HTMLAttributes<HTMLDivElement> {
   /** Set position of the panel
    * @example 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
    */
@@ -16,33 +15,26 @@ export interface PanelProps extends JSX.HTMLAttributes<HTMLDivElement>  {
 
 const selector = (s: ReactFlowState) => (s.userSelectionActive ? 'none' : 'all');
 
-export function Panel(_p: ParentProps<PanelProps> ) {
+export function Panel(_p: ParentProps<PanelProps>) {
   const p = mergeProps({ position: 'top-left' }, _p);
-
 
   const pointerEvents = useStore(selector);
   const positionClasses = () => `${p.position}`.split('-');
 
-const style = (): JSX.CSSProperties => { 
-  const s = p.style;
-  if (typeof s === 'object') {
-    return { 
-      ...s,
-      "pointer-events": pointerEvents
+  const style = (): JSX.CSSProperties => {
+    const s = p.style;
+    if (typeof s === 'object') {
+      return {
+        ...s,
+        'pointer-events': pointerEvents,
+      };
+    } else {
+      return { 'pointer-events': pointerEvents };
     }
-  } else { 
-    return { "pointer-events": pointerEvents }
-  }
-}
-
-
+  };
 
   return (
-    <div
-      {...p}
-      class={cc(['react-flow__panel', p.class, ...positionClasses()])}
-      style={style()}
-    >
+    <div {...p} class={cc(['react-flow__panel', p.class, ...positionClasses()])} style={style()}>
       {p.children}
     </div>
   );
