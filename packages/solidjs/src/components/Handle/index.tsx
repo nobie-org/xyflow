@@ -243,4 +243,4 @@ function HandleComponent(
 /**
  * The Handle component is a UI element that is used to connect nodes.
  */
-export const Handle = memo(fixedForwardRef(HandleComponent));
+export const Handle = HandleComponent;
