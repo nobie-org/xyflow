@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+// import { ComponentType } from 'react';
 import {
   FitViewParamsBase,
   FitViewOptionsBase,
@@ -17,6 +17,7 @@ import {
 } from '@xyflow/system';
 
 import type { Node, Edge, ReactFlowInstance, EdgeProps, NodeProps } from '.';
+import { Component } from 'solid-js';
 
 export type OnNodesChange<NodeType extends Node = Node> = (changes: NodeChange<NodeType>[]) => void;
 export type OnEdgesChange<EdgeType extends Edge = Edge> = (changes: EdgeChange<EdgeType>[]) => void;
@@ -30,7 +31,7 @@ export type OnDelete<NodeType extends Node = Node, EdgeType extends Edge = Edge>
 
 export type NodeTypes = Record<
   string,
-  ComponentType<
+  Component<
     NodeProps & {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: any;
@@ -41,7 +42,7 @@ export type NodeTypes = Record<
 >;
 export type EdgeTypes = Record<
   string,
-  ComponentType<
+  Component<
     EdgeProps & {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: any;

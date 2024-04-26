@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { CSSProperties, HTMLAttributes, ReactNode, MouseEvent as ReactMouseEvent, ComponentType } from 'react';
+// import type { CSSProperties, HTMLAttributes, ReactNode, MouseEvent as ReactMouseEvent, ComponentType } from 'react';
 import type {
   EdgeBase,
   BezierPathOptions,
@@ -17,10 +17,15 @@ import type {
   OnError,
 } from '@xyflow/system';
 
+import { Component, JSX, JSXElement } from 'solid-js';
+
+type CSSProperties = JSX.CSSProperties;
+// type MouseEvent = JSX.EventHandlerUnion<HTMLElement,MouseEvent>
+
 import { EdgeTypes, Node } from '.';
 
 export type EdgeLabelOptions = {
-  label?: string | ReactNode;
+  label?: string | JSXElement;
   labelStyle?: CSSProperties;
   labelShowBg?: boolean;
   labelBgStyle?: CSSProperties;
@@ -62,7 +67,7 @@ type StepEdge<EdgeData extends Record<string, unknown> = Record<string, unknown>
 
 export type BuiltInEdge = SmoothStepEdge | BezierEdge | StepEdge;
 
-export type EdgeMouseHandler<EdgeType extends Edge = Edge> = (event: ReactMouseEvent, edge: EdgeType) => void;
+export type EdgeMouseHandler<EdgeType extends Edge = Edge> = (event: MouseEvent, edge: EdgeType) => void;
 
 export type EdgeWrapperProps<EdgeType extends Edge = Edge> = {
   id: string;
@@ -78,7 +83,7 @@ export type EdgeWrapperProps<EdgeType extends Edge = Edge> = {
   onMouseMove?: EdgeMouseHandler<EdgeType>;
   onMouseLeave?: EdgeMouseHandler<EdgeType>;
   edgeUpdaterRadius?: number;
-  onEdgeUpdateStart?: (event: ReactMouseEvent, edge: EdgeType, handleType: HandleType) => void;
+  onEdgeUpdateStart?: (event: MouseEvent, edge: EdgeType, handleType: HandleType) => void;
   onEdgeUpdateEnd?: (event: MouseEvent | TouchEvent, edge: EdgeType, handleType: HandleType) => void;
   rfId?: string;
   edgeTypes?: EdgeTypes;
@@ -88,7 +93,7 @@ export type EdgeWrapperProps<EdgeType extends Edge = Edge> = {
 
 export type DefaultEdgeOptions = DefaultEdgeOptionsBase<Edge>;
 
-export type EdgeTextProps = HTMLAttributes<SVGElement> &
+export type EdgeTextProps = JSX.HTMLAttributes<SVGElement> &
   EdgeLabelOptions & {
     x: number;
     y: number;
@@ -205,4 +210,4 @@ export type ConnectionLineComponentProps = {
   connectionStatus: ConnectionStatus | null;
 };
 
-export type ConnectionLineComponent = ComponentType<ConnectionLineComponentProps>;
+export type ConnectionLineComponent = Component<ConnectionLineComponentProps>;

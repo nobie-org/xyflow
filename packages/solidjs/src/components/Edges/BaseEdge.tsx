@@ -3,56 +3,63 @@ import cc from 'classcat';
 
 import { EdgeText } from './EdgeText';
 import type { BaseEdgeProps } from '../../types';
+import { Show, mergeProps } from 'solid-js';
 
-export function BaseEdge({
-  id,
-  path,
-  labelX,
-  labelY,
-  label,
-  labelStyle,
-  labelShowBg,
-  labelBgStyle,
-  labelBgPadding,
-  labelBgBorderRadius,
-  style,
-  markerEnd,
-  markerStart,
-  className,
-  interactionWidth = 20,
-}: BaseEdgeProps) {
+export function BaseEdge(_p: BaseEdgeProps) {
+  const p = mergeProps(
+    {
+      interactionWidth: 20,
+    },
+    _p
+  );
+
+  const labelCoordinates = () => {
+    if (p.label && isNumeric(p.labelX) && isNumeric(p.labelY)) {
+      return {
+        x: p.labelX,
+        y: p.labelY,
+      };
+    } else {
+      null;
+    }
+  };
+
   return (
     <>
       <path
-        id={id}
-        style={style}
-        d={path}
+        id={p.id}
+        style={p.style}
+        d={p.path}
         fill="none"
-        className={cc(['react-flow__edge-path', className])}
-        markerEnd={markerEnd}
-        markerStart={markerStart}
+        class={cc(['react-flow__edge-path', p.className])}
+        marker-end={p.markerEnd}
+        marker-start={p.markerStart}
       />
-      {interactionWidth && (
+      <Show when={p.interactionWidth > 0}>
         <path
-          d={path}
+          d={p.path}
           fill="none"
-          strokeOpacity={0}
-          strokeWidth={interactionWidth}
-          className="react-flow__edge-interaction"
+          stroke-opacity={0}
+          stroke-width={p.interactionWidth}
+          class="react-flow__edge-interaction"
         />
-      )}
-      {label && isNumeric(labelX) && isNumeric(labelY) ? (
-        <EdgeText
-          x={labelX}
-          y={labelY}
-          label={label}
-          labelStyle={labelStyle}
-          labelShowBg={labelShowBg}
-          labelBgStyle={labelBgStyle}
-          labelBgPadding={labelBgPadding}
-          labelBgBorderRadius={labelBgBorderRadius}
-        />
-      ) : null}
+      </Show>
+      <Show when={labelCoordinates()}>
+        {(labelCoordinates) => {
+          return (
+            <EdgeText
+              x={labelCoordinates().x}
+              y={labelCoordinates().y}
+              label={p.label}
+              labelStyle={p.labelStyle}
+              labelShowBg={p.labelShowBg}
+              labelBgStyle={p.labelBgStyle}
+              labelBgPadding={p.labelBgPadding}
+              labelBgBorderRadius={p.labelBgBorderRadius}
+            />
+          );
+        }}
+      </Show>
     </>
   );
 }
