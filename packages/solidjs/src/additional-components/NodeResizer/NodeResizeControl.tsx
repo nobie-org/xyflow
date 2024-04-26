@@ -1,4 +1,4 @@
-import { useRef, useEffect, memo } from 'react';
+// import { useRef, useEffect, memo } from 'react';
 import cc from 'classcat';
 import {
   XYResizer,
@@ -18,7 +18,11 @@ import {
 import { useStoreApi } from '../../hooks/useStore';
 import { useNodeId } from '../../contexts/NodeIdContext';
 import type { ResizeControlProps, ResizeControlLineProps } from './types';
-import { mergeProps } from 'solid-js';
+import { createEffect, mergeProps } from 'solid-js';
+import { useRef } from '../../utils/hooks';
+
+import { JSX } from 'solid-js';
+
 
 function ResizeControl(_p: ResizeControlProps) {
 //   nodeId,
@@ -42,15 +46,17 @@ function ResizeControl(_p: ResizeControlProps) {
   const p = mergeProps({ variant: ResizeControlVariant.Handle, minWidth: 10, minHeight: 10, maxWidth: Number.MAX_VALUE, maxHeight: Number.MAX_VALUE, keepAspectRatio: false }, _p);
 
   const contextNodeId = useNodeId();
-  const id = () => { if (typeof p.nodeId === 'string') { return p.nodeId } else { return contextNodeId } };
+  const getId = () => { if (typeof p.nodeId === 'string') { return p.nodeId } else { return contextNodeId } };
   const store = useStoreApi();
   const resizeControlRef = useRef<HTMLDivElement>(null);
-  const defaultPosition = variant === ResizeControlVariant.Line ? 'right' : 'bottom-right';
-  const controlPosition = position ?? defaultPosition;
+  const defaultPosition = () => p.variant === ResizeControlVariant.Line ? 'right' : 'bottom-right';
+  const controlPosition = () => p.position ?? defaultPosition();
 
   const resizer = useRef<XYResizerInstance | null>(null);
 
-  useEffect(() => {
+  createEffect(() => {
+    const id = getId();
+
     if (!resizeControlRef.current || !id) {
       return;
     }
@@ -60,7 +66,7 @@ function ResizeControl(_p: ResizeControlProps) {
         domNode: resizeControlRef.current,
         nodeId: id,
         getStoreItems: () => {
-          const { nodeLookup, transform, snapGrid, snapToGrid, nodeOrigin } = store.getState();
+          const { nodeLookup, transform, snapGrid, snapToGrid, nodeOrigin } = store().getState();
           return {
             nodeLookup,
             transform,
@@ -70,7 +76,7 @@ function ResizeControl(_p: ResizeControlProps) {
           };
         },
         onChange: (change: XYResizerChange, childChanges: XYResizerChildChange[]) => {
-          const { triggerNodeChanges, nodeLookup, parentLookup, nodeOrigin } = store.getState();
+          const { triggerNodeChanges, nodeLookup, parentLookup, nodeOrigin } = store().getState();
 
           const changes: NodeChange[] = [];
           const nextPosition = { x: change.x, y: change.y };
@@ -105,7 +111,7 @@ function ResizeControl(_p: ResizeControlProps) {
 
           if (nextPosition.x !== undefined && nextPosition.y !== undefined) {
             const positionChange: NodePositionChange = {
-              id,
+              id: id,
               type: 'position',
               position: { ...(nextPosition as XYPosition) },
             };
@@ -114,7 +120,7 @@ function ResizeControl(_p: ResizeControlProps) {
 
           if (change.width !== undefined && change.height !== undefined) {
             const dimensionChange: NodeDimensionChange = {
-              id,
+              id: id,
               type: 'dimensions',
               resizing: true,
               setAttributes: true,
@@ -140,57 +146,46 @@ function ResizeControl(_p: ResizeControlProps) {
         },
         onEnd: () => {
           const dimensionChange: NodeDimensionChange = {
-            id: id,
+            id,
             type: 'dimensions',
             resizing: false,
           };
-          store.getState().triggerNodeChanges([dimensionChange]);
+          store().getState().triggerNodeChanges([dimensionChange]);
         },
       });
     }
 
     resizer.current.update({
-      controlPosition,
+      controlPosition: controlPosition(),
       boundaries: {
-        minWidth,
-        minHeight,
-        maxWidth,
-        maxHeight,
+        minWidth: p.minWidth,
+        minHeight: p.minHeight,
+        maxWidth: p.maxWidth,
+        maxHeight: p.maxHeight,
       },
-      keepAspectRatio,
-      onResizeStart,
-      onResize,
-      onResizeEnd,
-      shouldResize,
+      keepAspectRatio: p.keepAspectRatio,
+      onResizeStart: p.onResizeStart,
+      onResize: p.onResize,
+      onResizeEnd: p.onResizeEnd,
+      shouldResize: p.shouldResize,
     });
 
     return () => {
       resizer.current?.destroy();
     };
-  }, [
-    controlPosition,
-    minWidth,
-    minHeight,
-    maxWidth,
-    maxHeight,
-    keepAspectRatio,
-    onResizeStart,
-    onResize,
-    onResizeEnd,
-    shouldResize,
-  ]);
+  });
 
-  const positionClassNames = controlPosition.split('-');
-  const colorStyleProp = variant === ResizeControlVariant.Line ? 'borderColor' : 'backgroundColor';
-  const controlStyle = color ? { ...style, [colorStyleProp]: color } : style;
+  const positionClassNames = () => controlPosition().split('-');
+  const colorStyleProp = () => p.variant === ResizeControlVariant.Line ? 'borderColor' : 'backgroundColor';
+  const controlStyle = (): JSX.CSSProperties | undefined=> p.color ? { ...p.style, [colorStyleProp()]: p.color } as JSX.CSSProperties : p.style;
 
   return (
     <div
-      className={cc(['react-flow__resize-control', 'nodrag', ...positionClassNames, variant, className])}
-      ref={resizeControlRef}
-      style={controlStyle}
+      class={cc(['react-flow__resize-control', 'nodrag', ...positionClassNames(), p.variant, p.className])}
+      ref={(el) => resizeControlRef.current = el}
+      style={controlStyle()}
     >
-      {children}
+      {p.children}
     </div>
   );
 }
@@ -199,4 +194,4 @@ export function ResizeControlLine(props: ResizeControlLineProps) {
   return <ResizeControl {...props} variant={ResizeControlVariant.Line} />;
 }
 
-export const NodeResizeControl = memo(ResizeControl);
+export const NodeResizeControl = ResizeControl

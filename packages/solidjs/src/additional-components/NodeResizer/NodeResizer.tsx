@@ -2,70 +2,82 @@ import { ResizeControlVariant, XY_RESIZER_HANDLE_POSITIONS, XY_RESIZER_LINE_POSI
 
 import { NodeResizeControl } from './NodeResizeControl';
 import type { NodeResizerProps } from './types';
+import { For, Show, mergeProps } from 'solid-js';
 
-export function NodeResizer({
-  nodeId,
-  isVisible = true,
-  handleClassName,
-  handleStyle,
-  lineClassName,
-  lineStyle,
-  color,
-  minWidth = 10,
-  minHeight = 10,
-  maxWidth = Number.MAX_VALUE,
-  maxHeight = Number.MAX_VALUE,
-  keepAspectRatio = false,
-  shouldResize,
-  onResizeStart,
-  onResize,
-  onResizeEnd,
-}: NodeResizerProps) {
-  if (!isVisible) {
-    return null;
-  }
+export function NodeResizer(_p: NodeResizerProps) {
+//   nodeId,
+//   isVisible = true,
+//   handleClassName,
+//   handleStyle,
+//   lineClassName,
+//   lineStyle,
+//   color,
+//   minWidth = 10,
+//   minHeight = 10,
+//   maxWidth = Number.MAX_VALUE,
+//   maxHeight = Number.MAX_VALUE,
+//   keepAspectRatio = false,
+//   shouldResize,
+//   onResizeStart,
+//   onResize,
+//   onResizeEnd,
+// }: NodeResizerProps) {
+  const p = mergeProps({
+    isVisible: true,
+    minWidth: 10,
+    minHeight: 10,
+    maxWidth: Number.MAX_VALUE,
+    maxHeight: Number.MAX_VALUE,
+    keepAspectRatio: false,
+  }, _p);
+
+  // if (!isVisible) {
+  //   return null;
+  // }
 
   return (
-    <>
-      {XY_RESIZER_LINE_POSITIONS.map((position) => (
+    <Show when={p.isVisible}>
+    <For each={XY_RESIZER_LINE_POSITIONS}>
+      {position => (
         <NodeResizeControl
-          key={position}
-          className={lineClassName}
-          style={lineStyle}
-          nodeId={nodeId}
+          className={p.lineClassName}
+          style={p.lineStyle}
+          nodeId={p.nodeId}
           position={position}
           variant={ResizeControlVariant.Line}
-          color={color}
-          minWidth={minWidth}
-          minHeight={minHeight}
-          maxWidth={maxWidth}
-          maxHeight={maxHeight}
-          onResizeStart={onResizeStart}
-          keepAspectRatio={keepAspectRatio}
-          shouldResize={shouldResize}
-          onResize={onResize}
-          onResizeEnd={onResizeEnd}
+          color={p.color}
+          minWidth={p.minWidth}
+          minHeight={p.minHeight}
+          maxWidth={p.maxWidth}
+          maxHeight={p.maxHeight}
+          onResizeStart={p.onResizeStart}
+          keepAspectRatio={p.keepAspectRatio}
+          shouldResize={p.shouldResize}
+          onResize={p.onResize}
+          onResizeEnd={p.onResizeEnd}
         />
-      ))}
-      {XY_RESIZER_HANDLE_POSITIONS.map((position) => (
+      )}
+      </For>
+      <For each={XY_RESIZER_HANDLE_POSITIONS}>
+      {position => (
         <NodeResizeControl
-          key={position}
-          className={handleClassName}
-          style={handleStyle}
-          nodeId={nodeId}
+          className={p.handleClassName}
+          style={p.handleStyle}
+          nodeId={p.nodeId}
           position={position}
-          color={color}
-          minWidth={minWidth}
-          minHeight={minHeight}
-          maxWidth={maxWidth}
-          maxHeight={maxHeight}
-          onResizeStart={onResizeStart}
-          keepAspectRatio={keepAspectRatio}
-          shouldResize={shouldResize}
-          onResize={onResize}
-          onResizeEnd={onResizeEnd}
+          color={p.color}
+          minWidth={p.minWidth}
+          minHeight={p.minHeight}
+          maxWidth={p.maxWidth}
+          maxHeight={p.maxHeight}
+          onResizeStart={p.onResizeStart}
+          keepAspectRatio={p.keepAspectRatio}
+          shouldResize={p.shouldResize}
+          onResize={p.onResize}
+          onResizeEnd={p.onResizeEnd}
         />
-      ))}
-    </>
+      )}
+      </For>
+    </Show>
   );
 }

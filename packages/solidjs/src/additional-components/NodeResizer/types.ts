@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+// import type { CSSProperties, ReactNode } from 'react';
 import type {
   ControlPosition,
   ControlLinePosition,
@@ -8,6 +8,9 @@ import type {
   OnResize,
   OnResizeEnd,
 } from '@xyflow/system';
+import { JSXElement } from 'solid-js';
+
+import { JSX } from 'solid-js';
 
 export type NodeResizerProps = {
   /** Id of the node it is resizing
@@ -70,8 +73,8 @@ export type ResizeControlProps = Pick<
    */
   variant?: ResizeControlVariant;
   className?: string;
-  style?: CSSProperties;
-  children?: ReactNode;
+  style?: JSX.CSSProperties;
+  children?: JSXElement;
 };
 
 export type ResizeControlLineProps = ResizeControlProps & {
