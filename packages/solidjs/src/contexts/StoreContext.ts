@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext } from 'solid-js';
 
 import { createStore } from '../store';
 

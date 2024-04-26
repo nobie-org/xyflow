@@ -18,27 +18,31 @@ import {
 import { useStoreApi } from '../../hooks/useStore';
 import { useNodeId } from '../../contexts/NodeIdContext';
 import type { ResizeControlProps, ResizeControlLineProps } from './types';
+import { mergeProps } from 'solid-js';
 
-function ResizeControl({
-  nodeId,
-  position,
-  variant = ResizeControlVariant.Handle,
-  className,
-  style = {},
-  children,
-  color,
-  minWidth = 10,
-  minHeight = 10,
-  maxWidth = Number.MAX_VALUE,
-  maxHeight = Number.MAX_VALUE,
-  keepAspectRatio = false,
-  shouldResize,
-  onResizeStart,
-  onResize,
-  onResizeEnd,
-}: ResizeControlProps) {
+function ResizeControl(_p: ResizeControlProps) {
+//   nodeId,
+//   position,
+//   variant = ResizeControlVariant.Handle,
+//   className,
+//   style = {},
+//   children,
+//   color,
+//   minWidth = 10,
+//   minHeight = 10,
+//   maxWidth = Number.MAX_VALUE,
+//   maxHeight = Number.MAX_VALUE,
+//   keepAspectRatio = false,
+//   shouldResize,
+//   onResizeStart,
+//   onResize,
+//   onResizeEnd,
+// }: ResizeControlProps) {
+
+  const p = mergeProps({ variant: ResizeControlVariant.Handle, minWidth: 10, minHeight: 10, maxWidth: Number.MAX_VALUE, maxHeight: Number.MAX_VALUE, keepAspectRatio: false }, _p);
+
   const contextNodeId = useNodeId();
-  const id = typeof nodeId === 'string' ? nodeId : contextNodeId;
+  const id = () => { if (typeof p.nodeId === 'string') { return p.nodeId } else { return contextNodeId } };
   const store = useStoreApi();
   const resizeControlRef = useRef<HTMLDivElement>(null);
   const defaultPosition = variant === ResizeControlVariant.Line ? 'right' : 'bottom-right';

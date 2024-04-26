@@ -18,6 +18,7 @@ import {
 
 import type { Node, Edge, ReactFlowInstance, EdgeProps, NodeProps } from '.';
 import { Component } from 'solid-js';
+import { DOMElement } from 'solid-js/jsx-runtime';
 
 export type OnNodesChange<NodeType extends Node = Node> = (changes: NodeChange<NodeType>[]) => void;
 export type OnEdgesChange<EdgeType extends Edge = Edge> = (changes: EdgeChange<EdgeType>[]) => void;
@@ -166,3 +167,5 @@ export type OnBeforeDelete<NodeType extends Node = Node, EdgeType extends Edge =
 >;
 
 export type IsValidConnection<EdgeType extends Edge = Edge> = (edge: EdgeType | Connection) => boolean;
+
+export type SolidEvent<T, E> = E & { currentTarget: T; target: DOMElement };
