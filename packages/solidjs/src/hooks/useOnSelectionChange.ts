@@ -1,7 +1,7 @@
 
 import { useStoreApi } from './useStore';
 import type { OnSelectionChangeFunc } from '../types';
-import { createEffect } from 'solid-js';
+import { createEffect, onCleanup } from 'solid-js';
 
 export type UseOnSelectionChangeOptions = {
   onChange: OnSelectionChangeFunc;
@@ -17,12 +17,13 @@ export function useOnSelectionChange(p:UseOnSelectionChangeOptions) {
   const store = useStoreApi();
 
   createEffect(() => {
-    const nextOnSelectionChangeHandlers = [...store().getState().onSelectionChangeHandlers, p.onChange];
-    store().setState({ onSelectionChangeHandlers: nextOnSelectionChangeHandlers });
+    const nextOnSelectionChangeHandlers = [...store.onSelectionChangeHandlers.get(), p.onChange];
+    store.onSelectionChangeHandlers.set(nextOnSelectionChangeHandlers)
 
-    return () => {
-      const nextHandlers = store().getState().onSelectionChangeHandlers.filter((fn) => fn !== p.onChange);
-      store().setState({ onSelectionChangeHandlers: nextHandlers });
-    };
+
+    onCleanup(() => {
+      const nextHandlers = store.onSelectionChangeHandlers.get().filter((fn) => fn !== p.onChange);
+      store.onSelectionChangeHandlers.set(nextHandlers);
+    });
   })
 }

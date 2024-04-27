@@ -145,7 +145,7 @@ export type SolidFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
   onViewportChangeEnd: Writable<OnViewportChange | undefined>;
   onBeforeDelete: Writable<OnBeforeDelete<NodeType, EdgeType> | undefined>;
 
-  onSelectionChangeHandlers: OnSelectionChangeFunc[];
+  onSelectionChangeHandlers: Writable<OnSelectionChangeFunc[]>;
 
   ariaLiveMessage: Writable<string>;
   autoPanOnConnect: Writable<boolean>;

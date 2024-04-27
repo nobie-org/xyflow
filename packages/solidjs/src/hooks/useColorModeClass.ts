@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import type { ColorMode, ColorModeClass } from '@xyflow/system';
+import { createEffect, createSignal } from 'solid-js';
 
 function getMediaQuery() {
   if (typeof window === 'undefined' || !window.matchMedia) {
@@ -15,12 +15,12 @@ function getMediaQuery() {
  * @internal
  * @param colorMode - The color mode to use ('dark', 'light' or 'system')
  */
-export function useColorModeClass(colorMode: ColorMode): ColorModeClass {
-  const [colorModeClass, setColorModeClass] = useState<ColorModeClass | null>(
+export function useColorModeClass(colorMode: ColorMode): () => ColorModeClass {
+  const [colorModeClass, setColorModeClass] = createSignal<ColorModeClass | null>(
     colorMode === 'system' ? null : colorMode
   );
 
-  useEffect(() => {
+  createEffect(() => {
     if (colorMode !== 'system') {
       setColorModeClass(colorMode);
       return;
@@ -35,7 +35,9 @@ export function useColorModeClass(colorMode: ColorMode): ColorModeClass {
     return () => {
       mediaQuery?.removeEventListener('change', updateColorModeClass);
     };
-  }, [colorMode]);
+  });
 
-  return colorModeClass !== null ? colorModeClass : getMediaQuery()?.matches ? 'dark' : 'light';
+  return () => {
+    const colorModeClassValue = colorModeClass();
+    return colorModeClassValue !== null ? colorModeClassValue : getMediaQuery()?.matches ? 'dark' : 'light' }
 }

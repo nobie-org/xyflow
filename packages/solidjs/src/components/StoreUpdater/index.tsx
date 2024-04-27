@@ -3,13 +3,15 @@
  * We distinguish between values we can update directly with `useDirectStoreUpdater` (like `snapGrid`)
  * and values that have a dedicated setter function in the store (like `setNodes`).
  */
-import { useEffect, useRef } from 'react';
-import { shallow } from 'zustand/shallow';
+// import { useEffect, useRef } from 'react';
+// import { shallow } from 'zustand/shallow';
 import { infiniteExtent, type CoordinateExtent } from '@xyflow/system';
 
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import type { Node, Edge, SolidFlowState, ReactFlowProps, FitViewOptions } from '../../types';
 import { defaultNodeOrigin } from '../../container/ReactFlow/init-values';
+import { useRef } from '../../utils/hooks';
+import { createEffect } from 'solid-js';
 
 // these fields exist in the global store and we need to keep them up to date
 const reactFlowFieldsToTrack = [
@@ -115,10 +117,10 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
     setNodeExtent,
     reset,
     setDefaultNodesAndEdges,
-  } = useStore(selector, shallow);
+  } = useStore(selector);
   const store = useStoreApi<NodeType, EdgeType>();
 
-  useEffect(() => {
+  createEffect(() => {
     setDefaultNodesAndEdges(props.defaultNodes, props.defaultEdges);
 
     return () => {
@@ -126,11 +128,11 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
       previousFields.current = initPrevValues;
       reset();
     };
-  }, []);
+  });
 
   const previousFields = useRef<Partial<StoreUpdaterProps<NodeType, EdgeType>>>(initPrevValues);
 
-  useEffect(
+  createEffect(
     () => {
       for (const fieldName of fieldsToTrack) {
         const fieldValue = props[fieldName];
@@ -146,8 +148,8 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
         else if (fieldName === 'translateExtent') setTranslateExtent(fieldValue as CoordinateExtent);
         else if (fieldName === 'nodeExtent') setNodeExtent(fieldValue as CoordinateExtent);
         // Renamed fields
-        else if (fieldName === 'fitView') store.setState({ fitViewOnInit: fieldValue as boolean });
-        else if (fieldName === 'fitViewOptions') store.setState({ fitViewOnInitOptions: fieldValue as FitViewOptions });
+        else if (fieldName === 'fitView') store.fitViewOnInit.set(fieldValue as boolean);
+        else if (fieldName === 'fitViewOptions') store.fitViewOnInitOptions.set(fieldValue as FitViewOptions);
         // General case
         else store.setState({ [fieldName]: fieldValue });
       }
@@ -155,7 +157,7 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
       previousFields.current = props;
     },
     // Only re-run the effect if one of the fields we track changes
-    fieldsToTrack.map((fieldName) => props[fieldName])
+    // fieldsToTrack.map((fieldName) => props[fieldName])
   );
 
   return null;

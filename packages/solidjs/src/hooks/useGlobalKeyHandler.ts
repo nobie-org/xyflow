@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
 import type { KeyCode } from '@xyflow/system';
 
 import { useStoreApi } from './useStore';
 import { useKeyPress, UseKeyPressOptions } from './useKeyPress';
 import { useSolidFlow } from './useReactFlow';
 import { Edge, Node } from '../types';
+import { createEffect } from 'solid-js';
 
 const selected = (item: Node | Edge) => item.selected;
 
@@ -28,15 +28,15 @@ export function useGlobalKeyHandler({
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
 
-  useEffect(() => {
-    if (deleteKeyPressed) {
-      const { edges, nodes } = store.getState();
-      deleteElements({ nodes: nodes.filter(selected), edges: edges.filter(selected) });
-      store.setState({ nodesSelectionActive: false });
+  createEffect(() => {
+    if (deleteKeyPressed()) {
+      const { edges, nodes } = store;
+      deleteElements({ nodes: nodes.get().filter(selected), edges: edges.get().filter(selected) });
+      store.nodesSelectionActive.set(false);
     }
-  }, [deleteKeyPressed]);
+  });
 
-  useEffect(() => {
-    store.setState({ multiSelectionActive: multiSelectionKeyPressed });
-  }, [multiSelectionKeyPressed]);
+  createEffect(() => {
+    store.multiSelectionActive.set(multiSelectionKeyPressed())
+  });
 }

@@ -4,9 +4,8 @@
  * or is using the useOnSelectionChange hook.
  * @TODO: Now that we have the onNodesChange and on EdgesChange listeners, do we still need this component?
  */
-import { useEffect } from 'react';
-import { shallow } from 'zustand/shallow';
 
+import { Show, createEffect } from 'solid-js';
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import type { SolidFlowState, OnSelectionChangeFunc, Node, Edge } from '../../types';
 
@@ -33,39 +32,39 @@ const selector = (s: SolidFlowState) => {
   return { selectedNodes, selectedEdges };
 };
 
-type SelectorSlice = ReturnType<typeof selector>;
+// type SelectorSlice = ReturnType<typeof selector>;
 
-const selectId = (obj: Node | Edge) => obj.id;
+// const selectId = (obj: Node | Edge) => obj.id;
 
-function areEqual(a: SelectorSlice, b: SelectorSlice) {
-  return (
-    shallow(a.selectedNodes.map(selectId), b.selectedNodes.map(selectId)) &&
-    shallow(a.selectedEdges.map(selectId), b.selectedEdges.map(selectId))
-  );
-}
+// function areEqual(a: SelectorSlice, b: SelectorSlice) {
+//   return (
+//     shallow(a.selectedNodes.map(selectId), b.selectedNodes.map(selectId)) &&
+//     shallow(a.selectedEdges.map(selectId), b.selectedEdges.map(selectId))
+//   );
+// }
 
 function SelectionListenerInner({ onSelectionChange }: SelectionListenerProps) {
   const store = useStoreApi();
-  const { selectedNodes, selectedEdges } = useStore(selector, areEqual);
+  const { selectedNodes, selectedEdges } = useStore(selector);
 
-  useEffect(() => {
+  createEffect(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
 
     onSelectionChange?.(params);
-    store.getState().onSelectionChangeHandlers.forEach((fn) => fn(params));
-  }, [selectedNodes, selectedEdges, onSelectionChange]);
+    store.onSelectionChangeHandlers.get().forEach((fn) => fn(params));
+  });
 
   return null;
 }
 
 const changeSelector = (s: SolidFlowState) => !!s.onSelectionChangeHandlers;
 
-export function SelectionListener({ onSelectionChange }: SelectionListenerProps) {
+export function SelectionListener(p: SelectionListenerProps) {
   const storeHasSelectionChangeHandlers = useStore(changeSelector);
 
-  if (onSelectionChange || storeHasSelectionChangeHandlers) {
+  <Show when={storeHasSelectionChangeHandlers && p.onSelectionChange}>
+  {(onSelectionChange) => {
     return <SelectionListenerInner onSelectionChange={onSelectionChange} />;
-  }
-
-  return null;
+  }}
+  </Show>
 }

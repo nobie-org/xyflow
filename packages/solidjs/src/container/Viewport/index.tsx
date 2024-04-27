@@ -1,20 +1,17 @@
-import type { ReactNode } from 'react';
 
 import { useStore } from '../../hooks/useStore';
 import type { SolidFlowState } from '../../types';
+import { ParentProps } from 'solid-js';
 
-const selector = (s: SolidFlowState) => `translate(${s.transform[0]}px,${s.transform[1]}px) scale(${s.transform[2]})`;
+const selector = (s: SolidFlowState) => () => `translate(${s.transform.get()[0]}px,${s.transform.get()[1]}px) scale(${s.transform.get()[2]})`;
 
-type ViewportProps = {
-  children: ReactNode;
-};
 
-export function Viewport({ children }: ViewportProps) {
+export function Viewport(p: ParentProps) {
   const transform = useStore(selector);
 
   return (
-    <div className="react-flow__viewport xyflow__viewport react-flow__container" style={{ transform }}>
-      {children}
+    <div class="react-flow__viewport xyflow__viewport react-flow__container" style={{ transform: transform() }}>
+      {p.children}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Provider } from '../../contexts/StoreContext';
 import { createStore } from '../../store';
 import { BatchProvider } from '../BatchProvider';
 import type { Node, Edge } from '../../types';
+import { ParentProps } from 'solid-js';
 
 export type ReactFlowProviderProps = {
   initialNodes?: Node[];
@@ -13,34 +14,36 @@ export type ReactFlowProviderProps = {
   initialWidth?: number;
   initialHeight?: number;
   fitView?: boolean;
-  children: ReactNode;
 };
 
-export function ReactFlowProvider({
-  initialNodes: nodes,
-  initialEdges: edges,
-  defaultNodes,
-  defaultEdges,
-  initialWidth: width,
-  initialHeight: height,
-  fitView,
-  children,
-}: ReactFlowProviderProps) {
+export function ReactFlowProvider(p: ParentProps<ReactFlowProviderProps>)  {
+//   {
+//   initialNodes: nodes,
+//   initialEdges: edges,
+//   defaultNodes,
+//   defaultEdges,
+//   initialWidth: width,
+//   initialHeight: height,
+//   fitView,
+//   children,
+// }: ReactFlowProviderProps) {
+
+
   const [store] = useState(() =>
     createStore({
-      nodes,
-      edges,
-      defaultNodes,
-      defaultEdges,
-      width,
-      height,
-      fitView,
+      nodes: p.initialNodes,
+      edges: p.initialEdges,
+      defaultNodes: p.defaultNodes,
+      defaultEdges: p.defaultEdges,
+      width: p.initialWidth,
+      height: p.initialHeight,
+      fitView: p.fitView,
     })
   );
 
   return (
     <Provider value={store}>
-      <BatchProvider>{children}</BatchProvider>
+      <BatchProvider>{p.children}</BatchProvider>
     </Provider>
   );
 }

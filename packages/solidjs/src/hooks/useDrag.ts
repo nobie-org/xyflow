@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
 import { XYDrag, type XYDragInstance } from '@xyflow/system';
 
 import { handleNodeClick } from '../components/Nodes/utils';
 import { useStoreApi } from './useStore';
+import { createEffect, createSignal } from 'solid-js';
+import { useRef } from '../utils/hooks';
 
 type UseDragParams = {
-  nodeRef: RefObject<HTMLDivElement>;
+  nodeRef: HTMLDivElement;
   disabled?: boolean;
   noDragClassName?: string;
   handleSelector?: string;
@@ -27,12 +28,34 @@ export function useDrag({
   isSelectable,
 }: UseDragParams) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState<boolean>(false);
-  const xyDrag = useRef<XYDragInstance>();
+  const [dragging, setDragging] = createSignal<boolean>(false);
+  const xyDrag = useRef<XYDragInstance | undefined>(undefined);
 
-  useEffect(() => {
+  createEffect(() => {
     xyDrag.current = XYDrag({
-      getStoreItems: () => store.getState(),
+
+      getStoreItems: () => {
+        return {
+          nodes: store.nodes.get(),
+          nodeLookup: store.nodeLookup,
+          edges: store.edges.get(),
+          nodeExtent: store.nodeExtent.get(),
+          snapGrid: store.snapGrid.get(),
+          snapToGrid: store.snapToGrid.get(),
+          nodeOrigin: store.nodeOrigin.get(),
+          multiSelectionActive: store.multiSelectionActive.get(),
+          domNode: store.domNode.get(),
+          transform: store.transform.get(),
+          autoPanOnNodeDrag: store.autoPanOnNodeDrag.get(),
+          nodesDraggable: store.nodesDraggable.get(),
+          selectNodesOnDrag: store.selectNodesOnDrag.get(),
+          nodeDragThreshold: store.nodeDragThreshold.get(),
+          unselectNodesAndEdges: store.unselectNodesAndEdges,
+          updateNodePositions: store.updateNodePositions,
+          panBy: store.panBy
+        };
+      },
+
       onNodeMouseDown: (id: string) => {
         handleNodeClick({
           id,
@@ -47,16 +70,16 @@ export function useDrag({
         setDragging(false);
       },
     });
-  }, []);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
     if (disabled) {
       xyDrag.current?.destroy();
-    } else if (nodeRef.current) {
+    } else if (nodeRef) {
       xyDrag.current?.update({
         noDragClassName,
         handleSelector,
-        domNode: nodeRef.current,
+        domNode: nodeRef,
         isSelectable,
         nodeId,
       });
@@ -64,7 +87,7 @@ export function useDrag({
         xyDrag.current?.destroy();
       };
     }
-  }, [noDragClassName, handleSelector, disabled, isSelectable, nodeRef, nodeId]);
+  });
 
   return dragging;
 }

@@ -1,4 +1,3 @@
-import { shallow } from 'zustand/shallow';
 
 import { useStore } from './useStore';
 import type { SolidFlowStore } from '../types/store';
@@ -28,7 +27,7 @@ type UseConnectionResult = {
  * @returns ongoing connection
  */
 export function useConnection(): UseConnectionResult {
-  const ongoingConnection = useStore(selector, shallow);
+  const ongoingConnection = useStore(selector);
 
   return ongoingConnection;
 }

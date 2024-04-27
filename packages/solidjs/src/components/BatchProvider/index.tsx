@@ -5,13 +5,13 @@ import { getElementsDiffChanges } from '../../utils';
 import { Queue, QueueItem } from './types';
 import type { Edge, Node } from '../../types';
 import { useQueue } from './useQueue';
-import { createContext } from 'solid-js';
+import { Accessor, createContext, JSX, useContext } from 'solid-js';
 
 const BatchContext = createContext<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  nodeQueue: Queue<any>;
+  nodeQueue: Accessor<Queue<any>>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  edgeQueue: Queue<any>;
+  edgeQueue: Accessor<Queue<any>>;
 } | null>(null);
 
 /**
@@ -20,20 +20,19 @@ const BatchContext = createContext<{
  *
  * @internal
  */
-export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edge = Edge>({
-  children,
-}: {
-  children: ReactNode;
+export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edge = Edge>(p: {
+  children: JSX.Element;
 }) {
+
   const store = useStoreApi<NodeType, EdgeType>();
 
-  const nodeQueueHandler = useCallback((queueItems: QueueItem<NodeType>[]) => {
-    const { nodes = [], setNodes, hasDefaultNodes, onNodesChange, nodeLookup } = store.getState();
+  const nodeQueueHandler = (queueItems: QueueItem<NodeType>[]) => {
+    const { nodes, setNodes, hasDefaultNodes, onNodesChange, nodeLookup } = store;
 
     // This is essentially an `Array.reduce` in imperative clothing. Processing
     // this queue is a relatively hot path so we'd like to avoid the overhead of
     // array methods where we can.
-    let next = nodes as NodeType[];
+    let next = nodes.get();
     for (const payload of queueItems) {
       next = typeof payload === 'function' ? payload(next) : payload;
     }
@@ -48,13 +47,13 @@ export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edg
         }) as NodeChange<NodeType>[]
       );
     }
-  }, []);
+  };
   const nodeQueue = useQueue<NodeType>(nodeQueueHandler);
 
-  const edgeQueueHandler = useCallback((queueItems: QueueItem<EdgeType>[]) => {
-    const { edges = [], setEdges, hasDefaultEdges, onEdgesChange, edgeLookup } = store.getState();
+  const edgeQueueHandler = (queueItems: QueueItem<EdgeType>[]) => {
+    const { edges, setEdges, hasDefaultEdges, onEdgesChange, edgeLookup } = store;
 
-    let next = edges as EdgeType[];
+    let next = edges.get() as EdgeType[];
     for (const payload of queueItems) {
       next = typeof payload === 'function' ? payload(next) : payload;
     }
@@ -69,12 +68,12 @@ export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edg
         }) as EdgeChange<EdgeType>[]
       );
     }
-  }, []);
+  };
   const edgeQueue = useQueue<EdgeType>(edgeQueueHandler);
 
-  const value = () => ({ nodeQueue, edgeQueue });
+  const value = { nodeQueue, edgeQueue };
 
-  return <BatchContext.Provider value={value}>{children}</BatchContext.Provider>;
+  return <BatchContext.Provider value={value}>{p.children}</BatchContext.Provider>;
 }
 
 export function useBatchContext() {

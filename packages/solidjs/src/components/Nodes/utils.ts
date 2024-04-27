@@ -1,5 +1,4 @@
-import type { RefObject } from 'react';
-import type { StoreApi } from 'zustand';
+// import type { StoreApi } from 'zustand';
 import { errorMessages } from '@xyflow/system';
 
 import type { SolidFlowState } from '../../types';
@@ -15,14 +14,11 @@ export function handleNodeClick({
   nodeRef,
 }: {
   id: string;
-  store: {
-    getState: StoreApi<SolidFlowState>['getState'];
-    setState: StoreApi<SolidFlowState>['setState'];
-  };
+  store: SolidFlowState,
   unselect?: boolean;
-  nodeRef?: RefObject<HTMLDivElement>;
+  nodeRef?: HTMLDivElement;
 }) {
-  const { addSelectedNodes, unselectNodesAndEdges, multiSelectionActive, nodeLookup, onError } = store.getState();
+  const { addSelectedNodes, unselectNodesAndEdges, multiSelectionActive, nodeLookup, onError } = store;
   const node = nodeLookup.get(id);
 
   if (!node) {
@@ -30,13 +26,13 @@ export function handleNodeClick({
     return;
   }
 
-  store.setState({ nodesSelectionActive: false });
+  store.nodesSelectionActive.set(false);
 
   if (!node.selected) {
     addSelectedNodes([id]);
   } else if (unselect || (node.selected && multiSelectionActive)) {
     unselectNodesAndEdges({ nodes: [node], edges: [] });
 
-    requestAnimationFrame(() => nodeRef?.current?.blur());
+    requestAnimationFrame(() => nodeRef?.blur());
   }
 }
