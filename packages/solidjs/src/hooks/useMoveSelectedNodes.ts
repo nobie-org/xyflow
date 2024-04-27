@@ -17,8 +17,7 @@ export function useMoveSelectedNodes() {
   const store = useStoreApi();
 
   const moveSelectedNodes = (params: { direction: XYPosition; factor: number }) => {
-    const { nodeExtent, snapToGrid, snapGrid, nodesDraggable, onError, updateNodePositions, nodeLookup, nodeOrigin } =
-      store().getState();
+    const { nodeExtent, snapToGrid, snapGrid, nodesDraggable, onError, updateNodePositions, nodeLookup, nodeOrigin } = store;
     const nodeUpdates = new Map();
     const isSelected = selectedAndDraggable(nodesDraggable.get());
 

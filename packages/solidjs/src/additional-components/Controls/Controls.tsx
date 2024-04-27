@@ -1,9 +1,8 @@
-import { memo } from 'react';
 import cc from 'classcat';
 import { shallow } from 'zustand/shallow';
 
 import { useStore, useStoreApi } from '../../hooks/useStore';
-import { useReactFlow } from '../../hooks/useReactFlow';
+import { useSolidFlow } from '../../hooks/useReactFlow';
 import { Panel } from '../../components/Panel';
 import { type SolidFlowState } from '../../types';
 
@@ -14,6 +13,7 @@ import { LockIcon } from './Icons/Lock';
 import { UnlockIcon } from './Icons/Unlock';
 import { ControlButton } from './ControlButton';
 import type { ControlProps } from './types';
+import { Show, mergeProps } from 'solid-js';
 
 const selector = (s: SolidFlowState) => ({
   isInteractive: s.nodesDraggable || s.nodesConnectable || s.elementsSelectable,
@@ -21,63 +21,73 @@ const selector = (s: SolidFlowState) => ({
   maxZoomReached: s.transform[2] >= s.maxZoom,
 });
 
-function ControlsComponent({
-  style,
-  showZoom = true,
-  showFitView = true,
-  showInteractive = true,
-  fitViewOptions,
-  onZoomIn,
-  onZoomOut,
-  onFitView,
-  onInteractiveChange,
-  className,
-  children,
-  position = 'bottom-left',
-  orientation = 'vertical',
-  'aria-label': ariaLabel = 'React Flow controls',
-}: ControlProps) {
+function ControlsComponent(_p: ControlProps) {
+//   style,
+//   showZoom = true,
+//   showFitView = true,
+//   showInteractive = true,
+//   fitViewOptions,
+//   onZoomIn,
+//   onZoomOut,
+//   onFitView,
+//   onInteractiveChange,
+//   className,
+//   children,
+//   position = 'bottom-left',
+//   orientation = 'vertical',
+//   'aria-label': ariaLabel = 'React Flow controls',
+// }: ControlProps) {
+  const p = mergeProps({
+    style,
+    showZoom: true,
+    showFitView: true,
+    showInteractive: true,
+    position: 'bottom-left',
+    orientation: 'vertical',
+    'aria-label': 'React Flow controls',
+  }, _p);
+
   const store = useStoreApi();
-  const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector, shallow);
-  const { zoomIn, zoomOut, fitView } = useReactFlow();
+  const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector);
+  const { zoomIn, zoomOut, fitView } = useSolidFlow();
 
   const onZoomInHandler = () => {
     zoomIn();
-    onZoomIn?.();
+    p.onZoomIn?.();
   };
 
   const onZoomOutHandler = () => {
     zoomOut();
-    onZoomOut?.();
+    p.onZoomOut?.();
   };
 
   const onFitViewHandler = () => {
     fitView(fitViewOptions);
-    onFitView?.();
+    p.onFitView?.();
   };
 
   const onToggleInteractivity = () => {
-    store.setState({
-      nodesDraggable: !isInteractive,
-      nodesConnectable: !isInteractive,
-      elementsSelectable: !isInteractive,
-    });
+    store.batch((store) => { 
+      store.nodesDraggable.set(!isInteractive);
+      store.nodesConnectable.set(!isInteractive);
+      store.elementsSelectable.set(!isInteractive);
+    })
 
-    onInteractiveChange?.(!isInteractive);
+    p.onInteractiveChange?.(!isInteractive);
   };
 
-  const orientationClass = orientation === 'horizontal' ? 'horizontal' : 'vertical';
+  const orientationClass = () => p.orientation === 'horizontal' ? 'horizontal' : 'vertical';
 
   return (
     <Panel
-      className={cc(['react-flow__controls', orientationClass, className])}
-      position={position}
-      style={style}
+      class={cc(['react-flow__controls', orientationClass, p.className])}
+      position={p.position}
+      style={p.style}
       data-testid="rf__controls"
-      aria-label={ariaLabel}
+      aria-label={p['aria-label']}
     >
-      {showZoom && (
-        <>
+        
+        <Show when={p.showZoom}>
           <ControlButton
             onClick={onZoomInHandler}
             className="react-flow__controls-zoomin"
@@ -96,9 +106,8 @@ function ControlsComponent({
           >
             <MinusIcon />
           </ControlButton>
-        </>
-      )}
-      {showFitView && (
+        </Show>
+        <Show when={p.showFitView}>
         <ControlButton
           className="react-flow__controls-fitview"
           onClick={onFitViewHandler}
@@ -107,8 +116,8 @@ function ControlsComponent({
         >
           <FitViewIcon />
         </ControlButton>
-      )}
-      {showInteractive && (
+        </Show>
+        <Show when={p.showInteractive}>
         <ControlButton
           className="react-flow__controls-interactive"
           onClick={onToggleInteractivity}
@@ -117,8 +126,8 @@ function ControlsComponent({
         >
           {isInteractive ? <UnlockIcon /> : <LockIcon />}
         </ControlButton>
-      )}
-      {children}
+      </Show>
+      {p.children}
     </Panel>
   );
 }

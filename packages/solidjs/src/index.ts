@@ -12,7 +12,7 @@ export { Panel, type PanelProps } from './components/Panel';
 export { EdgeLabelRenderer } from './components/EdgeLabelRenderer';
 export { ViewportPortal } from './components/ViewportPortal';
 
-export { useReactFlow } from './hooks/useReactFlow';
+export { useSolidFlow as useReactFlow } from './hooks/useReactFlow';
 export { useUpdateNodeInternals } from './hooks/useUpdateNodeInternals';
 export { useNodes } from './hooks/useNodes';
 export { useEdges } from './hooks/useEdges';

@@ -20,7 +20,7 @@ import type { ReactFlowInstance, Instance, Node, Edge, InternalNode } from '../t
  * @public
  * @returns ReactFlowInstance
  */
-export function useReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(): ReactFlowInstance<
+export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(): ReactFlowInstance<
   NodeType,
   EdgeType
 > {
@@ -28,31 +28,25 @@ export function useReactFlow<NodeType extends Node = Node, EdgeType extends Edge
   const store = useStoreApi();
   const batchContext = useBatchContext();
 
-  const getNodes = useCallback<Instance.GetNodes<NodeType>>(
-    () => store.getState().nodes.map((n) => ({ ...n })) as NodeType[],
-    []
-  );
+  const getNodes =
+    () => store.nodes.get().map((n) => ({ ...n })) as NodeType[];
 
-  const getInternalNode = useCallback<Instance.GetInternalNode<NodeType>>(
-    (id) => store.getState().nodeLookup.get(id) as InternalNode<NodeType>,
-    []
-  );
+  const getInternalNode: Instance.GetInternalNode<NodeType> = 
+    (id) => store.nodeLookup.get(id) as InternalNode<NodeType>;
 
-  const getNode = useCallback<Instance.GetNode<NodeType>>(
-    (id) => getInternalNode(id)?.internals.userNode as NodeType,
-    [getInternalNode]
-  );
+  const getNode: Instance.GetNode<NodeType> =
+    (id) => getInternalNode(id)?.internals.userNode as NodeType;
 
-  const getEdges = useCallback<Instance.GetEdges<EdgeType>>(() => {
-    const { edges = [] } = store.getState();
-    return edges.map((e) => ({ ...e })) as EdgeType[];
-  }, []);
+  const getEdges: Instance.GetEdges<EdgeType> = () => {
+    const { edges } = store
+    return edges.get().map((e) => ({ ...e })) as EdgeType[];
+  };
 
-  const getEdge = useCallback<Instance.GetEdge<EdgeType>>((id) => store.getState().edgeLookup.get(id) as EdgeType, []);
+  const getEdge: Instance.GetEdge<EdgeType> = (id) => store.edgeLookup.get(id) as EdgeType;
 
-  const setNodes = useCallback<Instance.SetNodes<NodeType>>((payload) => {
+  const setNodes: Instance.SetNodes<NodeType> = (payload) => {
     batchContext.nodeQueue.push(payload as NodeType[]);
-  }, []);
+  };
 
   const setEdges = useCallback<Instance.SetEdges<EdgeType>>((payload) => {
     batchContext.edgeQueue.push(payload as EdgeType[]);

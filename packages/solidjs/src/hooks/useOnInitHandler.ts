@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { useReactFlow } from './useReactFlow';
+import { useSolidFlow } from './useReactFlow';
 import type { OnInit, Node, Edge } from '../types';
 
 /**
@@ -11,7 +11,7 @@ import type { OnInit, Node, Edge } from '../types';
 export function useOnInitHandler<NodeType extends Node = Node, EdgeType extends Edge = Edge>(
   onInit: OnInit<NodeType, EdgeType> | undefined
 ) {
-  const rfInstance = useReactFlow<NodeType, EdgeType>();
+  const rfInstance = useSolidFlow<NodeType, EdgeType>();
   const isInitialized = useRef<boolean>(false);
 
   useEffect(() => {

@@ -1,9 +1,11 @@
+import { Component, JSX } from "solid-js";
+
 declare module '*.css' {
   const content: { [className: string]: string };
   export default content;
 }
 
-type SvgrComponent = React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+type SvgrComponent = Component<JSX.SVGAttributes<SVGElement>>;
 
 declare module '*.svg' {
   const svgUrl: string;
