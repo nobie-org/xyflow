@@ -15,18 +15,15 @@ const deleteKeyOptions: UseKeyPressOptions = { actInsideInputWithModifier: false
  *
  * @internal
  */
-export function useGlobalKeyHandler({
-  deleteKeyCode,
-  multiSelectionKeyCode,
-}: {
-  deleteKeyCode: KeyCode | null;
-  multiSelectionKeyCode: KeyCode | null;
+export function useGlobalKeyHandler(config: {
+  deleteKeyCode: () => KeyCode | null;
+  multiSelectionKeyCode: () => KeyCode | null;
 }): void {
   const store = useStoreApi();
   const { deleteElements } = useSolidFlow();
 
-  const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
-  const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
+  const deleteKeyPressed = useKeyPress(() => config.deleteKeyCode(), () => deleteKeyOptions);
+  const multiSelectionKeyPressed = useKeyPress(config.multiSelectionKeyCode);
 
   createEffect(() => {
     if (deleteKeyPressed()) {

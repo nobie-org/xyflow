@@ -27,8 +27,8 @@ export function useKeyPress(
   // a string means a single key 'a' or a combination when '+' is used 'a+d'
   // an array means different possibilites. Explainer: ['a', 'd+s'] here the
   // user can use the single key 'a' or the combination 'd' + 's'
-  keyCode: KeyCode | null = null,
-  options: UseKeyPressOptions = { target: defaultDoc, actInsideInputWithModifier: true }
+  keyCode: (() => KeyCode | null | undefined) | null = null,
+  options: () => UseKeyPressOptions = () => ({ target: defaultDoc, actInsideInputWithModifier: true })
 ): () => boolean {
   const [keyPressed, setKeyPressed] = createSignal(false);
 
@@ -45,9 +45,11 @@ export function useKeyPress(
   // and the key is "Meta". We want users to be able to pass keys and codes so we assume that the key is meant when
   // we can't find it in the list of keysToWatch.
   const keyStuff = (): [string[][], string[]] => {
-    if (keyCode !== null) {
-      const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
-      const keys = keyCodeArr.filter((kc) => typeof kc === 'string').map((kc) => kc.split('+'));
+    const keyCodeValue = keyCode?.() ?? null;
+
+    if (keyCodeValue !== null) {
+      const keyCodeArr = Array.isArray(keyCodeValue) ? keyCodeValue : [keyCodeValue];
+      const keys = keyCodeArr.filter((kc) => typeof kc === 'string').map((kc) => kc!.split('+'));
       const keysFlat = keys.reduce((res: Keys, item) => res.concat(...item), []);
 
       return [keys, keysFlat];
@@ -60,13 +62,14 @@ export function useKeyPress(
   const keysToWatch = () => keyStuff()[1];
 
   createEffect(() => {
-    const target = options?.target || defaultDoc;
+    const target = options()?.target || defaultDoc;
+    const keyCodeValue = keyCode?.() ?? null;
 
-    if (keyCode !== null) {
+    if (keyCodeValue !== null) {
       const downHandler = (event: KeyboardEvent) => {
         modifierPressed.current = event.ctrlKey || event.metaKey || event.shiftKey;
         const preventAction =
-          (!modifierPressed.current || (modifierPressed.current && !options.actInsideInputWithModifier)) &&
+          (!modifierPressed.current || (modifierPressed.current && !options().actInsideInputWithModifier)) &&
           isInputDOMNode(event);
 
         if (preventAction) {
@@ -83,7 +86,7 @@ export function useKeyPress(
 
       const upHandler = (event: KeyboardEvent) => {
         const preventAction =
-          (!modifierPressed.current || (modifierPressed.current && !options.actInsideInputWithModifier)) &&
+          (!modifierPressed.current || (modifierPressed.current && !options().actInsideInputWithModifier)) &&
           isInputDOMNode(event);
 
         if (preventAction) {

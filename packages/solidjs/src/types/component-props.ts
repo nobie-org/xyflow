@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, MouseEvent as ReactMouseEvent, WheelEvent } from 'react';
+// import type { CSSProperties, HTMLAttributes, MouseEvent as ReactMouseEvent, WheelEvent } from 'react';
 import type {
   ConnectionMode,
   ConnectionLineType,
@@ -46,12 +46,14 @@ import type {
   IsValidConnection,
 } from '.';
 
+import { JSX } from 'solid-js'
+
 /**
  * ReactFlow component props.
  * @public
  */
 export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends Edge = Edge>
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onError'> {
+  extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'onError'> {
   /** An array of nodes to render in a controlled flow.
    * @example
    * const nodes = [
@@ -118,7 +120,7 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
   /** This event handler is called when a user stops dragging a node */
   onNodeDragStop?: OnNodeDrag<NodeType>;
   /** This event handler is called when a user clicks on an edge */
-  onEdgeClick?: (event: ReactMouseEvent, edge: EdgeType) => void;
+  onEdgeClick?: (event: MouseEvent, edge: EdgeType) => void;
   /** This event handler is called when a user right clicks on an edge */
   onEdgeContextMenu?: EdgeMouseHandler<EdgeType>;
   /** This event handler is called when mouse of a user enters an edge */
@@ -129,7 +131,7 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
   onEdgeMouseLeave?: EdgeMouseHandler<EdgeType>;
   /** This event handler is called when a user double clicks on an edge */
   onEdgeDoubleClick?: EdgeMouseHandler<EdgeType>;
-  onEdgeUpdateStart?: (event: ReactMouseEvent, edge: EdgeType, handleType: HandleType) => void;
+  onEdgeUpdateStart?: (event: MouseEvent, edge: EdgeType, handleType: HandleType) => void;
   onEdgeUpdateEnd?: (event: MouseEvent | TouchEvent, edge: EdgeType, handleType: HandleType) => void;
   onEdgeUpdate?: OnEdgeUpdateFunc<EdgeType>;
   /** This event handler is called when a Node is updated
@@ -178,9 +180,9 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
   onSelectionDrag?: SelectionDragHandler<NodeType>;
   /** This event handler gets called when a user stops dragging a selection box */
   onSelectionDragStop?: SelectionDragHandler<NodeType>;
-  onSelectionStart?: (event: ReactMouseEvent) => void;
-  onSelectionEnd?: (event: ReactMouseEvent) => void;
-  onSelectionContextMenu?: (event: ReactMouseEvent, nodes: NodeType[]) => void;
+  onSelectionStart?: (event: MouseEvent) => void;
+  onSelectionEnd?: (event: MouseEvent) => void;
+  onSelectionContextMenu?: (event: MouseEvent, nodes: NodeType[]) => void;
   /** When a connection line is completed and two nodes are connected by the user, this event fires with the new connection.
    *
    * You can use the addEdge utility to convert the connection to a complete edge.
@@ -214,15 +216,15 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
   /** This event handler gets called when user scroll inside the pane */
   onPaneScroll?: (event?: WheelEvent) => void;
   /** This event handler gets called when user clicks inside the pane */
-  onPaneClick?: (event: ReactMouseEvent) => void;
+  onPaneClick?: (event: MouseEvent) => void;
   /** This event handler gets called when user right clicks inside the pane */
-  onPaneContextMenu?: (event: ReactMouseEvent | MouseEvent) => void;
+  onPaneContextMenu?: (event: MouseEvent | MouseEvent) => void;
   /** This event handler gets called when mouse enters the pane */
-  onPaneMouseEnter?: (event: ReactMouseEvent) => void;
+  onPaneMouseEnter?: (event: MouseEvent) => void;
   /** This event handler gets called when mouse moves over the pane */
-  onPaneMouseMove?: (event: ReactMouseEvent) => void;
+  onPaneMouseMove?: (event: MouseEvent) => void;
   /** This event handler gets called when mouse leaves the pane */
-  onPaneMouseLeave?: (event: ReactMouseEvent) => void;
+  onPaneMouseLeave?: (event: MouseEvent) => void;
   /** This handler gets called before the user deletes nodes or edges and provides a way to abort the deletion by returning false. */
   onBeforeDelete?: OnBeforeDelete<NodeType, EdgeType>;
   /** Custom node types to be available in a flow.
@@ -249,11 +251,11 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
    */
   connectionLineType?: ConnectionLineType;
   /** Styles to be applied to the connection line */
-  connectionLineStyle?: CSSProperties;
+  connectionLineStyle?: JSX.CSSProperties;
   /** React Component to be used as a connection line */
   connectionLineComponent?: ConnectionLineComponent;
   /** Styles to be applied to the container of the connection line */
-  connectionLineContainerStyle?: CSSProperties;
+  connectionLineContainerStyle?: JSX.CSSProperties;
   /** 'strict' connection mode will only allow you to connect source handles to target handles.
    *
    * 'loose' connection mode will allow you to connect handles of any type to one another.

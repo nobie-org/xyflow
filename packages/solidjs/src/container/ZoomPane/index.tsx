@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from 'react';
-import { shallow } from 'zustand/shallow';
 import { XYPanZoom, PanOnScrollMode, type Transform, type PanZoomInstance } from '@xyflow/system';
 
 import { useKeyPress } from '../../hooks/useKeyPress';
@@ -9,6 +7,8 @@ import { useStore, useStoreApi } from '../../hooks/useStore';
 import { containerStyle } from '../../styles/utils';
 import type { FlowRendererProps } from '../FlowRenderer';
 import type { SolidFlowState } from '../../types';
+import { createEffect, createSignal, mergeProps } from 'solid-js';
+import { useRef } from '../../utils/hooks';
 
 type ZoomPaneProps = Omit<
   FlowRendererProps,
@@ -27,90 +27,103 @@ const selector = (s: SolidFlowState) => ({
   lib: s.lib,
 });
 
-export function ZoomPane({
-  onPaneContextMenu,
-  zoomOnScroll = true,
-  zoomOnPinch = true,
-  panOnScroll = false,
-  panOnScrollSpeed = 0.5,
-  panOnScrollMode = PanOnScrollMode.Free,
-  zoomOnDoubleClick = true,
-  panOnDrag = true,
-  defaultViewport,
-  translateExtent,
-  minZoom,
-  maxZoom,
-  zoomActivationKeyCode,
-  preventScrolling = true,
-  children,
-  noWheelClassName,
-  noPanClassName,
-  onViewportChange,
-  isControlledViewport,
-}: ZoomPaneProps) {
+export function ZoomPane(_p: ZoomPaneProps) {
+//   onPaneContextMenu,
+//   zoomOnScroll = true,
+//   zoomOnPinch = true,
+//   panOnScroll = false,
+//   panOnScrollSpeed = 0.5,
+//   panOnScrollMode = PanOnScrollMode.Free,
+//   zoomOnDoubleClick = true,
+//   panOnDrag = true,
+//   defaultViewport,
+//   translateExtent,
+//   minZoom,
+//   maxZoom,
+//   zoomActivationKeyCode,
+//   preventScrolling = true,
+//   children,
+//   noWheelClassName,
+//   noPanClassName,
+//   onViewportChange,
+//   isControlledViewport,
+// }: ZoomPaneProps) {
+
+const p = mergeProps({
+zoomOnScoll: true,
+zoomOnPinch: true,
+panOnScroll: false,
+panOnScrollSpeed: 0.5,
+panOnScrollMode: PanOnScrollMode.Free,
+zoomOnDoubleClick: true,
+panOnDrag: true,
+preventScrolling: true,
+}, _p);
+
   const store = useStoreApi();
-  const zoomPane = useRef<HTMLDivElement>(null);
-  const { userSelectionActive, lib } = useStore(selector, shallow);
-  const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const panZoom = useRef<PanZoomInstance>();
+  const [getZoomPane, setZoomPane] = createSignal<HTMLDivElement| null>(null);
+  const { userSelectionActive, lib } = useStore(selector);
+  const zoomActivationKeyPressed = useKeyPress(() => (p.zoomActivationKeyCode ?? null));
+  const panZoom = useRef<PanZoomInstance | null>(null);
 
-  useResizeHandler(zoomPane);
+  useResizeHandler(getZoomPane);
 
-  useEffect(() => {
-    if (zoomPane.current) {
+  createEffect(() => {
+    const zoomPane = getZoomPane();
+    if (zoomPane) {
       panZoom.current = XYPanZoom({
-        domNode: zoomPane.current,
-        minZoom,
-        maxZoom,
-        translateExtent,
-        viewport: defaultViewport,
+        domNode: zoomPane,
+        minZoom: p.minZoom,
+        maxZoom: p.maxZoom,
+        translateExtent: p.translateExtent,
+        viewport: p.defaultViewport,
         onTransformChange: (transform: Transform) => {
-          onViewportChange?.({ x: transform[0], y: transform[1], zoom: transform[2] });
+          p.onViewportChange?.({ x: transform[0], y: transform[1], zoom: transform[2] });
 
-          if (!isControlledViewport) {
-            store.setState({ transform });
+          if (!p.isControlledViewport) {
+            store.transform.set(transform);
           }
         },
-        onDraggingChange: (paneDragging: boolean) => store.setState({ paneDragging }),
+        onDraggingChange: (paneDragging: boolean) => store.paneDragging.set(paneDragging),
         onPanZoomStart: (event, vp) => {
-          const { onViewportChangeStart, onMoveStart } = store.getState();
+          const { onViewportChangeStart, onMoveStart } = store;
           onMoveStart?.(event, vp);
-          onViewportChangeStart?.(vp);
+          onViewportChangeStart.get()?.(vp);
         },
         onPanZoom: (event, vp) => {
-          const { onViewportChange, onMove } = store.getState();
+          const { onViewportChange, onMove } = store;
           onMove?.(event, vp);
-          onViewportChange?.(vp);
+          onViewportChange.get()?.(vp);
         },
         onPanZoomEnd: (event, vp) => {
-          const { onViewportChangeEnd, onMoveEnd } = store.getState();
+          const { onViewportChangeEnd, onMoveEnd } = store;
           onMoveEnd?.(event, vp);
-          onViewportChangeEnd?.(vp);
+          onViewportChangeEnd.get()?.(vp);
         },
       });
 
       const { x, y, zoom } = panZoom.current!.getViewport();
 
-      store.setState({
-        panZoom: panZoom.current,
-        transform: [x, y, zoom],
-        domNode: zoomPane.current.closest('.react-flow') as HTMLDivElement,
+      store.batch((store) => {
+        store.panZoom.set(panZoom.current);
+        store.transform.set([x, y, zoom]);
+        store.domNode.set(zoomPane.closest('.react-flow') as HTMLDivElement);
       });
 
       return () => {
         panZoom.current?.destroy();
       };
     }
-  }, []);
+  });
 
-  useEffect(() => {
+  createEffect(() => {
     panZoom.current?.update({
-      onPaneContextMenu,
-      zoomOnScroll,
-      zoomOnPinch,
-      panOnScroll,
-      panOnScrollSpeed,
-      panOnScrollMode,
+      onPaneContextMenu: p.onPaneContextMenu,
+      zoomOnScroll: p.zoomOnScroll,
+      zoomOnPinch: p.zoomOnPinch,
+      panOnScroll: p.panOnScroll,
+      panOnScrollSpeed: p.panOnScrollSpeed,
+      panOnScrollMode: p.panOnScrollMode,
       zoomOnDoubleClick,
       panOnDrag,
       zoomActivationKeyPressed,
@@ -120,26 +133,11 @@ export function ZoomPane({
       noWheelClassName,
       lib,
     });
-  }, [
-    onPaneContextMenu,
-    zoomOnScroll,
-    zoomOnPinch,
-    panOnScroll,
-    panOnScrollSpeed,
-    panOnScrollMode,
-    zoomOnDoubleClick,
-    panOnDrag,
-    zoomActivationKeyPressed,
-    preventScrolling,
-    noPanClassName,
-    userSelectionActive,
-    noWheelClassName,
-    lib,
-  ]);
+  })
 
   return (
-    <div className="react-flow__renderer" ref={zoomPane} style={containerStyle}>
-      {children}
+    <div class="react-flow__renderer" ref={setZoomPane} style={p.containerStyle}>
+      {p.children}
     </div>
   );
 }

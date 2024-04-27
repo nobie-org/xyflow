@@ -1,17 +1,18 @@
 import { errorMessages, getDimensions } from '@xyflow/system';
 
 import { useStoreApi } from './useStore';
-import { createEffect } from 'solid-js';
+import { createEffect, onCleanup } from 'solid-js';
 
 /**
  * Hook for handling resize events.
  *
  * @internal
  */
-export function useResizeHandler(domNode: HTMLDivElement | null): void {
+export function useResizeHandler(getDomNode: () => HTMLDivElement | null): void {
   const store = useStoreApi();
 
   createEffect(() => {
+    const domNode = getDomNode();
     const updateDimensions = () => {
       if (!domNode) {
         return false;
@@ -36,13 +37,14 @@ export function useResizeHandler(domNode: HTMLDivElement | null): void {
       const resizeObserver = new ResizeObserver(() => updateDimensions());
       resizeObserver.observe(domNode);
 
-      return () => {
+      onCleanup(() => {
         window.removeEventListener('resize', updateDimensions);
 
         if (resizeObserver && domNode) {
           resizeObserver.unobserve(domNode);
         }
-      };
+      });
     }
+
   });
 }
