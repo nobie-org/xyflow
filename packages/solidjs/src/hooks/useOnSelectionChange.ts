@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 
 import { useStoreApi } from './useStore';
 import type { OnSelectionChangeFunc } from '../types';
+import { createEffect } from 'solid-js';
 
 export type UseOnSelectionChangeOptions = {
   onChange: OnSelectionChangeFunc;
@@ -13,16 +13,16 @@ export type UseOnSelectionChangeOptions = {
  * @public
  * @param params.onChange - The handler to register
  */
-export function useOnSelectionChange({ onChange }: UseOnSelectionChangeOptions) {
+export function useOnSelectionChange(p:UseOnSelectionChangeOptions) {
   const store = useStoreApi();
 
-  useEffect(() => {
-    const nextOnSelectionChangeHandlers = [...store.getState().onSelectionChangeHandlers, onChange];
-    store.setState({ onSelectionChangeHandlers: nextOnSelectionChangeHandlers });
+  createEffect(() => {
+    const nextOnSelectionChangeHandlers = [...store().getState().onSelectionChangeHandlers, p.onChange];
+    store().setState({ onSelectionChangeHandlers: nextOnSelectionChangeHandlers });
 
     return () => {
-      const nextHandlers = store.getState().onSelectionChangeHandlers.filter((fn) => fn !== onChange);
-      store.setState({ onSelectionChangeHandlers: nextHandlers });
+      const nextHandlers = store().getState().onSelectionChangeHandlers.filter((fn) => fn !== p.onChange);
+      store().setState({ onSelectionChangeHandlers: nextHandlers });
     };
-  }, [onChange]);
+  })
 }

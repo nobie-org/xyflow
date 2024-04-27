@@ -1,9 +1,9 @@
 import { shallow } from 'zustand/shallow';
 
 import { useStore } from './useStore';
-import type { ReactFlowStore } from '../types/store';
+import type { SolidFlowStore } from '../types/store';
 
-const selector = (s: ReactFlowStore) => ({
+const selector = (s: SolidFlowStore) => ({
   startHandle: s.connectionStartHandle,
   endHandle: s.connectionEndHandle,
   status: s.connectionStatus,
@@ -12,13 +12,13 @@ const selector = (s: ReactFlowStore) => ({
 
 type UseConnectionResult = {
   /** The start handle where the user interaction started or null */
-  startHandle: ReactFlowStore['connectionStartHandle'];
+  startHandle: SolidFlowStore['connectionStartHandle'];
   /** The target handle that's inside the connection radius or null  */
-  endHandle: ReactFlowStore['connectionEndHandle'];
+  endHandle: SolidFlowStore['connectionEndHandle'];
   /** The current connection status 'valid', 'invalid' or null*/
-  status: ReactFlowStore['connectionStatus'];
+  status: SolidFlowStore['connectionStatus'];
   /** The current connection position or null */
-  position: ReactFlowStore['connectionPosition'] | null;
+  position: SolidFlowStore['connectionPosition'] | null;
 };
 
 /**

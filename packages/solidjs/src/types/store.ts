@@ -27,6 +27,8 @@ import {
   type NodeLookup,
   NodeChange,
   EdgeChange,
+  EdgeBase,
+  HandleConnection,
 } from '@xyflow/system';
 
 import type {
@@ -46,60 +48,65 @@ import type {
   IsValidConnection,
   InternalNode,
 } from '.';
+import { Writable } from '../store/initialState';
+import { ReactiveMap } from '@solid-primitives/map'
 
-export type ReactFlowStore<NodeType extends Node = Node, EdgeType extends Edge = Edge> = {
-  rfId: string;
-  width: number;
-  height: number;
-  transform: Transform;
-  nodes: NodeType[];
-  nodeLookup: NodeLookup<InternalNode<NodeType>>;
-  parentLookup: Map<string, InternalNode<NodeType>[]>;
-  edges: Edge[];
-  edgeLookup: EdgeLookup<EdgeType>;
-  connectionLookup: ConnectionLookup;
+export type ReactiveEdgeLookup<EdgeType extends EdgeBase = EdgeBase>  = ReactiveMap<string, EdgeType>;
+export type ReactiveConnectionLookup = ReactiveMap<string, ReactiveMap<string, HandleConnection>>;
+
+export type SolidFlowStore<NodeType extends Node = Node, EdgeType extends Edge = Edge> = {
+  rfId: Writable<string>;
+  width: Writable<number>;
+  height: Writable<number>;
+  transform: Writable<Transform>;
+  nodes: Writable<NodeType[]>;
+  nodeLookup: ReactiveMap<string, InternalNode<NodeType>>;
+  parentLookup: ReactiveMap<string, InternalNode<NodeType>[]>;
+  edges: Writable<Edge[]>;
+  edgeLookup: ReactiveEdgeLookup<EdgeType>;
+  connectionLookup: ReactiveConnectionLookup;
   onNodesChange: OnNodesChange<NodeType> | null;
   onEdgesChange: OnEdgesChange<EdgeType> | null;
-  hasDefaultNodes: boolean;
-  hasDefaultEdges: boolean;
-  domNode: HTMLDivElement | null;
-  paneDragging: boolean;
-  noPanClassName: string;
+  hasDefaultNodes: Writable<boolean>;
+  hasDefaultEdges: Writable<boolean>;
+  domNode: Writable<HTMLDivElement | null>;
+  paneDragging: Writable<boolean>;
+  noPanClassName: Writable<string>;
 
-  panZoom: PanZoomInstance | null;
-  minZoom: number;
-  maxZoom: number;
-  translateExtent: CoordinateExtent;
-  nodeExtent: CoordinateExtent;
-  nodeOrigin: NodeOrigin;
-  nodeDragThreshold: number;
+  panZoom: Writable<PanZoomInstance | null>;
+  minZoom: Writable<number>;
+  maxZoom: Writable<number>;
+  translateExtent: Writable<CoordinateExtent>;
+  nodeExtent: Writable<CoordinateExtent>;
+  nodeOrigin: Writable<NodeOrigin>;
+  nodeDragThreshold: Writable<number>;
 
-  nodesSelectionActive: boolean;
-  userSelectionActive: boolean;
-  userSelectionRect: SelectionRect | null;
+  nodesSelectionActive: Writable<boolean>;
+  userSelectionActive: Writable<boolean>;
+  userSelectionRect: Writable<SelectionRect | null>;
 
-  connectionPosition: XYPosition;
-  connectionStatus: ConnectionStatus | null;
-  connectionMode: ConnectionMode;
+  connectionPosition: Writable<XYPosition>;
+  connectionStatus: Writable<ConnectionStatus | null>;
+  connectionMode: Writable<ConnectionMode>;
 
-  snapToGrid: boolean;
-  snapGrid: SnapGrid;
+  snapToGrid: Writable<boolean>;
+  snapGrid: Writable<SnapGrid>;
 
-  nodesDraggable: boolean;
-  nodesConnectable: boolean;
-  nodesFocusable: boolean;
-  edgesFocusable: boolean;
-  edgesUpdatable: boolean;
-  elementsSelectable: boolean;
-  elevateNodesOnSelect: boolean;
-  elevateEdgesOnSelect: boolean;
-  selectNodesOnDrag: boolean;
+  nodesDraggable: Writable<boolean>;
+  nodesConnectable: Writable<boolean>;
+  nodesFocusable: Writable<boolean>;
+  edgesFocusable: Writable<boolean>;
+  edgesUpdatable: Writable<boolean>;
+  elementsSelectable: Writable<boolean>;
+  elevateNodesOnSelect: Writable<boolean>;
+  elevateEdgesOnSelect: Writable<boolean>;
+  selectNodesOnDrag: Writable<boolean>;
 
-  multiSelectionActive: boolean;
+  multiSelectionActive: Writable<boolean>;
 
-  connectionStartHandle: ConnectingHandle | null;
-  connectionEndHandle: ConnectingHandle | null;
-  connectionClickStartHandle: ConnectingHandle | null;
+  connectionStartHandle: Writable<ConnectingHandle | null>;
+  connectionEndHandle: Writable<ConnectingHandle | null>;
+  connectionClickStartHandle: Writable<ConnectingHandle | null>;
 
   onNodeDragStart?: OnNodeDrag<NodeType>;
   onNodeDrag?: OnNodeDrag<NodeType>;
@@ -120,12 +127,12 @@ export type ReactFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
   onClickConnectStart?: OnConnectStart;
   onClickConnectEnd?: OnConnectEnd;
 
-  connectOnClick: boolean;
+  connectOnClick: Writable<boolean>;
   defaultEdgeOptions?: DefaultEdgeOptions;
 
-  fitViewOnInit: boolean;
-  fitViewDone: boolean;
-  fitViewOnInitOptions: FitViewOptions | undefined;
+  fitViewOnInit: Writable<boolean>;
+  fitViewDone: Writable<boolean>;
+  fitViewOnInitOptions: Writable<FitViewOptions | undefined>;
 
   onNodesDelete?: OnNodesDelete<NodeType>;
   onEdgesDelete?: OnEdgesDelete<EdgeType>;
@@ -140,15 +147,15 @@ export type ReactFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
 
   onSelectionChangeHandlers: OnSelectionChangeFunc[];
 
-  ariaLiveMessage: string;
-  autoPanOnConnect: boolean;
-  autoPanOnNodeDrag: boolean;
-  connectionRadius: number;
+  ariaLiveMessage: Writable<string>;
+  autoPanOnConnect: Writable<boolean>;
+  autoPanOnNodeDrag: Writable<boolean>;
+  connectionRadius: Writable<number>;
 
   isValidConnection?: IsValidConnection<EdgeType>;
 
-  lib: string;
-  debug: boolean;
+  lib: Writable<string>;
+  debug: Writable<boolean>;
 };
 
 export type ReactFlowActions<NodeType extends Node, EdgeType extends Edge> = {
@@ -174,7 +181,7 @@ export type ReactFlowActions<NodeType extends Node, EdgeType extends Edge> = {
   fitView: (options?: FitViewOptions) => boolean;
 };
 
-export type ReactFlowState<NodeType extends Node = Node, EdgeType extends Edge = Edge> = ReactFlowStore<
+export type ReactFlowState<NodeType extends Node = Node, EdgeType extends Edge = Edge> = SolidFlowStore<
   NodeType,
   EdgeType
 > &

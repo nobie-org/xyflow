@@ -13,7 +13,7 @@ import {
 
 import { useStore } from '../../hooks/useStore';
 import { getSimpleBezierPath } from '../Edges/SimpleBezierEdge';
-import type { ConnectionLineComponent, ReactFlowState, ReactFlowStore } from '../../types';
+import type { ConnectionLineComponent, ReactFlowState, SolidFlowStore } from '../../types';
 import { Show, mergeProps, JSX } from 'solid-js';
 
 type ConnectionLineProps = {
@@ -42,7 +42,7 @@ const ConnectionLine = (_p: ConnectionLineProps) => {
   // }: ConnectionLineProps) => {
   const p = mergeProps({ type: ConnectionLineType.Bezier }, _p);
 
-  const { fromNode, handleId, toX, toY, connectionMode } = useStore((s: ReactFlowStore) => ({
+  const { fromNode, handleId, toX, toY, connectionMode } = useStore((s: SolidFlowStore) => ({
     fromNode: s.nodeLookup.get(p.nodeId),
     handleId: s.connectionStartHandle?.handleId,
     toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],

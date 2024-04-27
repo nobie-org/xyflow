@@ -7,9 +7,15 @@ import {
   updateConnectionLookup,
   devWarn,
   getInternalNodesBounds,
+  PanZoomInstance,
+  SelectionRect,
+  ConnectionStatus,
+  ConnectingHandle,
 } from '@xyflow/system';
 
-import type { Edge, InternalNode, Node, ReactFlowStore } from '../types';
+import { FitViewOptions, type Edge, type InternalNode, type Node, type SolidFlowStore } from '../types';
+import { Signal, createSignal } from 'solid-js';
+import { ReactiveMap } from '@solid-primitives/map';
 
 const getInitialState = ({
   nodes,
@@ -27,7 +33,7 @@ const getInitialState = ({
   width?: number;
   height?: number;
   fitView?: boolean;
-} = {}): ReactFlowStore => {
+} = {}): SolidFlowStore => {
   const nodeLookup = new Map<string, InternalNode>();
   const parentLookup = new Map();
   const connectionLookup = new Map();
@@ -54,71 +60,89 @@ const getInitialState = ({
   }
 
   return {
-    rfId: '1',
-    width: 0,
-    height: 0,
-    transform,
-    nodes: storeNodes,
-    nodeLookup,
-    parentLookup,
-    edges: storeEdges,
-    edgeLookup,
-    connectionLookup,
+    rfId: new Writable('1'),
+    width: new Writable(0),
+    height: new Writable(0),
+    transform: new Writable(transform),
+    nodes: new Writable(storeNodes),
+    nodeLookup: new ReactiveMap(),
+    parentLookup: new ReactiveMap(),
+    edges: new Writable(storeEdges),
+    edgeLookup: new ReactiveMap(),
+    connectionLookup: new ReactiveMap(),
     onNodesChange: null,
     onEdgesChange: null,
-    hasDefaultNodes: defaultNodes !== undefined,
-    hasDefaultEdges: defaultEdges !== undefined,
-    panZoom: null,
-    minZoom: 0.5,
-    maxZoom: 2,
-    translateExtent: infiniteExtent,
-    nodeExtent: infiniteExtent,
-    nodesSelectionActive: false,
-    userSelectionActive: false,
-    userSelectionRect: null,
-    connectionPosition: { x: 0, y: 0 },
-    connectionStatus: null,
-    connectionMode: ConnectionMode.Strict,
-    domNode: null,
-    paneDragging: false,
-    noPanClassName: 'nopan',
-    nodeOrigin: [0, 0],
-    nodeDragThreshold: 1,
+    hasDefaultNodes: new Writable(defaultNodes !== undefined),
+    hasDefaultEdges: new Writable(defaultEdges !== undefined),
+    panZoom: new Writable<PanZoomInstance | null>(null),
+    minZoom: new Writable(0.5),
+    maxZoom: new Writable(2),
+    translateExtent: new Writable(infiniteExtent),
+    nodeExtent: new Writable(infiniteExtent),
+    nodesSelectionActive: new Writable(false),
+    userSelectionActive: new Writable(false),
+    userSelectionRect: new Writable<SelectionRect | null>(null),
+    connectionPosition: new Writable({ x: 0, y: 0 }),
+    connectionStatus: new Writable<ConnectionStatus | null>(null),
+    connectionMode: new Writable<ConnectionMode>(ConnectionMode.Strict),
+    domNode: new Writable<HTMLDivElement | null>(null),
+    paneDragging: new Writable(false),
+    noPanClassName: new Writable('nopan'),
+    nodeOrigin: new Writable([0, 0]),
+    nodeDragThreshold: new Writable(1),
 
-    snapGrid: [15, 15],
-    snapToGrid: false,
+    snapGrid: new Writable([15, 15]),
+    snapToGrid: new Writable(false),
 
-    nodesDraggable: true,
-    nodesConnectable: true,
-    nodesFocusable: true,
-    edgesFocusable: true,
-    edgesUpdatable: true,
-    elementsSelectable: true,
-    elevateNodesOnSelect: true,
-    elevateEdgesOnSelect: false,
-    fitViewOnInit: false,
-    fitViewDone: false,
-    fitViewOnInitOptions: undefined,
-    selectNodesOnDrag: true,
+    nodesDraggable: new Writable(true),
+    nodesConnectable: new Writable(true),
+    nodesFocusable: new Writable(true),
+    edgesFocusable: new Writable(true),
+    edgesUpdatable: new Writable(true),
+    elementsSelectable: new Writable(true),
+    elevateNodesOnSelect: new Writable(true),
+    elevateEdgesOnSelect: new Writable(false),
+    fitViewOnInit: new Writable(false),
+    fitViewDone: new Writable(false),
+    fitViewOnInitOptions: new Writable<FitViewOptions | undefined>(undefined),
+    selectNodesOnDrag: new Writable(true),
 
-    multiSelectionActive: false,
+    multiSelectionActive: new Writable(false),
 
-    connectionStartHandle: null,
-    connectionEndHandle: null,
-    connectionClickStartHandle: null,
-    connectOnClick: true,
+    connectionStartHandle: new Writable<ConnectingHandle | null>(null),
+    connectionEndHandle: new Writable<ConnectingHandle | null>(null),
+    connectionClickStartHandle: new Writable<ConnectingHandle | null>(null),
+    connectOnClick: new Writable(true),
 
-    ariaLiveMessage: '',
-    autoPanOnConnect: true,
-    autoPanOnNodeDrag: true,
-    connectionRadius: 20,
+    ariaLiveMessage: new Writable(''),
+    autoPanOnConnect: new Writable(true),
+    autoPanOnNodeDrag: new Writable(true),
+    connectionRadius: new Writable(20),
     onError: devWarn,
     isValidConnection: undefined,
     onSelectionChangeHandlers: [],
 
-    lib: 'react',
-    debug: false,
+    lib: new Writable('solid'),
+    debug: new Writable(false),
   };
 };
 
 export default getInitialState;
+
+export class Writable<T> {
+
+  private s: Signal<T>
+
+  constructor(private initial: T) {
+    this.s = createSignal(initial);
+  }
+
+  get() {
+    return this.s[0]();
+  }
+  set(v: T) {
+    this.s[1](() => {
+      return v;
+    });
+  }
+}
