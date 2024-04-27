@@ -1,7 +1,8 @@
-import { useEffect, type MutableRefObject } from 'react';
+// import { useEffect, type MutableRefObject } from 'react';
 import { errorMessages, getDimensions } from '@xyflow/system';
 
 import { useStoreApi } from './useStore';
+import { createEffect } from 'solid-js';
 
 /**
  * Hook for handling resize events.
@@ -11,7 +12,7 @@ import { useStoreApi } from './useStore';
 export function useResizeHandler(domNode: MutableRefObject<HTMLDivElement | null>): void {
   const store = useStoreApi();
 
-  useEffect(() => {
+  createEffect(() => {
     const updateDimensions = () => {
       if (!domNode.current) {
         return false;
@@ -19,10 +20,14 @@ export function useResizeHandler(domNode: MutableRefObject<HTMLDivElement | null
       const size = getDimensions(domNode.current!);
 
       if (size.height === 0 || size.width === 0) {
-        store().getState().onError?.('004', errorMessages['error004']());
+        store.onError?.('004', errorMessages['error004']());
       }
 
-      store().setState({ width: size.width || 500, height: size.height || 500 });
+      store.batch((store) => {
+        store.width.set(size.width || 500);
+        store.height.set(size.height || 500);
+      })
+
     };
 
     if (domNode.current) {
@@ -40,5 +45,5 @@ export function useResizeHandler(domNode: MutableRefObject<HTMLDivElement | null
         }
       };
     }
-  }, []);
+  });
 }

@@ -5,7 +5,7 @@ import { errorMessages } from '@xyflow/system';
 
 import StoreContext from '../contexts/StoreContext';
 import type { Edge, Node, SolidFlowState, SolidFlowStore } from '../types';
-import { useContext } from 'solid-js';
+import { batch, useContext } from 'solid-js';
 
 const zustandErrorMessage = errorMessages['error001']();
 
@@ -42,7 +42,16 @@ function useStoreApi<NodeType extends Node = Node, EdgeType extends Edge = Edge>
     throw new Error(zustandErrorMessage);
   }
 
-  return store;
+
+
+  return { 
+    ...store,
+    batch: (fn: (s: SolidFlowState<NodeType, EdgeType>) => void) => { 
+      batch(() => { 
+        fn(store)
+      })
+    }
+  }
 }
 
 export { useStore, useStoreApi };
