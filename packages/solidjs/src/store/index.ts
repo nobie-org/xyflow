@@ -17,7 +17,7 @@ import {
 
 import { applyEdgeChanges, applyNodeChanges, createSelectionChange, getSelectionChanges } from '../utils/changes';
 import getInitialState from './initialState';
-import type { ReactFlowState, Node, Edge, UnselectNodesAndEdgesParams, FitViewOptions, ReactFlowActions } from '../types';
+import type {  Node, Edge, UnselectNodesAndEdgesParams, FitViewOptions, ReactFlowActions } from '../types';
 
 const createStore = ({
   nodes,
@@ -49,7 +49,7 @@ const createStore = ({
     //
     // When this happens, we take the note objects passed by the user and extend them with fields
     // relevant for internal React Flow operations.
-    adoptUserNodes(newNodes, nodeLookup.get(), parentLookup, {
+    adoptUserNodes(newNodes, nodeLookup, parentLookup, {
       nodeOrigin: nodeOrigin.get(),
       elevateNodesOnSelect: elevateNodesOnSelect.get(),
       checkEquality: true,
@@ -95,7 +95,7 @@ const createStore = ({
 
     const { changes, updatedInternals } = updateNodeInternalsSystem(
       updates,
-      nodeLookup.get(),
+      nodeLookup,
       parentLookup,
       domNode.get(),
       nodeOrigin.get()
@@ -105,7 +105,7 @@ const createStore = ({
       return;
     }
 
-    updateAbsolutePositions(nodeLookup.get(), { nodeOrigin: nodeOrigin.get() });
+    updateAbsolutePositions(nodeLookup, { nodeOrigin: nodeOrigin.get() });
 
     // we call fitView once initially after all dimensions are set
     let nextFitViewDone = fitViewDone.get();
@@ -131,7 +131,7 @@ const createStore = ({
       onNodesChange?.(changes);
     }
   };
-  const updateNodePositions = (nodeDragItems, dragging = false) => {
+  const updateNodePositions: DefaultActions["updateNodePositions"] = (nodeDragItems, dragging = false) => {
     const parentExpandChildren: ParentExpandChild[] = [];
     const changes = [];
 
@@ -163,7 +163,7 @@ const createStore = ({
     }
 
     if (parentExpandChildren.length > 0) {
-      const { nodeLookup, parentLookup } = get();
+      const { nodeLookup, parentLookup } = store;
       const parentExpandChanges = handleExpandParent(parentExpandChildren, nodeLookup, parentLookup);
       changes.push(...parentExpandChanges);
     }
@@ -171,11 +171,11 @@ const createStore = ({
     triggerNodeChanges(changes);
   };
   const triggerNodeChanges: DefaultActions["triggerNodeChanges"] = (changes) => {
-    const { onNodesChange, setNodes, nodes, hasDefaultNodes, debug } = 
+    const { onNodesChange, nodes, hasDefaultNodes, debug } = store;
 
       if (changes?.length) {
       if (hasDefaultNodes) {
-        const updatedNodes = applyNodeChanges(changes, nodes);
+        const updatedNodes = applyNodeChanges(changes, nodes.get());
         setNodes(updatedNodes);
       }
 
@@ -211,7 +211,7 @@ const createStore = ({
       return;
     }
 
-    triggerNodeChanges(getSelectionChanges(nodeLookup.get(), new Set([...selectedNodeIds]), true));
+    triggerNodeChanges(getSelectionChanges(nodeLookup, new Set([...selectedNodeIds]), true));
     triggerEdgeChanges(getSelectionChanges(edgeLookup));
   };
   const addSelectedEdges: DefaultActions["addSelectedEdges"] = (selectedEdgeIds) => {
@@ -224,7 +224,7 @@ const createStore = ({
     }
 
     triggerEdgeChanges(getSelectionChanges(edgeLookup, new Set([...selectedEdgeIds])));
-    triggerNodeChanges(getSelectionChanges(nodeLookup.get(), new Set(), true));
+    triggerNodeChanges(getSelectionChanges(nodeLookup, new Set(), true));
   };
   const unselectNodesAndEdges = ({ nodes, edges }: UnselectNodesAndEdgesParams = {}) => {
     const { edges: storeEdges, nodes: storeNodes, } = store;
@@ -349,6 +349,30 @@ const createStore = ({
     throw new Error('Not implemented. need to reset each field');
 
     }
+
+  return { 
+    ...store,
+    setNodes,
+    setEdges,
+    setDefaultNodesAndEdges,
+    updateNodeInternals,
+    updateNodePositions,
+    triggerNodeChanges,
+    triggerEdgeChanges,
+    addSelectedNodes,
+    addSelectedEdges,
+    unselectNodesAndEdges,
+    setMinZoom,
+    setMaxZoom,
+    setTranslateExtent,
+    resetSelectedElements,
+    setNodeExtent,
+    panBy,
+    fitView,
+    cancelConnection,
+    updateConnection,
+    reset,
+  };
 };
 
 
