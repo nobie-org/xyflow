@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { shallowNodeData } from '@xyflow/system';
+// import { useCallback } from 'react';
+// import { shallowNodeData } from '@xyflow/system';
 
 import { useStore } from './useStore';
 import type { Node } from '../types';
@@ -19,28 +19,24 @@ export function useNodesData<NodeType extends Node = Node>(nodeIds: string[]): P
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useNodesData(nodeIds: any): any {
   const nodesData = useStore(
-    useCallback(
-      (s) => {
-        const data = [];
-        const isArrayOfIds = Array.isArray(nodeIds);
-        const _nodeIds = isArrayOfIds ? nodeIds : [nodeIds];
+    (s) => {
+      const data = [];
+      const isArrayOfIds = Array.isArray(nodeIds);
+      const _nodeIds = isArrayOfIds ? nodeIds : [nodeIds];
 
-        for (const nodeId of _nodeIds) {
-          const node = s.nodeLookup.get(nodeId);
-          if (node) {
-            data.push({
-              id: node.id,
-              type: node.type,
-              data: node.data,
-            });
-          }
+      for (const nodeId of _nodeIds) {
+        const node = s.nodeLookup.get(nodeId);
+        if (node) {
+          data.push({
+            id: node.id,
+            type: node.type,
+            data: node.data,
+          });
         }
+      }
 
-        return isArrayOfIds ? data : data[0] ?? null;
-      },
-      [nodeIds]
-    ),
-    shallowNodeData
+      return isArrayOfIds ? data : data[0] ?? null;
+    },
   );
 
   return nodesData;

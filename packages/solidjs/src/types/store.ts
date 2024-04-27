@@ -140,10 +140,10 @@ export type SolidFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
   onError?: OnError;
 
   // event handlers
-  onViewportChangeStart?: OnViewportChange;
-  onViewportChange?: OnViewportChange;
-  onViewportChangeEnd?: OnViewportChange;
-  onBeforeDelete?: OnBeforeDelete<NodeType, EdgeType>;
+  onViewportChangeStart: Writable<OnViewportChange | undefined>;
+  onViewportChange: Writable<OnViewportChange | undefined>;
+  onViewportChangeEnd: Writable<OnViewportChange | undefined>;
+  onBeforeDelete: Writable<OnBeforeDelete<NodeType, EdgeType> | undefined>;
 
   onSelectionChangeHandlers: OnSelectionChangeFunc[];
 
@@ -181,7 +181,7 @@ export type ReactFlowActions<NodeType extends Node, EdgeType extends Edge> = {
   fitView: (options?: FitViewOptions) => boolean;
 };
 
-export type ReactFlowState<NodeType extends Node = Node, EdgeType extends Edge = Edge> = SolidFlowStore<
+export type SolidFlowState<NodeType extends Node = Node, EdgeType extends Edge = Edge> = SolidFlowStore<
   NodeType,
   EdgeType
 > &

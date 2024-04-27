@@ -1,10 +1,10 @@
 // import { useContext, useMemo } from 'react';
-import { UseBoundStoreWithEqualityFn, useStoreWithEqualityFn as useZustandStore } from 'zustand/traditional';
-import { StoreApi } from 'zustand';
+// import { UseBoundStoreWithEqualityFn, useStoreWithEqualityFn as useZustandStore } from 'zustand/traditional';
+// import { StoreApi } from 'zustand';
 import { errorMessages } from '@xyflow/system';
 
 import StoreContext from '../contexts/StoreContext';
-import type { Edge, Node, ReactFlowState } from '../types';
+import type { Edge, Node, SolidFlowState, SolidFlowStore } from '../types';
 import { useContext } from 'solid-js';
 
 const zustandErrorMessage = errorMessages['error001']();
@@ -22,8 +22,8 @@ const zustandErrorMessage = errorMessages['error001']();
  *
  */
 function useStore<StateSlice = unknown>(
-  selector: (state: ReactFlowState) => StateSlice,
-  equalityFn?: (a: StateSlice, b: StateSlice) => boolean
+  selector: (state: SolidFlowState) => StateSlice
+  // equalityFn?: (a: StateSlice, b: StateSlice) => boolean
 ) {
   const store = useContext(StoreContext);
 
@@ -31,23 +31,18 @@ function useStore<StateSlice = unknown>(
     throw new Error(zustandErrorMessage);
   }
 
-  return useZustandStore(store, selector, equalityFn);
+  return selector(store);
 }
 
 function useStoreApi<NodeType extends Node = Node, EdgeType extends Edge = Edge>() {
-  const store = useContext(StoreContext) as UseBoundStoreWithEqualityFn<
-    StoreApi<ReactFlowState<NodeType, EdgeType>>
-  > | null;
+  // TODO: Fix this type assertion
+  const store = useContext(StoreContext) as unknown as SolidFlowState<NodeType, EdgeType>;
 
   if (store === null) {
     throw new Error(zustandErrorMessage);
   }
 
-  return () => ({
-    getState: store.getState,
-    setState: store.setState,
-    subscribe: store.subscribe,
-  });
+  return store;
 }
 
 export { useStore, useStoreApi };

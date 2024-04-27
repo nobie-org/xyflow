@@ -1,9 +1,9 @@
 import { shallow } from 'zustand/shallow';
 
 import { useStore } from './useStore';
-import type { Edge, ReactFlowState } from '../types';
+import type { Edge, SolidFlowState } from '../types';
 
-const edgesSelector = (state: ReactFlowState) => state.edges;
+const edgesSelector = (state: SolidFlowState) => state.edges;
 
 /**
  * Hook for getting the current edges from the store.

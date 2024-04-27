@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   pointToRendererPoint,
   getViewportForBounds,
@@ -8,9 +7,9 @@ import {
 } from '@xyflow/system';
 
 import { useStoreApi, useStore } from './useStore';
-import type { ViewportHelperFunctions, ReactFlowState } from '../types';
+import type { ViewportHelperFunctions, SolidFlowState } from '../types';
 
-const selector = (s: ReactFlowState) => !!s.panZoom;
+const selector = (s: SolidFlowState) => !!s.panZoom;
 
 /**
  * Hook for getting viewport helper functions.
@@ -18,23 +17,22 @@ const selector = (s: ReactFlowState) => !!s.panZoom;
  * @internal
  * @returns viewport helper functions
  */
-const useViewportHelper = (): ViewportHelperFunctions => {
+const useViewportHelper = (): (() => ViewportHelperFunctions) => {
   const store = useStoreApi();
   const panZoomInitialized = useStore(selector);
 
-  const viewportHelperFunctions = useMemo<ViewportHelperFunctions>(() => {
+  const viewportHelperFunctions = (): ViewportHelperFunctions => {
     return {
-      zoomIn: (options) => store.getState().panZoom?.scaleBy(1.2, { duration: options?.duration }),
-      zoomOut: (options) => store.getState().panZoom?.scaleBy(1 / 1.2, { duration: options?.duration }),
-      zoomTo: (zoomLevel, options) => store.getState().panZoom?.scaleTo(zoomLevel, { duration: options?.duration }),
-      getZoom: () => store.getState().transform[2],
+      zoomIn: (options) => store.panZoom.get()?.scaleBy(1.2, { duration: options?.duration }),
+      zoomOut: (options) => store.panZoom.get()?.scaleBy(1 / 1.2, { duration: options?.duration }),
+      zoomTo: (zoomLevel, options) => store.panZoom.get()?.scaleTo(zoomLevel, { duration: options?.duration }),
+      getZoom: () => store.transform.get()[2],
       setViewport: (viewport, options) => {
-        const {
-          transform: [tX, tY, tZoom],
-          panZoom,
-        } = store.getState();
+        const { panZoom } = store;
 
-        panZoom?.setViewport(
+        const [tX, tY, tZoom] = store.transform.get();
+
+        panZoom.get()?.setViewport(
           {
             x: viewport.x ?? tX,
             y: viewport.y ?? tY,
@@ -44,34 +42,35 @@ const useViewportHelper = (): ViewportHelperFunctions => {
         );
       },
       getViewport: () => {
-        const [x, y, zoom] = store.getState().transform;
+        const [x, y, zoom] = store.transform.get();
         return { x, y, zoom };
       },
       fitView: (options) => {
-        const { nodeLookup, width, height, nodeOrigin, minZoom, maxZoom, panZoom } = store.getState();
+        const { nodeLookup, width, height, nodeOrigin, minZoom, maxZoom, panZoom } = store;
+        const panZoomValue = panZoom.get();
 
-        return panZoom
+        return panZoomValue
           ? fitView(
               {
                 nodeLookup,
-                width,
-                height,
-                nodeOrigin,
-                minZoom,
-                maxZoom,
-                panZoom,
+                width: width.get(),
+                height: height.get(),
+                nodeOrigin: nodeOrigin.get(),
+                minZoom: minZoom.get(),
+                maxZoom: maxZoom.get(),
+                panZoom: panZoomValue,
               },
               options
             )
           : false;
       },
       setCenter: (x, y, options) => {
-        const { width, height, maxZoom, panZoom } = store.getState();
-        const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : maxZoom;
-        const centerX = width / 2 - x * nextZoom;
-        const centerY = height / 2 - y * nextZoom;
+        const { width, height, maxZoom, panZoom } = store;
+        const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : maxZoom.get();
+        const centerX = width.get() / 2 - x * nextZoom;
+        const centerY = height.get() / 2 - y * nextZoom;
 
-        panZoom?.setViewport(
+        panZoom.get()?.setViewport(
           {
             x: centerX,
             y: centerY,
@@ -81,13 +80,22 @@ const useViewportHelper = (): ViewportHelperFunctions => {
         );
       },
       fitBounds: (bounds, options) => {
-        const { width, height, minZoom, maxZoom, panZoom } = store.getState();
-        const viewport = getViewportForBounds(bounds, width, height, minZoom, maxZoom, options?.padding ?? 0.1);
+        const { width, height, minZoom, maxZoom, panZoom } = store;
+        const viewport = getViewportForBounds(
+          bounds,
+          width.get(),
+          height.get(),
+          minZoom.get(),
+          maxZoom.get(),
+          options?.padding ?? 0.1
+        );
 
-        panZoom?.setViewport(viewport, { duration: options?.duration });
+        panZoom.get()?.setViewport(viewport, { duration: options?.duration });
       },
       screenToFlowPosition: (clientPosition: XYPosition, options: { snapToGrid: boolean } = { snapToGrid: true }) => {
-        const { transform, snapGrid, domNode } = store.getState();
+        const { transform, snapGrid } = store;
+
+        const domNode = store.domNode.get();
 
         if (!domNode) {
           return clientPosition;
@@ -100,26 +108,29 @@ const useViewportHelper = (): ViewportHelperFunctions => {
           y: clientPosition.y - domY,
         };
 
-        return pointToRendererPoint(correctedPosition, transform, options.snapToGrid, snapGrid);
+        return pointToRendererPoint(correctedPosition, transform.get(), options.snapToGrid, snapGrid.get());
       },
       flowToScreenPosition: (flowPosition: XYPosition) => {
-        const { transform, domNode } = store.getState();
+        const { transform } = store;
+
+        const domNode = store.domNode.get();
 
         if (!domNode) {
           return flowPosition;
         }
 
         const { x: domX, y: domY } = domNode.getBoundingClientRect();
-        const rendererPosition = rendererPointToPoint(flowPosition, transform);
+        const rendererPosition = rendererPointToPoint(flowPosition, transform.get());
 
         return {
           x: rendererPosition.x + domX,
           y: rendererPosition.y + domY,
         };
       },
+
       viewportInitialized: panZoomInitialized,
     };
-  }, [panZoomInitialized]);
+  };
 
   return viewportHelperFunctions;
 };

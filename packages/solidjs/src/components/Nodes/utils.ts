@@ -2,7 +2,7 @@ import type { RefObject } from 'react';
 import type { StoreApi } from 'zustand';
 import { errorMessages } from '@xyflow/system';
 
-import type { ReactFlowState } from '../../types';
+import type { SolidFlowState } from '../../types';
 
 // this handler is called by
 // 1. the click handler when node is not draggable or selectNodesOnDrag = false
@@ -16,8 +16,8 @@ export function handleNodeClick({
 }: {
   id: string;
   store: {
-    getState: StoreApi<ReactFlowState>['getState'];
-    setState: StoreApi<ReactFlowState>['setState'];
+    getState: StoreApi<SolidFlowState>['getState'];
+    setState: StoreApi<SolidFlowState>['setState'];
   };
   unselect?: boolean;
   nodeRef?: RefObject<HTMLDivElement>;

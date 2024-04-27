@@ -7,7 +7,7 @@ import { getInternalNodesBounds, getBoundsOfRects, XYMinimap, type Rect, type XY
 
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import { Panel } from '../../components/Panel';
-import type { ReactFlowState, Node } from '../../types';
+import type { SolidFlowState, Node } from '../../types';
 
 import MiniMapNodes from './MiniMapNodes';
 import type { MiniMapProps } from './types';
@@ -15,7 +15,7 @@ import type { MiniMapProps } from './types';
 const defaultWidth = 200;
 const defaultHeight = 150;
 
-const selector = (s: ReactFlowState) => {
+const selector = (s: SolidFlowState) => {
   const viewBB: Rect = {
     x: -s.transform[0] / s.transform[2],
     y: -s.transform[1] / s.transform[2],

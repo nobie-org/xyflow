@@ -1,12 +1,12 @@
 import { useStore } from './useStore';
-import type { ReactFlowState } from '../types';
+import type { SolidFlowState } from '../types';
 import { nodeHasDimensions } from '@xyflow/system';
 
 export type UseNodesInitializedOptions = {
   includeHiddenNodes?: boolean;
 };
 
-const selector = (options: UseNodesInitializedOptions) => (s: ReactFlowState) => {
+const selector = (options: UseNodesInitializedOptions) => (s: SolidFlowState) => {
   if (s.nodeLookup.size === 0) {
     return false;
   }

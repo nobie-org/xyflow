@@ -7,7 +7,7 @@ import { containerStyle } from '../../styles/utils';
 import { GraphViewProps } from '../GraphView';
 import { useResizeObserver } from './useResizeObserver';
 import { NodeWrapper } from '../../components/NodeWrapper';
-import type { Node, ReactFlowState } from '../../types';
+import type { Node, SolidFlowState } from '../../types';
 
 export type NodeRendererProps<NodeType extends Node> = Pick<
   GraphViewProps<NodeType>,
@@ -27,7 +27,7 @@ export type NodeRendererProps<NodeType extends Node> = Pick<
   | 'nodeTypes'
 >;
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   nodesDraggable: s.nodesDraggable,
   nodesConnectable: s.nodesConnectable,
   nodesFocusable: s.nodesFocusable,

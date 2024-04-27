@@ -1,9 +1,9 @@
-import { shallow } from 'zustand/shallow';
 
 import { useStore } from './useStore';
-import type { Node, ReactFlowState } from '../types';
+import type { Node, SolidFlowState } from '../types';
+import { Writable } from '../store/initialState';
 
-const nodesSelector = (state: ReactFlowState) => state.nodes;
+const nodesSelector = (state: SolidFlowState) => state.nodes;
 
 /**
  * Hook for getting the current nodes from the store.
@@ -11,8 +11,9 @@ const nodesSelector = (state: ReactFlowState) => state.nodes;
  * @public
  * @returns An array of nodes
  */
-export function useNodes<NodeType extends Node = Node>(): NodeType[] {
-  const nodes = useStore(nodesSelector, shallow) as NodeType[];
+export function useNodes<NodeType extends Node = Node>(): Writable<NodeType[]> {
+  const nodes = useStore(nodesSelector) 
 
-  return nodes;
+  // TODO: Fix this type assertion
+  return nodes as unknown as Writable<NodeType[]>;
 }

@@ -8,7 +8,7 @@ import { useResizeHandler } from '../../hooks/useResizeHandler';
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import { containerStyle } from '../../styles/utils';
 import type { FlowRendererProps } from '../FlowRenderer';
-import type { ReactFlowState } from '../../types';
+import type { SolidFlowState } from '../../types';
 
 type ZoomPaneProps = Omit<
   FlowRendererProps,
@@ -22,7 +22,7 @@ type ZoomPaneProps = Omit<
   isControlledViewport: boolean;
 };
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   userSelectionActive: s.userSelectionActive,
   lib: s.lib,
 });

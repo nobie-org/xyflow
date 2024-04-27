@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import type { OnViewportChange } from '@xyflow/system';
 
 import { useStoreApi } from './useStore';
+import { createEffect } from 'solid-js';
 
 export type UseOnViewportChangeOptions = {
   onStart?: OnViewportChange;
@@ -20,15 +20,15 @@ export type UseOnViewportChangeOptions = {
 export function useOnViewportChange({ onStart, onChange, onEnd }: UseOnViewportChangeOptions) {
   const store = useStoreApi();
 
-  useEffect(() => {
-    store.setState({ onViewportChangeStart: onStart });
-  }, [onStart]);
+  createEffect(() => {
+    store.onViewportChangeStart.set(onStart)
+  });
 
-  useEffect(() => {
-    store.setState({ onViewportChange: onChange });
-  }, [onChange]);
+  createEffect(() => {
+    store.onViewportChange.set(onChange)
+  });
 
-  useEffect(() => {
-    store.setState({ onViewportChangeEnd: onEnd });
-  }, [onEnd]);
+  createEffect(() => {
+    store.onViewportChangeEnd.set(onEnd)
+  });
 }

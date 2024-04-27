@@ -8,13 +8,13 @@ import { useEffect } from 'react';
 import { shallow } from 'zustand/shallow';
 
 import { useStore, useStoreApi } from '../../hooks/useStore';
-import type { ReactFlowState, OnSelectionChangeFunc, Node, Edge } from '../../types';
+import type { SolidFlowState, OnSelectionChangeFunc, Node, Edge } from '../../types';
 
 type SelectionListenerProps = {
   onSelectionChange?: OnSelectionChangeFunc;
 };
 
-const selector = (s: ReactFlowState) => {
+const selector = (s: SolidFlowState) => {
   const selectedNodes = [];
   const selectedEdges = [];
 
@@ -58,7 +58,7 @@ function SelectionListenerInner({ onSelectionChange }: SelectionListenerProps) {
   return null;
 }
 
-const changeSelector = (s: ReactFlowState) => !!s.onSelectionChangeHandlers;
+const changeSelector = (s: SolidFlowState) => !!s.onSelectionChangeHandlers;
 
 export function SelectionListener({ onSelectionChange }: SelectionListenerProps) {
   const storeHasSelectionChangeHandlers = useStore(changeSelector);

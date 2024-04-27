@@ -11,7 +11,7 @@ import { useStore, useStoreApi } from '../../hooks/useStore';
 import { useDrag } from '../../hooks/useDrag';
 import { useMoveSelectedNodes } from '../../hooks/useMoveSelectedNodes';
 import { arrowKeyDiffs } from '../NodeWrapper/utils';
-import type { Node, ReactFlowState } from '../../types';
+import type { Node, SolidFlowState } from '../../types';
 
 export type NodesSelectionProps<NodeType> = {
   onSelectionContextMenu?: (event: MouseEvent, nodes: NodeType[]) => void;
@@ -19,7 +19,7 @@ export type NodesSelectionProps<NodeType> = {
   disableKeyboardA11y: boolean;
 };
 
-const selector = (s: ReactFlowState) => {
+const selector = (s: SolidFlowState) => {
   const { width, height, x, y } = getInternalNodesBounds(s.nodeLookup, {
     nodeOrigin: s.nodeOrigin,
     filter: (node) => !!node.selected,

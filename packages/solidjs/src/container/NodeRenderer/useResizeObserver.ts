@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { ReactFlowState } from '../../types';
+import { SolidFlowState } from '../../types';
 import { useStore } from '../../hooks/useStore';
 import { InternalNodeUpdate } from '@xyflow/system';
 
-const selector = (s: ReactFlowState) => s.updateNodeInternals;
+const selector = (s: SolidFlowState) => s.updateNodeInternals;
 
 export function useResizeObserver() {
   const updateNodeInternals = useStore(selector);

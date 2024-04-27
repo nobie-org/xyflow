@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import type { Viewport } from '@xyflow/system';
 
 import { useStore, useStoreApi } from './useStore';
-import type { ReactFlowState } from '../types';
+import type { SolidFlowState } from '../types';
 
-const selector = (state: ReactFlowState) => state.panZoom?.syncViewport;
+const selector = (state: SolidFlowState) => state.panZoom?.syncViewport;
 
 /**
  * Hook for syncing the viewport with the panzoom instance.

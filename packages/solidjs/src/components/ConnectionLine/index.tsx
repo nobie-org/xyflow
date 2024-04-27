@@ -13,7 +13,7 @@ import {
 
 import { useStore } from '../../hooks/useStore';
 import { getSimpleBezierPath } from '../Edges/SimpleBezierEdge';
-import type { ConnectionLineComponent, ReactFlowState, SolidFlowStore } from '../../types';
+import type { ConnectionLineComponent, SolidFlowState, SolidFlowStore } from '../../types';
 import { Show, mergeProps, JSX } from 'solid-js';
 
 type ConnectionLineProps = {
@@ -178,7 +178,7 @@ type ConnectionLineWrapperProps = {
   style?: JSX.CSSProperties;
 };
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   nodeId: s.connectionStartHandle?.nodeId,
   handleType: s.connectionStartHandle?.type,
   nodesConnectable: s.nodesConnectable,

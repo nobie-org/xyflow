@@ -1,6 +1,6 @@
 
 import { useStore } from '../../hooks/useStore';
-import type { ReactFlowState } from '../../types';
+import type { SolidFlowState } from '../../types';
 
 import { JSX, Show } from 'solid-js';
 
@@ -21,7 +21,7 @@ export const ARIA_NODE_DESC_KEY = 'react-flow__node-desc';
 export const ARIA_EDGE_DESC_KEY = 'react-flow__edge-desc';
 export const ARIA_LIVE_MESSAGE = 'react-flow__aria-live';
 
-const selector = (s: ReactFlowState) => s.ariaLiveMessage;
+const selector = (s: SolidFlowState) => s.ariaLiveMessage;
 
 function AriaLiveMessage(p: { rfId: string }) {
   const ariaLiveMessage = useStore(selector);

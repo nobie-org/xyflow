@@ -3,7 +3,7 @@ import cc from 'classcat';
 import { shallow } from 'zustand/shallow';
 import { Rect, Position, getNodeToolbarTransform, getNodesBounds } from '@xyflow/system';
 
-import { InternalNode, ReactFlowState } from '../../types';
+import { InternalNode, SolidFlowState } from '../../types';
 import { useStore } from '../../hooks/useStore';
 import { useNodeId } from '../../contexts/NodeIdContext';
 import { NodeToolbarPortal } from './NodeToolbarPortal';
@@ -25,7 +25,7 @@ const nodesEqualityFn = (a: InternalNode[], b: InternalNode[]) => {
   return !a.some((node, i) => nodeEqualityFn(node, b[i]));
 };
 
-const storeSelector = (state: ReactFlowState) => ({
+const storeSelector = (state: SolidFlowState) => ({
   viewport: {
     x: state.transform[0],
     y: state.transform[1],
@@ -49,7 +49,7 @@ export function NodeToolbar({
   const contextNodeId = useNodeId();
 
   const nodesSelector = useCallback(
-    (state: ReactFlowState): InternalNode[] => {
+    (state: SolidFlowState): InternalNode[] => {
       const nodeIds = Array.isArray(nodeId) ? nodeId : [nodeId || contextNodeId || ''];
 
       return nodeIds.reduce<InternalNode[]>((acc, id) => {

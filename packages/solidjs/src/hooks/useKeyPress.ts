@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+// import { useState, useEffect, useRef, useMemo } from 'react';
 import { isInputDOMNode, type KeyCode } from '@xyflow/system';
+import { useRef } from '../utils/hooks';
+import { createEffect, createSignal } from 'solid-js';
 
 type Keys = Array<string>;
 type PressedKeys = Set<string>;
@@ -27,8 +29,8 @@ export function useKeyPress(
   // user can use the single key 'a' or the combination 'd' + 's'
   keyCode: KeyCode | null = null,
   options: UseKeyPressOptions = { target: defaultDoc, actInsideInputWithModifier: true }
-): boolean {
-  const [keyPressed, setKeyPressed] = useState(false);
+): () => boolean {
+  const [keyPressed, setKeyPressed] = createSignal(false);
 
   // we need to remember if a modifier key is pressed in order to track it
   const modifierPressed = useRef(false);
@@ -42,7 +44,7 @@ export function useKeyPress(
   // we use the code otherwise the key. Explainer: When you press the left "command" key, the code is "MetaLeft"
   // and the key is "Meta". We want users to be able to pass keys and codes so we assume that the key is meant when
   // we can't find it in the list of keysToWatch.
-  const [keyCodes, keysToWatch] = useMemo<[Array<Keys>, Keys]>(() => {
+  const keyStuff = (): [string[][], string[]] => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
       const keys = keyCodeArr.filter((kc) => typeof kc === 'string').map((kc) => kc.split('+'));
@@ -51,10 +53,13 @@ export function useKeyPress(
       return [keys, keysFlat];
     }
 
-    return [[], []];
-  }, [keyCode]);
+    return [[], []] as [string[][], string[]]
+  };
 
-  useEffect(() => {
+  const keyCodes = () => keyStuff()[0];
+  const keysToWatch = () => keyStuff()[1];
+
+  createEffect(() => {
     const target = options?.target || defaultDoc;
 
     if (keyCode !== null) {
@@ -67,10 +72,10 @@ export function useKeyPress(
         if (preventAction) {
           return false;
         }
-        const keyOrCode = useKeyOrCode(event.code, keysToWatch);
+        const keyOrCode = useKeyOrCode(event.code, keysToWatch());
         pressedKeys.current.add(event[keyOrCode]);
 
-        if (isMatchingKey(keyCodes, pressedKeys.current, false)) {
+        if (isMatchingKey(keyCodes(), pressedKeys.current, false)) {
           event.preventDefault();
           setKeyPressed(true);
         }
@@ -84,9 +89,9 @@ export function useKeyPress(
         if (preventAction) {
           return false;
         }
-        const keyOrCode = useKeyOrCode(event.code, keysToWatch);
+        const keyOrCode = useKeyOrCode(event.code, keysToWatch());
 
-        if (isMatchingKey(keyCodes, pressedKeys.current, true)) {
+        if (isMatchingKey(keyCodes(), pressedKeys.current, true)) {
           setKeyPressed(false);
           pressedKeys.current.clear();
         } else {
@@ -118,7 +123,7 @@ export function useKeyPress(
         window.removeEventListener('contextmenu', resetHandler);
       };
     }
-  }, [keyCode, setKeyPressed]);
+  });
 
   return keyPressed;
 }

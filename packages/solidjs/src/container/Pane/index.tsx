@@ -11,7 +11,7 @@ import { UserSelection } from '../../components/UserSelection';
 import { containerStyle } from '../../styles/utils';
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import { getSelectionChanges } from '../../utils';
-import type { ReactFlowProps, ReactFlowState } from '../../types';
+import type { ReactFlowProps, SolidFlowState } from '../../types';
 
 type PaneProps = {
   isSelecting: boolean;
@@ -44,7 +44,7 @@ const wrapHandler = (
   };
 };
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   userSelectionActive: s.userSelectionActive,
   elementsSelectable: s.elementsSelectable,
   dragging: s.paneDragging,

@@ -3,7 +3,7 @@ import cc from 'classcat';
 import type { PanelPosition } from '@xyflow/system';
 
 import { useStore } from '../../hooks/useStore';
-import type { ReactFlowState } from '../../types';
+import type { SolidFlowState } from '../../types';
 import { ParentProps, mergeProps, JSX } from 'solid-js';
 
 export interface PanelProps extends JSX.HTMLAttributes<HTMLDivElement> {
@@ -13,7 +13,7 @@ export interface PanelProps extends JSX.HTMLAttributes<HTMLDivElement> {
   position?: PanelPosition;
 }
 
-const selector = (s: ReactFlowState) => (s.userSelectionActive ? 'none' : 'all');
+const selector = (s: SolidFlowState) => (s.userSelectionActive ? 'none' : 'all');
 
 export function Panel(_p: ParentProps<PanelProps>) {
   const p = mergeProps({ position: 'top-left' }, _p);

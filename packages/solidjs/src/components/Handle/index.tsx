@@ -15,19 +15,19 @@ import {
 
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import { useNodeId } from '../../contexts/NodeIdContext';
-import { SolidEvent, type ReactFlowState } from '../../types';
+import { SolidEvent, type SolidFlowState } from '../../types';
 import { createEffect, mergeProps, splitProps, JSX } from 'solid-js';
 
 export interface HandleComponentProps extends HandleProps, Omit<JSX.HTMLAttributes<HTMLDivElement>, 'id'> {}
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   connectOnClick: s.connectOnClick,
   noPanClassName: s.noPanClassName,
   rfId: s.rfId,
 });
 
 const connectingSelector =
-  (nodeId: string | null, handleId: string | null, type: HandleType) => (state: ReactFlowState) => {
+  (nodeId: string | null, handleId: string | null, type: HandleType) => (state: SolidFlowState) => {
     const {
       connectionStartHandle: startHandle,
       connectionEndHandle: endHandle,

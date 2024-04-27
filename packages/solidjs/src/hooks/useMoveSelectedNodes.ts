@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+// import { useCallback } from 'react';
 import { calculateNodePosition, snapPosition, type XYPosition } from '@xyflow/system';
 
 import { type Node } from '../types';
@@ -16,16 +16,16 @@ const selectedAndDraggable = (nodesDraggable: boolean) => (n: Node) =>
 export function useMoveSelectedNodes() {
   const store = useStoreApi();
 
-  const moveSelectedNodes = useCallback((params: { direction: XYPosition; factor: number }) => {
+  const moveSelectedNodes = (params: { direction: XYPosition; factor: number }) => {
     const { nodeExtent, snapToGrid, snapGrid, nodesDraggable, onError, updateNodePositions, nodeLookup, nodeOrigin } =
-      store.getState();
+      store().getState();
     const nodeUpdates = new Map();
-    const isSelected = selectedAndDraggable(nodesDraggable);
+    const isSelected = selectedAndDraggable(nodesDraggable.get());
 
     // by default a node moves 5px on each key press
     // if snap grid is enabled, we use that for the velocity
-    const xVelo = snapToGrid ? snapGrid[0] : 5;
-    const yVelo = snapToGrid ? snapGrid[1] : 5;
+    const xVelo = snapToGrid ? snapGrid.get()[0] : 5;
+    const yVelo = snapToGrid ? snapGrid.get()[1] : 5;
 
     const xDiff = params.direction.x * xVelo * params.factor;
     const yDiff = params.direction.y * yVelo * params.factor;
@@ -41,15 +41,15 @@ export function useMoveSelectedNodes() {
       };
 
       if (snapToGrid) {
-        nextPosition = snapPosition(nextPosition, snapGrid);
+        nextPosition = snapPosition(nextPosition, snapGrid.get());
       }
 
       const { position, positionAbsolute } = calculateNodePosition({
         nodeId: node.id,
         nextPosition,
         nodeLookup,
-        nodeExtent,
-        nodeOrigin,
+        nodeExtent: nodeExtent.get(),
+        nodeOrigin: nodeOrigin.get(),
         onError,
       });
 
@@ -60,7 +60,7 @@ export function useMoveSelectedNodes() {
     }
 
     updateNodePositions(nodeUpdates);
-  }, []);
+  };
 
   return moveSelectedNodes;
 }

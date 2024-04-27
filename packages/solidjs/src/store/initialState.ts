@@ -111,7 +111,7 @@ const getInitialState = ({
 
     connectionStartHandle: new Writable<ConnectingHandle | null>(null),
     connectionEndHandle: new Writable<ConnectingHandle | null>(null),
-    connectionClickStartHandle: new Writable<ConnectingHandle | null>(null),
+    connectionClickStartHandle: wNullable(),
     connectOnClick: new Writable(true),
 
     ariaLiveMessage: new Writable(''),
@@ -122,12 +122,21 @@ const getInitialState = ({
     isValidConnection: undefined,
     onSelectionChangeHandlers: [],
 
+    onBeforeDelete: wEmpty(),
+    onViewportChange: wEmpty(),
+    onViewportChangeEnd: wEmpty(),
+    onViewportChangeStart: wEmpty(),
+
     lib: new Writable('solid'),
     debug: new Writable(false),
   };
 };
 
 export default getInitialState;
+
+const w = <T,>(x: T) => new Writable<T>(x)
+const wEmpty = <T>() => new Writable<T | undefined>(undefined)
+const wNullable = <T>() => new Writable<T | null>(null)
 
 export class Writable<T> {
 

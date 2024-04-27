@@ -5,7 +5,7 @@ import { shallow } from 'zustand/shallow';
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import { useReactFlow } from '../../hooks/useReactFlow';
 import { Panel } from '../../components/Panel';
-import { type ReactFlowState } from '../../types';
+import { type SolidFlowState } from '../../types';
 
 import { PlusIcon } from './Icons/Plus';
 import { MinusIcon } from './Icons/Minus';
@@ -15,7 +15,7 @@ import { UnlockIcon } from './Icons/Unlock';
 import { ControlButton } from './ControlButton';
 import type { ControlProps } from './types';
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   isInteractive: s.nodesDraggable || s.nodesConnectable || s.elementsSelectable,
   minZoomReached: s.transform[2] <= s.minZoom,
   maxZoomReached: s.transform[2] >= s.maxZoom,

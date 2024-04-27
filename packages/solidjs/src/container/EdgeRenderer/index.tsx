@@ -6,7 +6,7 @@ import { useVisibleEdgeIds } from '../../hooks/useVisibleEdgeIds';
 import MarkerDefinitions from './MarkerDefinitions';
 import { GraphViewProps } from '../GraphView';
 import { EdgeWrapper } from '../../components/EdgeWrapper';
-import type { Edge, ReactFlowState, Node } from '../../types';
+import type { Edge, SolidFlowState, Node } from '../../types';
 
 type EdgeRendererProps<EdgeType extends Edge = Edge> = Pick<
   GraphViewProps<Node, EdgeType>,
@@ -30,7 +30,7 @@ type EdgeRendererProps<EdgeType extends Edge = Edge> = Pick<
   children?: ReactNode;
 };
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   width: s.width,
   height: s.height,
   edgesFocusable: s.edgesFocusable,

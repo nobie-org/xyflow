@@ -6,7 +6,7 @@ import { useStore } from '../../hooks/useStore';
 import { DotPattern, LinePattern } from './Patterns';
 import { containerStyle } from '../../styles/utils';
 import { type BackgroundProps, BackgroundVariant } from './types';
-import { type ReactFlowState } from '../../types';
+import { type SolidFlowState } from '../../types';
 import { useRef } from '../../utils/hooks';
 
 const defaultSize = {
@@ -15,7 +15,7 @@ const defaultSize = {
   [BackgroundVariant.Cross]: 6,
 };
 
-const selector = (s: ReactFlowState) => ({ transform: s.transform, patternId: `pattern-${s.rfId}` });
+const selector = (s: SolidFlowState) => ({ transform: s.transform, patternId: `pattern-${s.rfId}` });
 
 function BackgroundComponent(_p: BackgroundProps) {
   const lineWidth = () => _p.lineWidth || 1;

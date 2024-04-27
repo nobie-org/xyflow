@@ -1,9 +1,9 @@
 import { shallow } from 'zustand/shallow';
 
 import { useStore } from '../../hooks/useStore';
-import type { ReactFlowState } from '../../types';
+import type { SolidFlowState } from '../../types';
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   userSelectionActive: s.userSelectionActive,
   userSelectionRect: s.userSelectionRect,
 });

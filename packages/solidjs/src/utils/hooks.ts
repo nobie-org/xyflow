@@ -1,5 +1,5 @@
 
-export const useRef = <T>(initialValue: T | null): Ref<T | null> => {
+export const useRef = <T>(initialValue: T): Ref<T> => {
     return new Ref(initialValue);
 }
 

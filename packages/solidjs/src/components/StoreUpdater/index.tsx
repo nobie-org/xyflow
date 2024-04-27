@@ -8,7 +8,7 @@ import { shallow } from 'zustand/shallow';
 import { infiniteExtent, type CoordinateExtent } from '@xyflow/system';
 
 import { useStore, useStoreApi } from '../../hooks/useStore';
-import type { Node, Edge, ReactFlowState, ReactFlowProps, FitViewOptions } from '../../types';
+import type { Node, Edge, SolidFlowState, ReactFlowProps, FitViewOptions } from '../../types';
 import { defaultNodeOrigin } from '../../container/ReactFlow/init-values';
 
 // these fields exist in the global store and we need to keep them up to date
@@ -79,7 +79,7 @@ type StoreUpdaterProps<NodeType extends Node = Node, EdgeType extends Edge = Edg
 // rfId doesn't exist in ReactFlowProps, but it's one of the fields we want to update
 const fieldsToTrack = [...reactFlowFieldsToTrack, 'rfId'] as const;
 
-const selector = (s: ReactFlowState) => ({
+const selector = (s: SolidFlowState) => ({
   setNodes: s.setNodes,
   setEdges: s.setEdges,
   setMinZoom: s.setMinZoom,

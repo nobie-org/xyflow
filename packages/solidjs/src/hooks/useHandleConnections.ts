@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useRef } from 'react';
 import {
   Connection,
   HandleConnection,
   HandleType,
-  areConnectionMapsEqual,
   handleConnectionChange,
 } from '@xyflow/system';
 
 import { useStore } from './useStore';
 import { useNodeId } from '../contexts/NodeIdContext';
+import { createEffect } from 'solid-js';
+import { useRef } from '../utils/hooks';
+import { ReactiveMap } from '@solid-primitives/map';
 
 type useHandleConnectionsParams = {
   type: HandleType;
@@ -35,27 +36,26 @@ export function useHandleConnections({
   nodeId,
   onConnect,
   onDisconnect,
-}: useHandleConnectionsParams): HandleConnection[] {
+}: useHandleConnectionsParams): () => HandleConnection[] {
   const _nodeId = useNodeId();
   const currentNodeId = nodeId ?? _nodeId;
 
-  const prevConnections = useRef<Map<string, HandleConnection> | null>(null);
+  const prevConnections = useRef<(() => Map<string, HandleConnection>) | null>(null);
 
   const connections = useStore(
-    (state) => state.connectionLookup.get(`${currentNodeId}-${type}-${id}`),
-    areConnectionMapsEqual
+    (state) => () => state.connectionLookup.get(`${currentNodeId}-${type}-${id}`),
   );
 
-  useEffect(() => {
-    // @todo dicuss if onConnect/onDisconnect should be called when the component mounts/unmounts
-    if (prevConnections.current && prevConnections.current !== connections) {
-      const _connections = connections ?? new Map();
-      handleConnectionChange(prevConnections.current, _connections, onDisconnect);
-      handleConnectionChange(_connections, prevConnections.current, onConnect);
+  createEffect(() => {
+    // @todo discuss if onConnect/onDisconnect should be called when the component mounts/unmounts
+    if (prevConnections.current && prevConnections.current() !== connections()) {
+      const _connections = connections() ?? new ReactiveMap<string, HandleConnection>();
+      handleConnectionChange(prevConnections.current(), _connections, onDisconnect);
+      handleConnectionChange(_connections, prevConnections.current(), onConnect);
     }
 
-    prevConnections.current = connections ?? new Map();
-  }, [connections, onConnect, onDisconnect]);
+    prevConnections.current = () => (connections() ?? new ReactiveMap<string, HandleConnection>());
+  });
 
-  return useMemo(() => Array.from(connections?.values() ?? []), [connections]);
+  return () => Array.from(connections()?.values() ?? []);
 }

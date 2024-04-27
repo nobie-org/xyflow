@@ -7,7 +7,7 @@ import { GraphViewProps } from '../GraphView';
 import { ZoomPane } from '../ZoomPane';
 import { Pane } from '../Pane';
 import { NodesSelection } from '../../components/NodesSelection';
-import type { ReactFlowState, Node } from '../../types';
+import type { SolidFlowState, Node } from '../../types';
 
 export type FlowRendererProps<NodeType extends Node = Node> = Omit<
   GraphViewProps<NodeType>,
@@ -28,7 +28,7 @@ export type FlowRendererProps<NodeType extends Node = Node> = Omit<
   children: ReactNode;
 };
 
-const selector = (s: ReactFlowState) => {
+const selector = (s: SolidFlowState) => {
   return { nodesSelectionActive: s.nodesSelectionActive, userSelectionActive: s.userSelectionActive };
 };
 
