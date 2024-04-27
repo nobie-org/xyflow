@@ -2,6 +2,7 @@
 import { createSignal } from 'solid-js';
 import { useIsomorphicLayoutEffect } from '../../hooks/useIsomorphicLayoutEffect';
 import { Queue, QueueItem } from './types';
+import { Writable } from '../../store/initialState';
 
 /**
  * This hook returns a queue that can be used to batch updates.
@@ -20,7 +21,7 @@ export function useQueue<T>(runQueue: (items: QueueItem<T>[]) => void) {
   // A reference of all the batched updates to process before the next render. We
   // want a reference here so multiple synchronous calls to `setNodes` etc can be
   // batched together.
-  const queue = new Writeable(createQueue<T>(() => setShouldFlush(true)));
+  const queue = createQueue<T>(() => setShouldFlush(true));
 
   // Layout effects are guaranteed to run before the next render which means we
   // shouldn't run into any issues with stale state or weird issues that come from
@@ -31,7 +32,7 @@ export function useQueue<T>(runQueue: (items: QueueItem<T>[]) => void) {
     // updates should have been processed by now and we can safely clear the queue
     // and bail early.
     if (!shouldFlush()) {
-      queue().reset();
+      queue.get().reset();
       return;
     }
 
@@ -52,15 +53,15 @@ export function useQueue<T>(runQueue: (items: QueueItem<T>[]) => void) {
 }
 
 function createQueue<T>(cb: () => void): Queue<T> {
-  let queue: QueueItem<T>[] = [];
+  const queue: Writable<QueueItem<T>[]> = new Writable<QueueItem<T>[]>([]);
 
   return {
-    get: () => queue,
+    get: () => queue.get(),
     reset: () => {
-      queue = [];
+      queue.set( []);
     },
     push: (item) => {
-      queue.push(item);
+      queue.set((prev) => [...prev, item]);
       cb();
     },
   };

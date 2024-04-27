@@ -13,7 +13,7 @@ import {
   ConnectingHandle,
 } from '@xyflow/system';
 
-import { FitViewOptions, type Edge, type InternalNode, type Node, type SolidFlowStore } from '../types';
+import { FitViewOptions, type Edge, type InternalNode, type Node, type SolidFlowStore, OnSelectionChangeFunc } from '../types';
 import { Signal, createSignal } from 'solid-js';
 import { ReactiveMap } from '@solid-primitives/map';
 
@@ -112,15 +112,15 @@ const getInitialState = ({
     connectionStartHandle: new Writable<ConnectingHandle | null>(null),
     connectionEndHandle: new Writable<ConnectingHandle | null>(null),
     connectionClickStartHandle: wNullable(),
-    connectOnClick: new Writable(true),
+    connectOnClick: w(true),
 
-    ariaLiveMessage: new Writable(''),
-    autoPanOnConnect: new Writable(true),
-    autoPanOnNodeDrag: new Writable(true),
-    connectionRadius: new Writable(20),
+    ariaLiveMessage: w(''),
+    autoPanOnConnect: w(true),
+    autoPanOnNodeDrag: w(true),
+    connectionRadius: w(20),
     onError: devWarn,
     isValidConnection: undefined,
-    onSelectionChangeHandlers: [],
+    onSelectionChangeHandlers: w<OnSelectionChangeFunc[]>([]),
 
     onBeforeDelete: wEmpty(),
     onViewportChange: wEmpty(),
@@ -142,7 +142,7 @@ export class Writable<T> {
 
   private s: Signal<T>
 
-  constructor(private initial: T) {
+  constructor(initial: T) {
     this.s = createSignal(initial);
   }
 
@@ -152,6 +152,12 @@ export class Writable<T> {
   set(v: T) {
     this.s[1](() => {
       return v;
+    });
+  }
+
+  setFromPrev(fn: (prev: T) => T) {
+    this.s[1]((prev) => {
+      return fn(prev);
     });
   }
 }
