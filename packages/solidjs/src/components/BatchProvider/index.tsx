@@ -6,12 +6,13 @@ import { Queue, QueueItem } from './types';
 import type { Edge, Node } from '../../types';
 import { useQueue } from './useQueue';
 import { Accessor, createContext, JSX, useContext } from 'solid-js';
+import { Writable } from '../../store/initialState';
 
 const BatchContext = createContext<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  nodeQueue: Accessor<Queue<any>>;
+  nodeQueue: Writable<Queue<any>>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  edgeQueue: Accessor<Queue<any>>;
+  edgeQueue: Writable<Queue<any>>;
 } | null>(null);
 
 /**

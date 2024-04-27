@@ -20,7 +20,7 @@ export function useQueue<T>(runQueue: (items: QueueItem<T>[]) => void) {
   // A reference of all the batched updates to process before the next render. We
   // want a reference here so multiple synchronous calls to `setNodes` etc can be
   // batched together.
-  const [queue] = createSignal(createQueue<T>(() => setShouldFlush(true)));
+  const queue = new Writeable(createQueue<T>(() => setShouldFlush(true)));
 
   // Layout effects are guaranteed to run before the next render which means we
   // shouldn't run into any issues with stale state or weird issues that come from

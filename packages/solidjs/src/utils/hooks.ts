@@ -1,9 +1,9 @@
 
-export const useRef = <T>(initialValue: T): Ref<T> => {
-    return new Ref(initialValue);
+export const useRef = <T>(initialValue: T): RefObject<T> => {
+    return new RefObject(initialValue);
 }
 
-class Ref<T> { 
+export class RefObject<T> { 
     constructor(private _current: T) {
     }
 

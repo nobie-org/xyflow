@@ -11,7 +11,7 @@ import { useStore, useStoreApi } from '../../hooks/useStore';
 import { getSelectionChanges } from '../../utils';
 import type { ReactFlowProps, SolidEvent, SolidFlowState } from '../../types';
 import { mergeProps, JSX, ParentProps } from 'solid-js';
-import { useRef } from '../../utils/hooks';
+import { useRef, RefObject } from '../../utils/hooks';
 
 type PaneProps = {
   isSelecting: boolean;
@@ -33,10 +33,10 @@ type PaneProps = {
 
 const wrapHandler = <T,E extends Event>(
   handler: ((event: SolidEvent<T, E>) => void) | undefined,
-  containerRef: T | null
+  containerRef: RefObject<T | null>
 ): (event: SolidEvent<T, E>) => void => {
   return (event: E) => {
-    if (event.target !== containerRef) {
+    if (event.target !== containerRef.current) {
       return;
     }
     handler?.(event as SolidEvent<T, E>);
@@ -240,7 +240,7 @@ export function Pane(_p: ParentProps<PaneProps>){
     if (hasActiveSelection()) {
       // do nothing
     } else {
-      wrapHandler(onClick, container.current)
+      wrapHandler(onClick, container)
     }
   }
 
@@ -253,19 +253,51 @@ export function Pane(_p: ParentProps<PaneProps>){
     }
   }
 
+  const handleMouseDown = (e: MouseEvent) => {
+    if (hasActiveSelection()) {
+      onMouseDown(e)
+    } else {
+      // do nothing 
+    }
+  }
+
+  const onPaneMouseMove = (e: MouseEvent) => {
+    if (hasActiveSelection()) {
+      onMouseMove(e)
+    } else {
+      p.onPaneMouseMove?.(e)
+    }
+  }
+
+  const onPaneMouseLeave = (e: MouseEvent) => {
+    if (hasActiveSelection()) {
+      onMouseLeave(e)
+    } else {
+      p.onPaneMouseLeave?.(e)
+    }
+  }
+
+  const handleMouseUp = (e: MouseEvent) => {
+    if (hasActiveSelection()) {
+      onMouseUp(e)
+    } else {
+      // do nothing
+    }
+  }
+
 
   return (
     <div
-      class={cc(['react-flow__pane', { draggable: panOnDrag, dragging, selection: isSelecting }])}
+      class={cc(['react-flow__pane', { draggable: p.panOnDrag, dragging, selection: p.isSelecting }])}
       onClick={handleClick}
       onContextMenu={wrapHandler(onContextMenu, container)}
-      onWheel={wrapHandler(onWheel, container)}
+      onWheel={wrapHandler(onWheel(), container)}
       onMouseEnter={handleMouseEnter}
-      onMouseDown={hasActiveSelection ? onMouseDown : undefined}
-      onMouseMove={hasActiveSelection ? onMouseMove : onPaneMouseMove}
-      onMouseUp={hasActiveSelection ? onMouseUp : undefined}
-      onMouseLeave={hasActiveSelection ? onMouseLeave : onPaneMouseLeave}
-      ref={container}
+      onMouseDown={handleMouseDown}
+      onMouseMove={onPaneMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={onPaneMouseLeave}
+      ref={(node) => container.current = node}
       style={containerStyle}
     >
       {p.children}

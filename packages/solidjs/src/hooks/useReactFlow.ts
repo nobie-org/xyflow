@@ -45,7 +45,7 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
   const getEdge: Instance.GetEdge<EdgeType> = (id) => store.edgeLookup.get(id) as EdgeType;
 
   const setNodes: Instance.SetNodes<NodeType> = (payload) => {
-    batchContext.nodeQueue.push(payload as NodeType[]);
+    batchContext.nodeQueue().push(payload as NodeType[]);
   };
 
   const setEdges = useCallback<Instance.SetEdges<EdgeType>>((payload) => {
