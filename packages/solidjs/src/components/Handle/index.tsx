@@ -1,5 +1,5 @@
 import cc from 'classcat';
-import { shallow } from 'zustand/shallow';
+// import { shallow } from 'zustand/shallow';
 import {
   errorMessages,
   Position,
@@ -27,7 +27,7 @@ const selector = (s: SolidFlowState) => ({
 });
 
 const connectingSelector =
-  (nodeId: string | null, handleId: string | null, type: HandleType) => (state: SolidFlowState) => {
+  (nodeId: () => string | null, handleId: () => string | null, type: () => HandleType) => (state: SolidFlowState) =>  {
     const {
       connectionStartHandle: startHandle,
       connectionEndHandle: endHandle,
@@ -36,20 +36,20 @@ const connectingSelector =
       connectionStatus,
     } = state;
 
-    const connectingTo = endHandle?.nodeId === nodeId && endHandle?.handleId === handleId && endHandle?.type === type;
+    const connectingTo = () => endHandle.get()?.nodeId === nodeId() && endHandle.get()?.handleId === handleId() && endHandle.get()?.type === type();
 
     return {
       connectingFrom:
-        startHandle?.nodeId === nodeId && startHandle?.handleId === handleId && startHandle?.type === type,
+        () => startHandle.get()?.nodeId === nodeId() && startHandle.get()?.handleId === handleId() && startHandle.get()?.type === type(),
       connectingTo,
       clickConnecting:
-        clickHandle?.nodeId === nodeId && clickHandle?.handleId === handleId && clickHandle?.type === type,
-      isPossibleEndHandle:
-        connectionMode === ConnectionMode.Strict
-          ? startHandle?.type !== type
-          : nodeId !== startHandle?.nodeId || handleId !== startHandle?.handleId,
-      connectionInProcess: !!startHandle,
-      valid: connectingTo && connectionStatus === 'valid',
+        () => clickHandle.get()?.nodeId === nodeId() && clickHandle.get()?.handleId === handleId() && clickHandle.get()?.type === type(),
+      isPossibleEndHandle: ()=>
+        connectionMode.get() === ConnectionMode.Strict
+          ? startHandle.get()?.type !== type()
+          : nodeId() !== startHandle.get()?.nodeId || handleId() !== startHandle.get()?.handleId,
+      connectionInProcess: () => !!startHandle.get(),
+      valid: () => connectingTo() && connectionStatus.get() === 'valid',
     };
   };
 
@@ -106,29 +106,28 @@ function HandleComponent(
   const handleId = () => p.id || null;
   const isTarget = () => p.type === 'target';
   const store = useStoreApi();
-  const nodeId = useNodeId();
-  const { connectOnClick, noPanClassName, rfId } = useStore(selector, shallow);
+  const getNodeId = useNodeId();
+  const { connectOnClick, noPanClassName, rfId } = useStore(selector);
   const { connectingFrom, connectingTo, clickConnecting, isPossibleEndHandle, connectionInProcess, valid } = useStore(
-    connectingSelector(nodeId, handleId(), p.type),
-    shallow
+    connectingSelector(getNodeId, handleId, () => p.type),
   );
 
   createEffect(() => {
-    if (!nodeId) {
-      store().getState().onError?.('010', errorMessages['error010']());
+    if (!getNodeId()) {
+      store.onError?.('010', errorMessages['error010']());
     }
   });
 
   const onConnectExtended = (params: Connection) => {
-    const { defaultEdgeOptions, onConnect: onConnectAction, hasDefaultEdges } = store().getState();
+    const { defaultEdgeOptions, onConnect: onConnectAction, hasDefaultEdges } = store;
 
     const edgeParams = {
       ...defaultEdgeOptions,
       ...params,
     };
-    if (hasDefaultEdges) {
-      const { edges, setEdges } = store().getState();
-      setEdges(addEdge(edgeParams, edges));
+    if (hasDefaultEdges.get()) {
+      const { edges, setEdges } = store;
+      setEdges(addEdge(edgeParams, edges.get()));
     }
 
     onConnectAction?.(edgeParams);
@@ -136,6 +135,8 @@ function HandleComponent(
   };
 
   const onPointerDown = (event: MouseEvent | TouchEvent) => {
+    const nodeId = getNodeId();
+
     if (!nodeId) {
       return;
     }
@@ -143,19 +144,19 @@ function HandleComponent(
     const isMouseTriggered = isMouseEvent(event);
 
     if (p.isConnectableStart && ((isMouseTriggered && (event as MouseEvent).button === 0) || !isMouseTriggered)) {
-      const currentStore = store().getState();
+      const currentStore = store;
 
       XYHandle.onPointerDown(event, {
-        autoPanOnConnect: currentStore.autoPanOnConnect,
-        connectionMode: currentStore.connectionMode,
-        connectionRadius: currentStore.connectionRadius,
-        domNode: currentStore.domNode,
+        autoPanOnConnect: currentStore.autoPanOnConnect.get(),
+        connectionMode: currentStore.connectionMode.get(),
+        connectionRadius: currentStore.connectionRadius.get(),
+        domNode: currentStore.domNode.get(),
         nodeLookup: currentStore.nodeLookup,
-        lib: currentStore.lib,
+        lib: currentStore.lib.get(),
         isTarget: isTarget(),
         handleId: handleId(),
-        nodeId,
-        flowId: currentStore.rfId,
+        nodeId: nodeId,
+        flowId: currentStore.rfId.get(),
         panBy: currentStore.panBy,
         cancelConnection: currentStore.cancelConnection,
         onConnectStart: currentStore.onConnectStart,
@@ -163,8 +164,8 @@ function HandleComponent(
         updateConnection: currentStore.updateConnection,
         onConnect: onConnectExtended,
         isValidConnection: p.isValidConnection || currentStore.isValidConnection,
-        getTransform: () => store().getState().transform,
-        getConnectionStartHandle: () => store().getState().connectionStartHandle,
+        getTransform: () => store.transform.get(),
+        getConnectionStartHandle: () => store.connectionStartHandle.get(),
       });
     }
 
@@ -181,15 +182,19 @@ function HandleComponent(
   };
 
   const onClick = (event: MouseEvent) => {
+    const nodeId = getNodeId();
+
     const {
       onClickConnectStart,
       onClickConnectEnd,
-      connectionClickStartHandle,
+      connectionClickStartHandle: getConnectionClickStartHandle,
       connectionMode,
       isValidConnection: isValidConnectionStore,
       lib,
       rfId: flowId,
-    } = store().getState();
+    } = store;
+
+    const connectionClickStartHandle = getConnectionClickStartHandle.get();
 
     if (!nodeId || (!connectionClickStartHandle && !p.isConnectableStart)) {
       return;
@@ -197,7 +202,7 @@ function HandleComponent(
 
     if (!connectionClickStartHandle) {
       onClickConnectStart?.(event, { nodeId, handleId: handleId(), handleType: p.type });
-      store().setState({ connectionClickStartHandle: { nodeId, type: p.type, handleId: handleId() } });
+      store.connectionClickStartHandle.set({ nodeId, type: p.type, handleId: handleId() })
       return;
     }
 
@@ -209,14 +214,14 @@ function HandleComponent(
         id: handleId(),
         type: p.type,
       },
-      connectionMode,
+      connectionMode: connectionMode.get(),
       fromNodeId: connectionClickStartHandle.nodeId,
       fromHandleId: connectionClickStartHandle.handleId || null,
       fromType: connectionClickStartHandle.type,
       isValidConnection: isValidConnectionHandler,
-      flowId,
+      flowId: flowId.get(),
       doc,
-      lib,
+      lib: lib.get(),
     });
 
     if (isValid && connection) {
@@ -225,37 +230,37 @@ function HandleComponent(
 
     onClickConnectEnd?.(event as unknown as MouseEvent);
 
-    store().setState({ connectionClickStartHandle: null });
+    store.connectionStartHandle.set(null);
   };
 
   return (
     <div
       data-handleid={handleId()}
-      data-nodeid={nodeId}
+      data-nodeid={getNodeId()}
       data-handlepos={p.position}
-      data-id={`${rfId}-${nodeId}-${handleId()}-${p.type}`}
+      data-id={`${rfId.get()}-${getNodeId()}-${handleId()}-${p.type}`}
       class={cc([
         'react-flow__handle',
         `react-flow__handle-${p.position}`,
         'nodrag',
-        noPanClassName,
+        noPanClassName.get(),
         p.class,
         {
-          source: !isTarget,
-          target: isTarget,
+          source: !isTarget(),
+          target: isTarget(),
           connectable: p.isConnectable,
           connectablestart: p.isConnectableStart,
           connectableend: p.isConnectableEnd,
-          clickconnecting: clickConnecting,
-          connectingfrom: connectingFrom,
-          connectingto: connectingTo,
-          valid,
+          clickconnecting: clickConnecting(),
+          connectingfrom: connectingFrom(),
+          connectingto: connectingTo(),
+          valid: valid(),
           // shows where you can start a connection from
           // and where you can end it while connecting
           connectionindicator:
             p.isConnectable &&
-            (!connectionInProcess || isPossibleEndHandle) &&
-            (connectionInProcess ? p.isConnectableEnd : p.isConnectableStart),
+            (!connectionInProcess() || isPossibleEndHandle()) &&
+            (connectionInProcess() ? p.isConnectableEnd : p.isConnectableStart),
         },
       ])}
       onMouseDown={onPointerDown}

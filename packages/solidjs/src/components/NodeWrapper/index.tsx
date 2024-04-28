@@ -52,7 +52,7 @@ export function NodeWrapper<NodeType extends Node>({
       internals: node.internals,
       isParent,
     };
-  }, shallow);
+  });
 
   let nodeType = node.type || 'default';
   let NodeComponent = nodeTypes?.[nodeType] || builtinNodeTypes[nodeType];
