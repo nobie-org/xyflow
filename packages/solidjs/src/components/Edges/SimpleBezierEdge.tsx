@@ -2,7 +2,7 @@ import { Position, getBezierEdgeCenter } from '@xyflow/system';
 
 import { BaseEdge } from './BaseEdge';
 import type { SimpleBezierEdgeProps } from '../../types';
-import { mergeProps } from 'solid-js';
+import { Component, mergeProps } from 'solid-js';
 
 export interface GetSimpleBezierPathParams {
   sourceX: number;
@@ -71,7 +71,7 @@ export function getSimpleBezierPath({
   ];
 }
 
-function createSimpleBezierEdge(params: { isInternal: boolean }) {
+function createSimpleBezierEdge(params: { isInternal: boolean }): Component<SimpleBezierEdgeProps> {
   return (_p: SimpleBezierEdgeProps) => {
     //   id,
     //   sourceX,

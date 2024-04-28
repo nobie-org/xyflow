@@ -2,8 +2,9 @@ import { getStraightPath } from '@xyflow/system';
 
 import { BaseEdge } from './BaseEdge';
 import type { StraightEdgeProps } from '../../types';
+import { Component } from 'solid-js';
 
-function createStraightEdge(params: { isInternal: boolean }) {
+function createStraightEdge(params: { isInternal: boolean }): Component<StraightEdgeProps> {
   return (
     p: StraightEdgeProps
     // {

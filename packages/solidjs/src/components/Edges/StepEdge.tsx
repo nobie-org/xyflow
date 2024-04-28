@@ -1,7 +1,8 @@
 import { SmoothStepEdge } from './SmoothStepEdge';
 import type { StepEdgeProps } from '../../types';
+import { Component } from 'solid-js';
 
-function createStepEdge(params: { isInternal: boolean }) {
+function createStepEdge(params: { isInternal: boolean }): Component<StepEdgeProps> {
   return (p: StepEdgeProps) => {
     const _id = () => (params.isInternal ? undefined : p.id);
 
