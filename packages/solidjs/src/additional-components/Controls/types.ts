@@ -1,6 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+// import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type { PanelPosition } from '@xyflow/system';
 
+import { JSX } from 'solid-js';
 import type { FitViewOptions } from '../../types';
 
 export type ControlProps = {
@@ -25,13 +26,13 @@ export type ControlProps = {
    * PanelPosition.BottomLeft, PanelPosition.BottomRight
    */
   position?: PanelPosition;
-  children?: ReactNode;
+  children?: JSX.Element;
   /** Style applied to container */
-  style?: React.CSSProperties;
+  style?: JSX.CSSProperties;
   /** ClassName applied to container */
   className?: string;
   'aria-label'?: string;
   orientation?: 'horizontal' | 'vertical';
 };
 
-export type ControlButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+export type ControlButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement>;

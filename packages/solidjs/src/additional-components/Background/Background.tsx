@@ -25,8 +25,8 @@ function BackgroundComponent(_p: BackgroundProps) {
 
   const [_ignored, p] = splitProps(_p, ['gap', 'lineWidth', 'offset', 'variant']);
 
-  const ref = useRef<SVGSVGElement>(null);
-  const { transform, patternId } = useStore(selector, shallow);
+  const ref = useRef<SVGSVGElement | null>(null);
+  const { transform, patternId } = useStore(selector);
   const patternSize = () => p.size || defaultSize[variant()];
   const isDots = () => variant() === BackgroundVariant.Dots;
   const isCross = () => variant() === BackgroundVariant.Cross;
@@ -38,8 +38,8 @@ function BackgroundComponent(_p: BackgroundProps) {
       return [g, g];
     }
   };
-  const scaledGap: () => [number, number] = () => [gapXY()[0] * transform[2] || 1, gapXY()[1] * transform[2] || 1];
-  const scaledSize = () => patternSize() * transform[2];
+  const scaledGap: () => [number, number] = () => [gapXY()[0] * transform.get()[2] || 1, gapXY()[1] * transform.get()[2] || 1];
+  const scaledSize = () => patternSize() * transform.get()[2];
 
   const patternDimensions: () => [number, number] = () => (isCross() ? [scaledSize(), scaledSize()] : scaledGap());
 
@@ -71,8 +71,8 @@ function BackgroundComponent(_p: BackgroundProps) {
     >
       <pattern
         id={_patternId()}
-        x={transform[0] % scaledGap()[0]}
-        y={transform[1] % scaledGap()[1]}
+        x={transform.get()[0] % scaledGap()[0]}
+        y={transform.get()[1] % scaledGap()[1]}
         width={scaledGap()[0]}
         height={scaledGap()[1]}
         patternUnits="userSpaceOnUse"

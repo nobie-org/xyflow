@@ -1,4 +1,5 @@
-import { CSSProperties } from 'react';
+
+import { JSX } from 'solid-js';
 
 export enum BackgroundVariant {
   Lines = 'lines',
@@ -30,5 +31,5 @@ export type BackgroundProps = {
    */
   variant?: BackgroundVariant;
   /** Style applied to the container */
-  style?: CSSProperties;
+  style?: JSX.CSSProperties;
 };
