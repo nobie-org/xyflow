@@ -12,6 +12,7 @@ import type { Node, Edge, SolidFlowState, ReactFlowProps, FitViewOptions } from 
 import { defaultNodeOrigin } from '../../container/ReactFlow/init-values';
 import { useRef } from '../../utils/hooks';
 import { createEffect } from 'solid-js';
+import { Writable } from '../../store/initialState';
 
 // these fields exist in the global store and we need to keep them up to date
 const reactFlowFieldsToTrack = [
@@ -151,10 +152,28 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
         else if (fieldName === 'fitView') store.fitViewOnInit.set(fieldValue as boolean);
         else if (fieldName === 'fitViewOptions') store.fitViewOnInitOptions.set(fieldValue as FitViewOptions);
         // General case
-        else store.setState({ [fieldName]: fieldValue });
+        else {
+
+          if (fieldName === "defaultNodes") { 
+            throw new Error("defaultNodes is not a valid field to track");
+          }
+          if (fieldName === "defaultEdges") {
+            throw new Error("defaultEdges is not a valid field to track");
+          }
+
+          
+          const maybeWritable = store[fieldName];
+          if (maybeWritable instanceof Writable) { 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const w = maybeWritable as Writable<any>;
+            w.set(fieldValue);
+          } else { 
+            throw new Error(`Field ${fieldName} is not writable`);
+          }
+        } 
       }
 
-      previousFields.current = props;
+      previousFields.current = { ...props }
     },
     // Only re-run the effect if one of the fields we track changes
     // fieldsToTrack.map((fieldName) => props[fieldName])
