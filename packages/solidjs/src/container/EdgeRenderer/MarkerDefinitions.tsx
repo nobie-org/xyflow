@@ -1,76 +1,87 @@
-import { memo, useMemo } from 'react';
+// import { memo, useMemo } from 'react';
 import { type MarkerProps, createMarkerIds } from '@xyflow/system';
 
 import { useStore } from '../../hooks/useStore';
 import { useMarkerSymbol } from './MarkerSymbols';
+import { For, Show, mergeProps } from 'solid-js';
 
 type MarkerDefinitionsProps = {
   defaultColor: string;
   rfId?: string;
 };
 
-const Marker = ({
-  id,
-  type,
-  color,
-  width = 12.5,
-  height = 12.5,
-  markerUnits = 'strokeWidth',
-  strokeWidth,
-  orient = 'auto-start-reverse',
-}: MarkerProps) => {
-  const Symbol = useMarkerSymbol(type);
+const Marker = (_p: MarkerProps) => {
+//   id,
+//   type,
+//   color,
+//   width = 12.5,
+//   height = 12.5,
+//   markerUnits = 'strokeWidth',
+//   strokeWidth,
+//   orient = 'auto-start-reverse',
+// }: MarkerProps) => {
+  const p = mergeProps({ width: 12.5, height: 12.5, markerUnits: 'strokeWidth', orient: 'auto-start-reverse' }, _p);
 
-  if (!Symbol) {
-    return null;
-  }
+  const symbol = useMarkerSymbol(() => p.type);
+
+  // if (!symbol) {
+  //   return null;
+  // }
 
   return (
+    <Show when={symbol()}>
     <marker
-      className="react-flow__arrowhead"
-      id={id}
-      markerWidth={`${width}`}
-      markerHeight={`${height}`}
+      class="react-flow__arrowhead"
+      id={p.id}
+      markerWidth={`${p.width}`}
+      markerHeight={`${p.height}`}
       viewBox="-10 -10 20 20"
-      markerUnits={markerUnits}
-      orient={orient}
+      // eslint-disable-next-line 
+      markerUnits={p.markerUnits as any}
+      orient={p.orient}
       refX="0"
       refY="0"
     >
-      <Symbol color={color} strokeWidth={strokeWidth} />
+      <symbol color={p.color} stroke-width={p.strokeWidth} />
     </marker>
+    </Show>
   );
 };
 
 // when you have multiple flows on a page and you hide the first one, the other ones have no markers anymore
 // when they do have markers with the same ids. To prevent this the user can pass a unique id to the react flow wrapper
 // that we can then use for creating our unique marker ids
-const MarkerDefinitions = ({ defaultColor, rfId }: MarkerDefinitionsProps) => {
+const MarkerDefinitions = (p:MarkerDefinitionsProps) => {
+  // { defaultColor, rfId }: MarkerDefinitionsProps) => {
   const edges = useStore((s) => s.edges);
-  const defaultEdgeOptions = useStore((s) => s.defaultEdgeOptions);
+  const defaultEdgeOptions = useStore((s) => () => s.defaultEdgeOptions);
 
-  const markers = useMemo(() => {
-    const markers = createMarkerIds(edges, {
-      id: rfId,
-      defaultColor,
-      defaultMarkerStart: defaultEdgeOptions?.markerStart,
-      defaultMarkerEnd: defaultEdgeOptions?.markerEnd,
+  const markers = () => {
+    const markers = createMarkerIds(edges.get(), {
+      id: p.rfId,
+      defaultColor: p.defaultColor,
+      defaultMarkerStart: defaultEdgeOptions()?.markerStart,
+      defaultMarkerEnd: defaultEdgeOptions()?.markerEnd,
     });
 
     return markers;
-  }, [edges, defaultEdgeOptions, rfId, defaultColor]);
+  };
 
-  if (!markers.length) {
-    return null;
-  }
+  // if (!markers.length) {
+  //   return null;
+  // }
 
   return (
-    <svg className="react-flow__marker">
+    <Show when={markers.length}>
+    <svg class="react-flow__marker">
       <defs>
-        {markers.map((marker: MarkerProps) => (
-          <Marker
+        <For each={markers()}>
+        {/* {markers.map((marker: MarkerProps) => ( */}
+            {(marker) => { 
+
+         return  <Marker
             id={marker.id}
-            key={marker.id}
+            // key={marker.id}
             type={marker.type}
             color={marker.color}
             width={marker.width}
@@ -79,12 +90,15 @@ const MarkerDefinitions = ({ defaultColor, rfId }: MarkerDefinitionsProps) => {
             strokeWidth={marker.strokeWidth}
             orient={marker.orient}
           />
-        ))}
+        }}
+        </For>
+
       </defs>
     </svg>
+    </Show>
   );
 };
 
 MarkerDefinitions.displayName = 'MarkerDefinitions';
 
-export default memo(MarkerDefinitions);
+export default MarkerDefinitions

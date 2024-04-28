@@ -1,5 +1,5 @@
-import { memo, ReactNode } from 'react';
-import { shallow } from 'zustand/shallow';
+// import { memo, ReactNode } from 'react';
+// import { shallow } from 'zustand/shallow';
 
 import { useStore } from '../../hooks/useStore';
 import { useVisibleEdgeIds } from '../../hooks/useVisibleEdgeIds';
@@ -7,6 +7,7 @@ import MarkerDefinitions from './MarkerDefinitions';
 import { GraphViewProps } from '../GraphView';
 import { EdgeWrapper } from '../../components/EdgeWrapper';
 import type { Edge, SolidFlowState, Node } from '../../types';
+import { For, ParentProps } from 'solid-js';
 
 type EdgeRendererProps<EdgeType extends Edge = Edge> = Pick<
   GraphViewProps<Node, EdgeType>,
@@ -26,9 +27,7 @@ type EdgeRendererProps<EdgeType extends Edge = Edge> = Pick<
   | 'rfId'
   | 'disableKeyboardA11y'
   | 'edgeTypes'
-> & {
-  children?: ReactNode;
-};
+>
 
 const selector = (s: SolidFlowState) => ({
   width: s.width,
@@ -40,61 +39,65 @@ const selector = (s: SolidFlowState) => ({
   onError: s.onError,
 });
 
-function EdgeRendererComponent<EdgeType extends Edge = Edge>({
-  defaultMarkerColor,
-  onlyRenderVisibleElements,
-  rfId,
-  edgeTypes,
-  noPanClassName,
-  onEdgeUpdate,
-  onEdgeContextMenu,
-  onEdgeMouseEnter,
-  onEdgeMouseMove,
-  onEdgeMouseLeave,
-  onEdgeClick,
-  edgeUpdaterRadius,
-  onEdgeDoubleClick,
-  onEdgeUpdateStart,
-  onEdgeUpdateEnd,
-  disableKeyboardA11y,
-}: EdgeRendererProps<EdgeType>) {
-  const { edgesFocusable, edgesUpdatable, elementsSelectable, onError } = useStore(selector, shallow);
-  const edgeIds = useVisibleEdgeIds(onlyRenderVisibleElements);
+function EdgeRendererComponent<EdgeType extends Edge = Edge>(p: ParentProps<EdgeRendererProps<EdgeType>>){
+//   defaultMarkerColor,
+//   onlyRenderVisibleElements,
+//   rfId,
+//   edgeTypes,
+//   noPanClassName,
+//   onEdgeUpdate,
+//   onEdgeContextMenu,
+//   onEdgeMouseEnter,
+//   onEdgeMouseMove,
+//   onEdgeMouseLeave,
+//   onEdgeClick,
+//   edgeUpdaterRadius,
+//   onEdgeDoubleClick,
+//   onEdgeUpdateStart,
+//   onEdgeUpdateEnd,
+//   disableKeyboardA11y,
+// }: EdgeRendererProps<EdgeType>) {
+  const { edgesFocusable, edgesUpdatable, elementsSelectable, onError } = useStore(selector);
+  const edgeIds = useVisibleEdgeIds(() => p.onlyRenderVisibleElements);
 
   return (
-    <div className="react-flow__edges">
-      <MarkerDefinitions defaultColor={defaultMarkerColor} rfId={rfId} />
+    <div class="react-flow__edges">
+      <MarkerDefinitions defaultColor={p.defaultMarkerColor} rfId={p.rfId} />
 
-      {edgeIds.map((id) => {
+<For each={edgeIds()}>
+        {(id) => { 
+
+      {/* {edgeIds.map((id) => { */}
         return (
           <EdgeWrapper<EdgeType>
-            key={id}
+            // key={id}
             id={id}
-            edgesFocusable={edgesFocusable}
-            edgesUpdatable={edgesUpdatable}
-            elementsSelectable={elementsSelectable}
-            noPanClassName={noPanClassName}
-            onEdgeUpdate={onEdgeUpdate}
-            onContextMenu={onEdgeContextMenu}
-            onMouseEnter={onEdgeMouseEnter}
-            onMouseMove={onEdgeMouseMove}
-            onMouseLeave={onEdgeMouseLeave}
-            onClick={onEdgeClick}
-            edgeUpdaterRadius={edgeUpdaterRadius}
-            onDoubleClick={onEdgeDoubleClick}
-            onEdgeUpdateStart={onEdgeUpdateStart}
-            onEdgeUpdateEnd={onEdgeUpdateEnd}
-            rfId={rfId}
+            edgesFocusable={edgesFocusable.get()}
+            edgesUpdatable={edgesUpdatable.get()}
+            elementsSelectable={elementsSelectable.get()}
+            noPanClassName={p.noPanClassName}
+            onEdgeUpdate={p.onEdgeUpdate}
+            onContextMenu={p.onEdgeContextMenu}
+            onMouseEnter={p.onEdgeMouseEnter}
+            onMouseMove={p.onEdgeMouseMove}
+            onMouseLeave={p.onEdgeMouseLeave}
+            onClick={p.onEdgeClick}
+            edgeUpdaterRadius={p.edgeUpdaterRadius}
+            onDoubleClick={p.onEdgeDoubleClick}
+            onEdgeUpdateStart={p.onEdgeUpdateStart}
+            onEdgeUpdateEnd={p.onEdgeUpdateEnd}
+            rfId={p.rfId}
             onError={onError}
-            edgeTypes={edgeTypes}
-            disableKeyboardA11y={disableKeyboardA11y}
+            edgeTypes={p.edgeTypes}
+            disableKeyboardA11y={p.disableKeyboardA11y}
           />
         );
-      })}
+      }}
+      </For>
     </div>
   );
 }
 
 EdgeRendererComponent.displayName = 'EdgeRenderer';
 
-export const EdgeRenderer = memo(EdgeRendererComponent) as typeof EdgeRendererComponent;
+export const EdgeRenderer = EdgeRendererComponent;

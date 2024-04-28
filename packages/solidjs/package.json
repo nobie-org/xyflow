@@ -50,8 +50,7 @@
   "dependencies": {
     "@solid-primitives/map": "^0.4.11",
     "@xyflow/system": "workspace:*",
-    "classcat": "^5.0.3",
-    "zustand": "^4.4.0"
+    "classcat": "^5.0.3"
   },
   "peerDependencies": {
     "solid-js": ">=1.8"
@@ -75,9 +74,7 @@
   },
   "rollup": {
     "globals": {
-      "classcat": "cc",
-      "zustand": "zustand",
-      "zustand/shallow": "zustandShallow"
+      "classcat": "cc"
     },
     "name": "SolidJSFlow"
   }

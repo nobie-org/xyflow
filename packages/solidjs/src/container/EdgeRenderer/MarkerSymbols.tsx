@@ -1,35 +1,43 @@
-import { useMemo } from 'react';
+// import { useMemo } from 'react';
 import { errorMessages, MarkerType, type EdgeMarker } from '@xyflow/system';
 
 import { useStoreApi } from '../../hooks/useStore';
+import { mergeProps } from 'solid-js';
 
 type SymbolProps = Omit<EdgeMarker, 'type'>;
 
-const ArrowSymbol = ({ color = 'none', strokeWidth = 1 }: SymbolProps) => {
+const ArrowSymbol = (_p: SymbolProps) => {
+  
+  // { color = 'none', strokeWidth = 1 }: SymbolProps) => {
+    const p = mergeProps({ color: 'none', strokeWidth: 1 }, _p);
+
   return (
     <polyline
       style={{
-        stroke: color,
-        strokeWidth,
+        stroke: p.color,
+        "stroke-width": p.strokeWidth  ? p.strokeWidth + "px" : undefined,
       }}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      stroke-linecap="round"
+      stroke-linejoin="round"
       fill="none"
       points="-5,-4 0,0 -5,4"
     />
   );
 };
 
-const ArrowClosedSymbol = ({ color = 'none', strokeWidth = 1 }: SymbolProps) => {
+const ArrowClosedSymbol = (_p: SymbolProps) => {
+  // { color = 'none', strokeWidth = 1 }: SymbolProps) => {
+    const p = mergeProps({ color: 'none', strokeWidth: 1 }, _p);
+
   return (
     <polyline
       style={{
-        stroke: color,
-        fill: color,
-        strokeWidth,
+        stroke: p.color,
+        fill: p.color,
+        "stroke-width": p.strokeWidth ? p.strokeWidth + "px" : undefined,
       }}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      stroke-linecap="round"
+      stroke-linejoin="round"
       points="-5,-4 0,0 -5,4 -5,-4"
     />
   );
@@ -40,20 +48,20 @@ export const MarkerSymbols = {
   [MarkerType.ArrowClosed]: ArrowClosedSymbol,
 };
 
-export function useMarkerSymbol(type: MarkerType) {
+export function useMarkerSymbol(type: () => MarkerType) {
   const store = useStoreApi();
 
-  const symbol = useMemo(() => {
-    const symbolExists = Object.prototype.hasOwnProperty.call(MarkerSymbols, type);
+  const symbol = () => {
+    const symbolExists = Object.prototype.hasOwnProperty.call(MarkerSymbols, type());
 
     if (!symbolExists) {
-      store.getState().onError?.('009', errorMessages['error009'](type));
+      store.onError?.('009', errorMessages['error009'](type()));
 
       return null;
     }
 
-    return MarkerSymbols[type];
-  }, [type]);
+    return MarkerSymbols[type()];
+  };
 
   return symbol;
 }

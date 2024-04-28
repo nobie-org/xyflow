@@ -10,10 +10,10 @@ import { type SolidFlowState } from '../types';
  * @param onlyRenderVisible
  * @returns array with visible edge ids
  */
-export function useVisibleEdgeIds(onlyRenderVisible: boolean): () => string[] {
+export function useVisibleEdgeIds(onlyRenderVisible: () => boolean): () => string[] {
   const edgeIds = useStore(
     (s: SolidFlowState) => () => {
-      if (!onlyRenderVisible) {
+      if (!onlyRenderVisible()) {
         return s.edges.get().map((edge) => edge.id);
       }
 
