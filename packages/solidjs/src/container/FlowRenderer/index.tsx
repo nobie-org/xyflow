@@ -119,7 +119,7 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
           <NodesSelection
             onSelectionContextMenu={p.onSelectionContextMenu}
             noPanClassName={p.noPanClassName}
-            disableKeyboardA11y={disableKeyboardA11y}
+            disableKeyboardA11y={p.disableKeyboardA11y}
           />
         </Show>
       </Pane>

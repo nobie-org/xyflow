@@ -1,7 +1,7 @@
-import { shallow } from 'zustand/shallow';
 
 import { useStore } from './useStore';
 import type { Edge, SolidFlowState } from '../types';
+import { Writable } from '../store/initialState';
 
 const edgesSelector = (state: SolidFlowState) => state.edges;
 
@@ -11,8 +11,9 @@ const edgesSelector = (state: SolidFlowState) => state.edges;
  * @public
  * @returns An array of edges
  */
-export function useEdges<EdgeType extends Edge = Edge>(): EdgeType[] {
-  const edges = useStore(edgesSelector, shallow) as EdgeType[];
+export function useEdges<EdgeType extends Edge = Edge>(): Writable<EdgeType[]> {
+  // TODO: fix this cast
+  const edges = useStore(edgesSelector) as unknown as Writable<EdgeType[]>;
 
   return edges;
 }

@@ -3,8 +3,9 @@ import type { Viewport } from '@xyflow/system';
 
 import { useStore, useStoreApi } from './useStore';
 import type { SolidFlowState } from '../types';
+import { createEffect } from 'solid-js';
 
-const selector = (state: SolidFlowState) => state.panZoom?.syncViewport;
+const selector = (state: SolidFlowState) => () => state.panZoom.get()?.syncViewport;
 
 /**
  * Hook for syncing the viewport with the panzoom instance.
@@ -16,12 +17,13 @@ export function useViewportSync(viewport?: Viewport) {
   const syncViewport = useStore(selector);
   const store = useStoreApi();
 
-  useEffect(() => {
+  createEffect(() => {
     if (viewport) {
-      syncViewport?.(viewport);
-      store.setState({ transform: [viewport.x, viewport.y, viewport.zoom] });
+      syncViewport()?.(viewport);
+      store.transform.set([viewport.x, viewport.y, viewport.zoom]);
+      // store.setState({ transform: [viewport.x, viewport.y, viewport.zoom] });
     }
-  }, [viewport, syncViewport]);
+  });
 
   return null;
 }
