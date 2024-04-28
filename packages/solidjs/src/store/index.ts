@@ -60,6 +60,7 @@ const createStore = ({
   const setEdges = (edges: Edge[]) => {
     const { connectionLookup, edgeLookup, edges: storeEdges } = store;
 
+    console.log('setEdges', edges);
     updateConnectionLookup(connectionLookup, edgeLookup, edges);
 
     storeEdges.set(edges);
@@ -346,7 +347,8 @@ const createStore = ({
 
   const reset = () => { 
     const initialState = getInitialState();
-    throw new Error('Not implemented. need to reset each field');
+    // throw new Error('Not implemented. need to reset each field');
+    console.warn('Not implemented. need to reset each field');
 
     }
 

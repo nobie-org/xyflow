@@ -11,7 +11,7 @@ import { useStore, useStoreApi } from '../../hooks/useStore';
 import type { Node, Edge, SolidFlowState, ReactFlowProps, FitViewOptions } from '../../types';
 import { defaultNodeOrigin } from '../../container/ReactFlow/init-values';
 import { useRef } from '../../utils/hooks';
-import { createEffect } from 'solid-js';
+import { createEffect, onCleanup } from 'solid-js';
 import { Writable } from '../../store/initialState';
 
 // these fields exist in the global store and we need to keep them up to date
@@ -121,22 +121,28 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
   } = useStore(selector);
   const store = useStoreApi<NodeType, EdgeType>();
 
+  console.log("storeUpdater called");
+
   createEffect(() => {
     setDefaultNodesAndEdges(props.defaultNodes, props.defaultEdges);
 
-    return () => {
+    onCleanup(() => {
       // when we reset the store we also need to reset the previous fields
       previousFields.current = initPrevValues;
       reset();
-    };
+    });
   });
 
   const previousFields = useRef<Partial<StoreUpdaterProps<NodeType, EdgeType>>>(initPrevValues);
 
   createEffect(
     () => {
+      console.log("props", props)
       for (const fieldName of fieldsToTrack) {
+        console.log("fieldName", fieldName)
+
         const fieldValue = props[fieldName];
+        console.log("fieldValue", fieldValue)
         const previousFieldValue = previousFields.current[fieldName];
 
         if (fieldValue === previousFieldValue) continue;
@@ -155,10 +161,12 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
         else {
 
           if (fieldName === "defaultNodes") { 
-            throw new Error("defaultNodes is not a valid field to track");
+            console.warn("defaultNodes is not a valid field to track");
+            continue
           }
           if (fieldName === "defaultEdges") {
-            throw new Error("defaultEdges is not a valid field to track");
+            console.warn("defaultEdges is not a valid field to track");
+            continue
           }
 
           
@@ -168,7 +176,8 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
             const w = maybeWritable as Writable<any>;
             w.set(fieldValue);
           } else { 
-            throw new Error(`Field ${fieldName} is not writable`);
+            console.warn(`Field ${fieldName} is not writable`);
+            // throw new Error(`Field ${fieldName} is not writable`);
           }
         } 
       }

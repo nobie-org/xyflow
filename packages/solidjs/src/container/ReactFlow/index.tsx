@@ -22,7 +22,7 @@ const wrapperStyle: JSX.CSSProperties = {
   'z-index': 0,
 };
 
-type UsedProps<N extends Node, E extends Edge> = ReactFlowProps<N, E> & { ref: (node: HTMLDivElement) => void };
+type UsedProps<N extends Node, E extends Edge> = ReactFlowProps<N, E> & { ref?: (node: HTMLDivElement) => void };
 
 function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(_p: UsedProps<NodeType, EdgeType>) {
   //   {

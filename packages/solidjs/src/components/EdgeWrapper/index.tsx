@@ -44,7 +44,14 @@ export function EdgeWrapper<EdgeType extends Edge = Edge>(
   //   disableKeyboardA11y,
   // }: EdgeWrapperProps<EdgeType>): JSX.Element | null {
 ) {
-  const storeEdge = useStore((s) => () => s.edgeLookup.get(p.id)!) as () => EdgeType;
+  const storeEdge = useStore((s) => () => {
+    const edge = s.edgeLookup.get(p.id);
+    if (!edge) {
+      throw new Error(`Edge with id ${p.id} not found`);
+    }
+    return edge
+  }) as () => EdgeType;
+
   const defaultEdgeOptions = useStore((s) => s.defaultEdgeOptions);
   const edge = () => (defaultEdgeOptions ? { ...defaultEdgeOptions, ...storeEdge() } : storeEdge());
 

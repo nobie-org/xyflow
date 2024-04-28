@@ -31,6 +31,8 @@ export function Wrapper(p:
   //   return <>{children}</>;
   // }
 
+  console.log('isWrapped', isWrapped);
+
   return (
     <Show when={!isWrapped} fallback={
       // TODO: not sure if this apples to solid? 

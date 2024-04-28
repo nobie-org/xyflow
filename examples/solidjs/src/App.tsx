@@ -2,6 +2,8 @@ import type { Component } from 'solid-js';
 
 import logo from './logo.svg';
 import styles from './App.module.css';
+import { BasicExample } from './BasicExample';
+import BasicFlow from './SimpleExample';
 
 const App: Component = () => {
   return (
@@ -19,7 +21,7 @@ const App: Component = () => {
         >
           Learn Solid
         </a>
-        
+        <BasicFlow/>
       </header>
     </div>
   );

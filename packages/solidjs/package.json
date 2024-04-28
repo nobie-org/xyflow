@@ -12,18 +12,14 @@
     "xyflow"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "source": "src/index.ts",
-  "main": "dist/umd/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.mjs",
-      "require": "./dist/umd/index.js"
-    },
+    ".": "./src/index.ts",
     "./dist/base.css": "./dist/base.css",
     "./dist/style.css": "./dist/style.css"
   },
@@ -60,13 +56,12 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
-    "babel-preset-solid": "^1.8.15",
-    "rollup": "^4.12.1",
     "@types/node": "^18.7.16",
     "@xyflow/eslint-config": "workspace:*",
     "@xyflow/rollup-config": "workspace:*",
     "@xyflow/tsconfig": "workspace:*",
     "autoprefixer": "^10.4.15",
+    "babel-preset-solid": "^1.8.15",
     "cssnano": "^6.0.1",
     "eslint-plugin-solid": "^0.13.1",
     "postcss": "^8.4.21",
@@ -75,6 +70,8 @@
     "postcss-import": "^15.1.0",
     "postcss-nested": "^6.0.0",
     "postcss-rename": "^0.6.1",
+    "rollup": "^4.12.1",
+    "rollup-plugin-postcss": "^4.0.2",
     "solid-js": "^1.8",
     "typescript": "5.1.3"
   },
