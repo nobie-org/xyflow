@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { getNodesInside } from '@xyflow/system';
 
 import { useStore } from './useStore';
@@ -20,7 +19,7 @@ const selector = (onlyRenderVisible: () => boolean) => (s: SolidFlowState) => {
  * @returns array with visible node ids
  */
 export function useVisibleNodeIds(onlyRenderVisible: () => boolean): () => string[] {
-  const nodeIds = useStore(useCallback(selector(onlyRenderVisible), [onlyRenderVisible]));
+  const nodeIds = useStore(selector(onlyRenderVisible));
 
   return nodeIds;
 }

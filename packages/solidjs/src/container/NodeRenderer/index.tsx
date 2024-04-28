@@ -1,5 +1,3 @@
-import { memo } from 'react';
-import { shallow } from 'zustand/shallow';
 
 import { useVisibleNodeIds } from '../../hooks/useVisibleNodeIds';
 import { useStore } from '../../hooks/useStore';

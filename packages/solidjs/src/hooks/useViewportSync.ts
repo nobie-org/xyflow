@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { Viewport } from '@xyflow/system';
 
 import { useStore, useStoreApi } from './useStore';

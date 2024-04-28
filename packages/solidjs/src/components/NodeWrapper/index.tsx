@@ -1,6 +1,5 @@
 // import { type MouseEvent, type KeyboardEvent } from 'react';
 import cc from 'classcat';
-import { shallow } from 'zustand/shallow';
 import {
   clampPosition,
   elementSelectionKeys,

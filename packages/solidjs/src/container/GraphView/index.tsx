@@ -1,4 +1,3 @@
-import { memo } from 'react';
 
 import { FlowRenderer } from '../FlowRenderer';
 import { NodeRenderer } from '../NodeRenderer';

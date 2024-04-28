@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
 import { errorMessages } from '@xyflow/system';
 
 import type { EdgeTypes, NodeTypes } from '../../types';
 import { useStoreApi } from '../../hooks/useStore';
 import { createEffect } from 'solid-js';
+import { useRef } from '../../utils/hooks';
 
 const emptyTypes = {};
 

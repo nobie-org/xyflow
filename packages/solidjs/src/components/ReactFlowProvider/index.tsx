@@ -1,10 +1,9 @@
-import { useState, type ReactNode } from 'react';
 
 import { Provider } from '../../contexts/StoreContext';
 import { createStore } from '../../store';
 import { BatchProvider } from '../BatchProvider';
 import type { Node, Edge } from '../../types';
-import { ParentProps } from 'solid-js';
+import { ParentProps, createSignal } from 'solid-js';
 
 export type ReactFlowProviderProps = {
   initialNodes?: Node[];
@@ -28,8 +27,9 @@ export function ReactFlowProvider(p: ParentProps<ReactFlowProviderProps>)  {
 //   children,
 // }: ReactFlowProviderProps) {
 
+  // FIXME: this should be reactive to updates in initial settings  (I think )
 
-  const [store] = useState(() =>
+  const [store] = createSignal(
     createStore({
       nodes: p.initialNodes,
       edges: p.initialEdges,
@@ -42,7 +42,7 @@ export function ReactFlowProvider(p: ParentProps<ReactFlowProviderProps>)  {
   );
 
   return (
-    <Provider value={store}>
+    <Provider value={store()}>
       <BatchProvider>{p.children}</BatchProvider>
     </Provider>
   );

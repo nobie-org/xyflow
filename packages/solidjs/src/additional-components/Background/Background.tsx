@@ -1,6 +1,5 @@
 import { JSX, Show, splitProps } from 'solid-js';
 import cc from 'classcat';
-import { shallow } from 'zustand/shallow';
 
 import { useStore } from '../../hooks/useStore';
 import { DotPattern, LinePattern } from './Patterns';
