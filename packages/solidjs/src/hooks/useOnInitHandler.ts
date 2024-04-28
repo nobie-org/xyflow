@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
 
 import { useSolidFlow } from './useReactFlow';
 import type { OnInit, Node, Edge } from '../types';
+import { useRef } from '../utils/hooks';
+import { createEffect } from 'solid-js';
 
 /**
  * Hook for calling onInit handler.
@@ -14,10 +15,10 @@ export function useOnInitHandler<NodeType extends Node = Node, EdgeType extends 
   const rfInstance = useSolidFlow<NodeType, EdgeType>();
   const isInitialized = useRef<boolean>(false);
 
-  useEffect(() => {
-    if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
+  createEffect(() => {
+    if (!isInitialized.current && rfInstance.viewportInitialized() && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
     }
-  }, [onInit, rfInstance.viewportInitialized]);
+  });
 }
