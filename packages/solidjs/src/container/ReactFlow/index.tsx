@@ -1,4 +1,4 @@
-import { ForwardedRef, type CSSProperties } from 'react';
+// import { ForwardedRef, type CSSProperties } from 'react';
 import cc from 'classcat';
 import { ConnectionLineType, PanOnScrollMode, SelectionMode, infiniteExtent, isMacOs } from '@xyflow/system';
 
@@ -12,279 +12,405 @@ import { Wrapper } from './Wrapper';
 import type { Edge, Node, ReactFlowProps } from '../../types';
 import { defaultViewport as initViewport, defaultNodeOrigin } from './init-values';
 import { fixedForwardRef } from '../../utils/general';
+import { mergeProps, splitProps, JSX } from 'solid-js';
 
-const wrapperStyle: CSSProperties = {
+const wrapperStyle: JSX.CSSProperties = {
   width: '100%',
   height: '100%',
   overflow: 'hidden',
   position: 'relative',
-  zIndex: 0,
+  'z-index': 0,
 };
 
 function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(
-  {
-    nodes,
-    edges,
-    defaultNodes,
-    defaultEdges,
-    className,
-    nodeTypes,
-    edgeTypes,
-    onNodeClick,
-    onEdgeClick,
-    onInit,
-    onMove,
-    onMoveStart,
-    onMoveEnd,
-    onConnect,
-    onConnectStart,
-    onConnectEnd,
-    onClickConnectStart,
-    onClickConnectEnd,
-    onNodeMouseEnter,
-    onNodeMouseMove,
-    onNodeMouseLeave,
-    onNodeContextMenu,
-    onNodeDoubleClick,
-    onNodeDragStart,
-    onNodeDrag,
-    onNodeDragStop,
-    onNodesDelete,
-    onEdgesDelete,
-    onDelete,
-    onSelectionChange,
-    onSelectionDragStart,
-    onSelectionDrag,
-    onSelectionDragStop,
-    onSelectionContextMenu,
-    onSelectionStart,
-    onSelectionEnd,
-    onBeforeDelete,
-    connectionMode,
-    connectionLineType = ConnectionLineType.Bezier,
-    connectionLineStyle,
-    connectionLineComponent,
-    connectionLineContainerStyle,
-    deleteKeyCode = 'Backspace',
-    selectionKeyCode = 'Shift',
-    selectionOnDrag = false,
-    selectionMode = SelectionMode.Full,
-    panActivationKeyCode = 'Space',
-    multiSelectionKeyCode = isMacOs() ? 'Meta' : 'Control',
-    zoomActivationKeyCode = isMacOs() ? 'Meta' : 'Control',
-    snapToGrid,
-    snapGrid,
-    onlyRenderVisibleElements = false,
-    selectNodesOnDrag,
-    nodesDraggable,
-    nodesConnectable,
-    nodesFocusable,
-    nodeOrigin = defaultNodeOrigin,
-    edgesFocusable,
-    edgesUpdatable,
-    elementsSelectable = true,
-    defaultViewport = initViewport,
-    minZoom = 0.5,
-    maxZoom = 2,
-    translateExtent = infiniteExtent,
-    preventScrolling = true,
-    nodeExtent,
-    defaultMarkerColor = '#b1b1b7',
-    zoomOnScroll = true,
-    zoomOnPinch = true,
-    panOnScroll = false,
-    panOnScrollSpeed = 0.5,
-    panOnScrollMode = PanOnScrollMode.Free,
-    zoomOnDoubleClick = true,
-    panOnDrag = true,
-    onPaneClick,
-    onPaneMouseEnter,
-    onPaneMouseMove,
-    onPaneMouseLeave,
-    onPaneScroll,
-    onPaneContextMenu,
-    children,
-    onEdgeUpdate,
-    onEdgeContextMenu,
-    onEdgeDoubleClick,
-    onEdgeMouseEnter,
-    onEdgeMouseMove,
-    onEdgeMouseLeave,
-    onEdgeUpdateStart,
-    onEdgeUpdateEnd,
-    edgeUpdaterRadius = 10,
-    onNodesChange,
-    onEdgesChange,
-    noDragClassName = 'nodrag',
-    noWheelClassName = 'nowheel',
-    noPanClassName = 'nopan',
-    fitView,
-    fitViewOptions,
-    connectOnClick,
-    attributionPosition,
-    proOptions,
-    defaultEdgeOptions,
-    elevateNodesOnSelect,
-    elevateEdgesOnSelect,
-    disableKeyboardA11y = false,
-    autoPanOnConnect,
-    autoPanOnNodeDrag,
-    connectionRadius,
-    isValidConnection,
-    onError,
-    style,
-    id,
-    nodeDragThreshold,
-    viewport,
-    onViewportChange,
-    width,
-    height,
-    colorMode = 'light',
-    debug,
-    ...rest
-  }: ReactFlowProps<NodeType, EdgeType>,
-  ref: ForwardedRef<HTMLDivElement>
+  _p: ReactFlowProps<NodeType, EdgeType> & { ref: (node: HTMLDivElement) => void }
 ) {
-  const rfId = id || '1';
-  const colorModeClassName = useColorModeClass(colorMode);
+  //   {
+  //     nodes,
+  //     edges,
+  //     defaultNodes,
+  //     defaultEdges,
+  //     className,
+  //     nodeTypes,
+  //     edgeTypes,
+  //     onNodeClick,
+  //     onEdgeClick,
+  //     onInit,
+  //     onMove,
+  //     onMoveStart,
+  //     onMoveEnd,
+  //     onConnect,
+  //     onConnectStart,
+  //     onConnectEnd,
+  //     onClickConnectStart,
+  //     onClickConnectEnd,
+  //     onNodeMouseEnter,
+  //     onNodeMouseMove,
+  //     onNodeMouseLeave,
+  //     onNodeContextMenu,
+  //     onNodeDoubleClick,
+  //     onNodeDragStart,
+  //     onNodeDrag,
+  //     onNodeDragStop,
+  //     onNodesDelete,
+  //     onEdgesDelete,
+  //     onDelete,
+  //     onSelectionChange,
+  //     onSelectionDragStart,
+  //     onSelectionDrag,
+  //     onSelectionDragStop,
+  //     onSelectionContextMenu,
+  //     onSelectionStart,
+  //     onSelectionEnd,
+  //     onBeforeDelete,
+  //     connectionMode,
+  //     connectionLineType = ConnectionLineType.Bezier,
+  //     connectionLineStyle,
+  //     connectionLineComponent,
+  //     connectionLineContainerStyle,
+  //     deleteKeyCode = 'Backspace',
+  //     selectionKeyCode = 'Shift',
+  //     selectionOnDrag = false,
+  //     selectionMode = SelectionMode.Full,
+  //     panActivationKeyCode = 'Space',
+  //     multiSelectionKeyCode = isMacOs() ? 'Meta' : 'Control',
+  //     zoomActivationKeyCode = isMacOs() ? 'Meta' : 'Control',
+  //     snapToGrid,
+  //     snapGrid,
+  //     onlyRenderVisibleElements = false,
+  //     selectNodesOnDrag,
+  //     nodesDraggable,
+  //     nodesConnectable,
+  //     nodesFocusable,
+  //     nodeOrigin = defaultNodeOrigin,
+  //     edgesFocusable,
+  //     edgesUpdatable,
+  //     elementsSelectable = true,
+  //     defaultViewport = initViewport,
+  //     minZoom = 0.5,
+  //     maxZoom = 2,
+  //     translateExtent = infiniteExtent,
+  //     preventScrolling = true,
+  //     nodeExtent,
+  //     defaultMarkerColor = '#b1b1b7',
+  //     zoomOnScroll = true,
+  //     zoomOnPinch = true,
+  //     panOnScroll = false,
+  //     panOnScrollSpeed = 0.5,
+  //     panOnScrollMode = PanOnScrollMode.Free,
+  //     zoomOnDoubleClick = true,
+  //     panOnDrag = true,
+  //     onPaneClick,
+  //     onPaneMouseEnter,
+  //     onPaneMouseMove,
+  //     onPaneMouseLeave,
+  //     onPaneScroll,
+  //     onPaneContextMenu,
+  //     children,
+  //     onEdgeUpdate,
+  //     onEdgeContextMenu,
+  //     onEdgeDoubleClick,
+  //     onEdgeMouseEnter,
+  //     onEdgeMouseMove,
+  //     onEdgeMouseLeave,
+  //     onEdgeUpdateStart,
+  //     onEdgeUpdateEnd,
+  //     edgeUpdaterRadius = 10,
+  //     onNodesChange,
+  //     onEdgesChange,
+  //     noDragClassName = 'nodrag',
+  //     noWheelClassName = 'nowheel',
+  //     noPanClassName = 'nopan',
+  //     fitView,
+  //     fitViewOptions,
+  //     connectOnClick,
+  //     attributionPosition,
+  //     proOptions,
+  //     defaultEdgeOptions,
+  //     elevateNodesOnSelect,
+  //     elevateEdgesOnSelect,
+  //     disableKeyboardA11y = false,
+  //     autoPanOnConnect,
+  //     autoPanOnNodeDrag,
+  //     connectionRadius,
+  //     isValidConnection,
+  //     onError,
+  //     style,
+  //     id,
+  //     nodeDragThreshold,
+  //     viewport,
+  //     onViewportChange,
+  //     width,
+  //     height,
+  //     colorMode = 'light',
+  //     debug,
+  //     ...rest
+  //   }: ReactFlowProps<NodeType, EdgeType>,
+  //   ref: ForwardedRef<HTMLDivElement>
+  // ) {
+
+  const p = mergeProps(
+    {
+      colorMode: 'light',
+      debug: false,
+      connectionLineType: ConnectionLineType.Bezier,
+      deleteKeyCode: 'Backspace',
+      selectionKeyCode: 'Shift',
+      multiSelectionKeyCode: isMacOs() ? 'Meta' : 'Control',
+      zoomActivationKeyCode: isMacOs() ? 'Meta' : 'Control',
+      selectionMode: SelectionMode.Full,
+      defaultViewport: initViewport,
+      minZoom: 0.5,
+      maxZoom: 2,
+      translateExtent: infiniteExtent,
+      elementsSelectable: true,
+      defaultMarkerColor: '#b1b1b7',
+      zoomOnScroll: true,
+      zoomOnPinch: true,
+      panOnScroll: false,
+      panOnScrollSpeed: 0.5,
+      panOnScrollMode: PanOnScrollMode.Free,
+      zoomOnDoubleClick: true,
+      panOnDrag: true,
+      nodeOrigin: defaultNodeOrigin,
+    } satisfies Partial<ReactFlowProps<NodeType, EdgeType>>,
+    _p
+  );
+
+  const [_extractedProps, rest] = splitProps(p, [
+    'nodes',
+    'edges',
+    'defaultNodes',
+    'defaultEdges',
+    'class',
+    'nodeTypes',
+    'edgeTypes',
+    'onNodeClick',
+    'onEdgeClick',
+    'onInit',
+    'onMove',
+    'onMoveStart',
+    'onMoveEnd',
+    'onConnect',
+    'onConnectStart',
+    'onConnectEnd',
+    'onNodeMouseEnter',
+    'onNodeMouseMove',
+    'onNodeMouseLeave',
+    'onNodeContextMenu',
+    'onNodeDoubleClick',
+    'onNodeDragStart',
+    'onNodeDrag',
+    'onNodeDragStop',
+    'onNodesDelete',
+    'onEdgesDelete',
+    'onDelete',
+    'onSelectionChange',
+    'onSelectionDragStart',
+    'onSelectionDrag',
+    'onSelectionDragStop',
+    'onSelectionContextMenu',
+    'onSelectionStart',
+    'onSelectionEnd',
+    'onBeforeDelete',
+    'connectionMode',
+    'connectionLineStyle',
+    'connectionLineComponent',
+    'connectionLineContainerStyle',
+    'snapToGrid',
+    'snapGrid',
+    'onlyRenderVisibleElements',
+    'selectNodesOnDrag',
+    'nodesDraggable',
+    'nodesConnectable',
+    'nodesFocusable',
+    'nodeExtent',
+    'edgesFocusable',
+    'edgesUpdatable',
+    'onPaneClick',
+    'onPaneMouseEnter',
+    'onPaneMouseMove',
+    'onPaneMouseLeave',
+    'onPaneScroll',
+    'onPaneContextMenu',
+    'children',
+    'onEdgeUpdate',
+    'onEdgeContextMenu',
+    'onEdgeDoubleClick',
+    'onEdgeMouseEnter',
+    'onEdgeMouseMove',
+    'onEdgeMouseLeave',
+    'onEdgeUpdateStart',
+    'onEdgeUpdateEnd',
+    'edgeUpdaterRadius',
+    'onNodesChange',
+    'onEdgesChange',
+    'noDragClassName',
+    'noWheelClassName',
+    'noPanClassName',
+    'fitView',
+    'fitViewOptions',
+    'connectOnClick',
+    'attributionPosition',
+    'proOptions',
+    'defaultEdgeOptions',
+    'elevateNodesOnSelect',
+    'elevateEdgesOnSelect',
+    'disableKeyboardA11y',
+    'autoPanOnConnect',
+    'autoPanOnNodeDrag',
+    'connectionRadius',
+    'isValidConnection',
+    'onError',
+    'style',
+    'id',
+    'nodeDragThreshold',
+    'viewport',
+    'onViewportChange',
+    'width',
+    'height',
+  ]);
+
+  const rfId = () => p.id || '1';
+  const colorModeClassName = useColorModeClass(() => p.colorMode);
 
   return (
     <div
       {...rest}
-      style={{ ...style, ...wrapperStyle }}
-      ref={ref}
-      className={cc(['react-flow', className, colorModeClassName])}
+      style={{ ...(typeof p.style === 'object' ? p.style : null), ...wrapperStyle }}
+      ref={p.ref}
+      class={cc(['react-flow', p.class, colorModeClassName])}
       data-testid="rf__wrapper"
-      id={id}
+      id={p.id}
     >
-      <Wrapper nodes={nodes} edges={edges} width={width} height={height} fitView={fitView}>
+      <Wrapper nodes={p.nodes} edges={p.edges} width={p.width} height={p.height} fitView={p.fitView}>
         <GraphView<NodeType, EdgeType>
-          onInit={onInit}
-          onNodeClick={onNodeClick}
-          onEdgeClick={onEdgeClick}
-          onNodeMouseEnter={onNodeMouseEnter}
-          onNodeMouseMove={onNodeMouseMove}
-          onNodeMouseLeave={onNodeMouseLeave}
-          onNodeContextMenu={onNodeContextMenu}
-          onNodeDoubleClick={onNodeDoubleClick}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          connectionLineType={connectionLineType}
-          connectionLineStyle={connectionLineStyle}
-          connectionLineComponent={connectionLineComponent}
-          connectionLineContainerStyle={connectionLineContainerStyle}
-          selectionKeyCode={selectionKeyCode}
-          selectionOnDrag={selectionOnDrag}
-          selectionMode={selectionMode}
-          deleteKeyCode={deleteKeyCode}
-          multiSelectionKeyCode={multiSelectionKeyCode}
-          panActivationKeyCode={panActivationKeyCode}
-          zoomActivationKeyCode={zoomActivationKeyCode}
-          onlyRenderVisibleElements={onlyRenderVisibleElements}
-          defaultViewport={defaultViewport}
-          translateExtent={translateExtent}
-          minZoom={minZoom}
-          maxZoom={maxZoom}
-          preventScrolling={preventScrolling}
-          zoomOnScroll={zoomOnScroll}
-          zoomOnPinch={zoomOnPinch}
-          zoomOnDoubleClick={zoomOnDoubleClick}
-          panOnScroll={panOnScroll}
-          panOnScrollSpeed={panOnScrollSpeed}
-          panOnScrollMode={panOnScrollMode}
-          panOnDrag={panOnDrag}
-          onPaneClick={onPaneClick}
-          onPaneMouseEnter={onPaneMouseEnter}
-          onPaneMouseMove={onPaneMouseMove}
-          onPaneMouseLeave={onPaneMouseLeave}
-          onPaneScroll={onPaneScroll}
-          onPaneContextMenu={onPaneContextMenu}
-          onSelectionContextMenu={onSelectionContextMenu}
-          onSelectionStart={onSelectionStart}
-          onSelectionEnd={onSelectionEnd}
-          onEdgeUpdate={onEdgeUpdate}
-          onEdgeContextMenu={onEdgeContextMenu}
-          onEdgeDoubleClick={onEdgeDoubleClick}
-          onEdgeMouseEnter={onEdgeMouseEnter}
-          onEdgeMouseMove={onEdgeMouseMove}
-          onEdgeMouseLeave={onEdgeMouseLeave}
-          onEdgeUpdateStart={onEdgeUpdateStart}
-          onEdgeUpdateEnd={onEdgeUpdateEnd}
-          edgeUpdaterRadius={edgeUpdaterRadius}
-          defaultMarkerColor={defaultMarkerColor}
-          noDragClassName={noDragClassName}
-          noWheelClassName={noWheelClassName}
-          noPanClassName={noPanClassName}
-          rfId={rfId}
-          disableKeyboardA11y={disableKeyboardA11y}
-          nodeOrigin={nodeOrigin}
-          nodeExtent={nodeExtent}
-          viewport={viewport}
-          onViewportChange={onViewportChange}
+          onInit={p.onInit}
+          onNodeClick={p.onNodeClick}
+          onEdgeClick={p.onEdgeClick}
+          onNodeMouseEnter={p.onNodeMouseEnter}
+          onNodeMouseMove={p.onNodeMouseMove}
+          onNodeMouseLeave={p.onNodeMouseLeave}
+          onNodeContextMenu={p.onNodeContextMenu}
+          onNodeDoubleClick={p.onNodeDoubleClick}
+          nodeTypes={p.nodeTypes}
+          edgeTypes={p.edgeTypes}
+          connectionLineType={p.connectionLineType}
+          connectionLineStyle={p.connectionLineStyle}
+          connectionLineComponent={p.connectionLineComponent}
+          connectionLineContainerStyle={p.connectionLineContainerStyle}
+          selectionKeyCode={p.selectionKeyCode}
+          selectionOnDrag={p.selectionOnDrag}
+          selectionMode={p.selectionMode}
+          deleteKeyCode={p.deleteKeyCode}
+          multiSelectionKeyCode={p.multiSelectionKeyCode}
+          panActivationKeyCode={p.panActivationKeyCode}
+          zoomActivationKeyCode={p.zoomActivationKeyCode}
+          onlyRenderVisibleElements={p.onlyRenderVisibleElements || false}
+          defaultViewport={p.defaultViewport}
+          translateExtent={p.translateExtent}
+          minZoom={p.minZoom}
+          maxZoom={p.maxZoom}
+          preventScrolling={p.preventScrolling}
+          zoomOnScroll={p.zoomOnScroll}
+          zoomOnPinch={p.zoomOnPinch}
+          zoomOnDoubleClick={p.zoomOnDoubleClick}
+          panOnScroll={p.panOnScroll}
+          panOnScrollSpeed={p.panOnScrollSpeed}
+          panOnScrollMode={p.panOnScrollMode}
+          panOnDrag={p.panOnDrag}
+          onPaneClick={p.onPaneClick}
+          onPaneMouseEnter={p.onPaneMouseEnter}
+          onPaneMouseMove={p.onPaneMouseMove}
+          onPaneMouseLeave={p.onPaneMouseLeave}
+          onPaneScroll={p.onPaneScroll}
+          onPaneContextMenu={p.onPaneContextMenu}
+          onSelectionContextMenu={p.onSelectionContextMenu}
+          onSelectionStart={p.onSelectionStart}
+          onSelectionEnd={p.onSelectionEnd}
+          onEdgeUpdate={p.onEdgeUpdate}
+          onEdgeContextMenu={p.onEdgeContextMenu}
+          onEdgeDoubleClick={p.onEdgeDoubleClick}
+          onEdgeMouseEnter={p.onEdgeMouseEnter}
+          onEdgeMouseMove={p.onEdgeMouseMove}
+          onEdgeMouseLeave={p.onEdgeMouseLeave}
+          onEdgeUpdateStart={p.onEdgeUpdateStart}
+          onEdgeUpdateEnd={p.onEdgeUpdateEnd}
+          edgeUpdaterRadius={p.edgeUpdaterRadius}
+          defaultMarkerColor={p.defaultMarkerColor}
+          noDragClassName={p.noDragClassName || ""}
+          noWheelClassName={p.noWheelClassName  || ""}
+          noPanClassName={p.noPanClassName || ""}
+          rfId={rfId()}
+          disableKeyboardA11y={p.disableKeyboardA11y || false}
+          nodeOrigin={p.nodeOrigin}
+          nodeExtent={p.nodeExtent}
+          viewport={p.viewport}
+          onViewportChange={p.onViewportChange}
         />
         <StoreUpdater<NodeType, EdgeType>
-          nodes={nodes}
-          edges={edges}
-          defaultNodes={defaultNodes}
-          defaultEdges={defaultEdges}
-          onConnect={onConnect}
-          onConnectStart={onConnectStart}
-          onConnectEnd={onConnectEnd}
-          onClickConnectStart={onClickConnectStart}
-          onClickConnectEnd={onClickConnectEnd}
-          nodesDraggable={nodesDraggable}
-          nodesConnectable={nodesConnectable}
-          nodesFocusable={nodesFocusable}
-          edgesFocusable={edgesFocusable}
-          edgesUpdatable={edgesUpdatable}
-          elementsSelectable={elementsSelectable}
-          elevateNodesOnSelect={elevateNodesOnSelect}
-          elevateEdgesOnSelect={elevateEdgesOnSelect}
-          minZoom={minZoom}
-          maxZoom={maxZoom}
-          nodeExtent={nodeExtent}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          snapToGrid={snapToGrid}
-          snapGrid={snapGrid}
-          connectionMode={connectionMode}
-          translateExtent={translateExtent}
-          connectOnClick={connectOnClick}
-          defaultEdgeOptions={defaultEdgeOptions}
-          fitView={fitView}
-          fitViewOptions={fitViewOptions}
-          onNodesDelete={onNodesDelete}
-          onEdgesDelete={onEdgesDelete}
-          onDelete={onDelete}
-          onNodeDragStart={onNodeDragStart}
-          onNodeDrag={onNodeDrag}
-          onNodeDragStop={onNodeDragStop}
-          onSelectionDrag={onSelectionDrag}
-          onSelectionDragStart={onSelectionDragStart}
-          onSelectionDragStop={onSelectionDragStop}
-          onMove={onMove}
-          onMoveStart={onMoveStart}
-          onMoveEnd={onMoveEnd}
-          noPanClassName={noPanClassName}
-          nodeOrigin={nodeOrigin}
-          rfId={rfId}
-          autoPanOnConnect={autoPanOnConnect}
-          autoPanOnNodeDrag={autoPanOnNodeDrag}
-          onError={onError}
-          connectionRadius={connectionRadius}
-          isValidConnection={isValidConnection}
-          selectNodesOnDrag={selectNodesOnDrag}
-          nodeDragThreshold={nodeDragThreshold}
-          onBeforeDelete={onBeforeDelete}
-          debug={debug}
+          nodes={p.nodes}
+          edges={p.edges}
+          defaultNodes={p.defaultNodes}
+          defaultEdges={p.defaultEdges}
+          onConnect={p.onConnect}
+          onConnectStart={p.onConnectStart}
+          onConnectEnd={p.onConnectEnd}
+          onClickConnectStart={p.onClickConnectStart}
+          onClickConnectEnd={p.onClickConnectEnd}
+          nodesDraggable={p.nodesDraggable}
+          nodesConnectable={p.nodesConnectable}
+          nodesFocusable={p.nodesFocusable}
+          edgesFocusable={p.edgesFocusable}
+          edgesUpdatable={p.edgesUpdatable}
+          elementsSelectable={p.elementsSelectable}
+          elevateNodesOnSelect={p.elevateNodesOnSelect}
+          elevateEdgesOnSelect={p.elevateEdgesOnSelect}
+          minZoom={p.minZoom}
+          maxZoom={p.maxZoom}
+          nodeExtent={p.nodeExtent}
+          onNodesChange={p.onNodesChange}
+          onEdgesChange={p.onEdgesChange}
+          snapToGrid={p.snapToGrid}
+          snapGrid={p.snapGrid}
+          connectionMode={p.connectionMode}
+          translateExtent={p.translateExtent}
+          connectOnClick={p.connectOnClick}
+          defaultEdgeOptions={p.defaultEdgeOptions}
+          fitView={p.fitView}
+          fitViewOptions={p.fitViewOptions}
+          onNodesDelete={p.onNodesDelete}
+          onEdgesDelete={p.onEdgesDelete}
+          onDelete={p.onDelete}
+          onNodeDragStart={p.onNodeDragStart}
+          onNodeDrag={p.onNodeDrag}
+          onNodeDragStop={p.onNodeDragStop}
+          onSelectionDrag={p.onSelectionDrag}
+          onSelectionDragStart={p.onSelectionDragStart}
+          onSelectionDragStop={p.onSelectionDragStop}
+          onMove={p.onMove}
+          onMoveStart={p.onMoveStart}
+          onMoveEnd={p.onMoveEnd}
+          noPanClassName={p.noPanClassName}
+          nodeOrigin={p.nodeOrigin}
+          rfId={rfId()}
+          autoPanOnConnect={p.autoPanOnConnect}
+          autoPanOnNodeDrag={p.autoPanOnNodeDrag}
+          onError={p.onError}
+          connectionRadius={p.connectionRadius}
+          isValidConnection={p.isValidConnection}
+          selectNodesOnDrag={p.selectNodesOnDrag}
+          nodeDragThreshold={p.nodeDragThreshold}
+          onBeforeDelete={p.onBeforeDelete}
+          debug={p.debug}
         />
-        <SelectionListener onSelectionChange={onSelectionChange} />
-        {children}
-        <Attribution proOptions={proOptions} position={attributionPosition} />
-        <A11yDescriptions rfId={rfId} disableKeyboardA11y={disableKeyboardA11y} />
+        <SelectionListener onSelectionChange={p.onSelectionChange} />
+        {p.children}
+        <Attribution proOptions={p.proOptions} position={p.attributionPosition} />
+        <A11yDescriptions rfId={rfId()} disableKeyboardA11y={p.disableKeyboardA11y} />
       </Wrapper>
     </div>
   );
 }
 
-export default fixedForwardRef(ReactFlow);
+export default ReactFlow;

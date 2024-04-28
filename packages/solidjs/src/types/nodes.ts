@@ -54,7 +54,7 @@ export type NodeWrapperProps<NodeType extends Node> = {
   onMouseLeave?: NodeMouseHandler<NodeType>;
   onContextMenu?: NodeMouseHandler<NodeType>;
   resizeObserver: ResizeObserver | null;
-  noDragClassName: string;
+  noDragClassName?: string;
   noPanClassName: string;
   rfId: string;
   disableKeyboardA11y: boolean;

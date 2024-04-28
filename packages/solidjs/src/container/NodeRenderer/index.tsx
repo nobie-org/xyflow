@@ -8,6 +8,7 @@ import { GraphViewProps } from '../GraphView';
 import { useResizeObserver } from './useResizeObserver';
 import { NodeWrapper } from '../../components/NodeWrapper';
 import type { Node, SolidFlowState } from '../../types';
+import { For } from 'solid-js';
 
 export type NodeRendererProps<NodeType extends Node> = Pick<
   GraphViewProps<NodeType>,
@@ -36,13 +37,14 @@ const selector = (s: SolidFlowState) => ({
 });
 
 function NodeRendererComponent<NodeType extends Node>(props: NodeRendererProps<NodeType>) {
-  const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, onError } = useStore(selector, shallow);
-  const nodeIds = useVisibleNodeIds(props.onlyRenderVisibleElements);
+  const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, onError } = useStore(selector);
+  const nodeIds = useVisibleNodeIds(() => props.onlyRenderVisibleElements);
   const resizeObserver = useResizeObserver();
 
   return (
-    <div className="react-flow__nodes" style={containerStyle}>
-      {nodeIds.map((nodeId) => {
+    <div class="react-flow__nodes" style={containerStyle}>
+      <For each={nodeIds()}>
+      {(nodeId) => {
         return (
           // The split of responsibilities between NodeRenderer and
           // NodeComponentWrapper may appear weird. However, it’s designed to
@@ -68,7 +70,7 @@ function NodeRendererComponent<NodeType extends Node>(props: NodeRendererProps<N
           //   memorized – so if `NodeRenderer` *has* to rerender, it only
           //   needs to regenerate the list of nodes, nothing else.
           <NodeWrapper<NodeType>
-            key={nodeId}
+            // key={nodeId}
             id={nodeId}
             nodeTypes={props.nodeTypes}
             nodeExtent={props.nodeExtent}
@@ -84,18 +86,19 @@ function NodeRendererComponent<NodeType extends Node>(props: NodeRendererProps<N
             rfId={props.rfId}
             disableKeyboardA11y={props.disableKeyboardA11y}
             resizeObserver={resizeObserver}
-            nodesDraggable={nodesDraggable}
-            nodesConnectable={nodesConnectable}
-            nodesFocusable={nodesFocusable}
-            elementsSelectable={elementsSelectable}
+            nodesDraggable={nodesDraggable.get()}
+            nodesConnectable={nodesConnectable.get()}
+            nodesFocusable={nodesFocusable.get()}
+            elementsSelectable={elementsSelectable.get()}
             onError={onError}
           />
         );
-      })}
+      }}
+      </For>
     </div>
   );
 }
 
 NodeRendererComponent.displayName = 'NodeRenderer';
 
-export const NodeRenderer = memo(NodeRendererComponent) as typeof NodeRendererComponent;
+export const NodeRenderer = NodeRendererComponent;

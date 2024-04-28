@@ -37,158 +37,162 @@ export type GraphViewProps<NodeType extends Node = Node, EdgeType extends Edge =
     rfId: string;
   };
 
-function GraphViewComponent<NodeType extends Node = Node, EdgeType extends Edge = Edge>({
-  nodeTypes,
-  edgeTypes,
-  onInit,
-  onNodeClick,
-  onEdgeClick,
-  onNodeDoubleClick,
-  onEdgeDoubleClick,
-  onNodeMouseEnter,
-  onNodeMouseMove,
-  onNodeMouseLeave,
-  onNodeContextMenu,
-  onSelectionContextMenu,
-  onSelectionStart,
-  onSelectionEnd,
-  connectionLineType,
-  connectionLineStyle,
-  connectionLineComponent,
-  connectionLineContainerStyle,
-  selectionKeyCode,
-  selectionOnDrag,
-  selectionMode,
-  multiSelectionKeyCode,
-  panActivationKeyCode,
-  zoomActivationKeyCode,
-  deleteKeyCode,
-  onlyRenderVisibleElements,
-  elementsSelectable,
-  defaultViewport,
-  translateExtent,
-  minZoom,
-  maxZoom,
-  preventScrolling,
-  defaultMarkerColor,
-  zoomOnScroll,
-  zoomOnPinch,
-  panOnScroll,
-  panOnScrollSpeed,
-  panOnScrollMode,
-  zoomOnDoubleClick,
-  panOnDrag,
-  onPaneClick,
-  onPaneMouseEnter,
-  onPaneMouseMove,
-  onPaneMouseLeave,
-  onPaneScroll,
-  onPaneContextMenu,
-  onEdgeUpdate,
-  onEdgeContextMenu,
-  onEdgeMouseEnter,
-  onEdgeMouseMove,
-  onEdgeMouseLeave,
-  edgeUpdaterRadius,
-  onEdgeUpdateStart,
-  onEdgeUpdateEnd,
-  noDragClassName,
-  noWheelClassName,
-  noPanClassName,
-  disableKeyboardA11y,
-  nodeOrigin,
-  nodeExtent,
-  rfId,
-  viewport,
-  onViewportChange,
-}: GraphViewProps<NodeType, EdgeType>) {
-  useNodeOrEdgeTypesWarning(nodeTypes);
-  useNodeOrEdgeTypesWarning(edgeTypes);
+function GraphViewComponent<NodeType extends Node = Node, EdgeType extends Edge = Edge>(
+  p: GraphViewProps<NodeType, EdgeType>
+//   {
+//   nodeTypes,
+//   edgeTypes,
+//   onInit,
+//   onNodeClick,
+//   onEdgeClick,
+//   onNodeDoubleClick,
+//   onEdgeDoubleClick,
+//   onNodeMouseEnter,
+//   onNodeMouseMove,
+//   onNodeMouseLeave,
+//   onNodeContextMenu,
+//   onSelectionContextMenu,
+//   onSelectionStart,
+//   onSelectionEnd,
+//   connectionLineType,
+//   connectionLineStyle,
+//   connectionLineComponent,
+//   connectionLineContainerStyle,
+//   selectionKeyCode,
+//   selectionOnDrag,
+//   selectionMode,
+//   multiSelectionKeyCode,
+//   panActivationKeyCode,
+//   zoomActivationKeyCode,
+//   deleteKeyCode,
+//   onlyRenderVisibleElements,
+//   elementsSelectable,
+//   defaultViewport,
+//   translateExtent,
+//   minZoom,
+//   maxZoom,
+//   preventScrolling,
+//   defaultMarkerColor,
+//   zoomOnScroll,
+//   zoomOnPinch,
+//   panOnScroll,
+//   panOnScrollSpeed,
+//   panOnScrollMode,
+//   zoomOnDoubleClick,
+//   panOnDrag,
+//   onPaneClick,
+//   onPaneMouseEnter,
+//   onPaneMouseMove,
+//   onPaneMouseLeave,
+//   onPaneScroll,
+//   onPaneContextMenu,
+//   onEdgeUpdate,
+//   onEdgeContextMenu,
+//   onEdgeMouseEnter,
+//   onEdgeMouseMove,
+//   onEdgeMouseLeave,
+//   edgeUpdaterRadius,
+//   onEdgeUpdateStart,
+//   onEdgeUpdateEnd,
+//   noDragClassName,
+//   noWheelClassName,
+//   noPanClassName,
+//   disableKeyboardA11y,
+//   nodeOrigin,
+//   nodeExtent,
+//   rfId,
+//   viewport,
+//   onViewportChange,
+// }: GraphViewProps<NodeType, EdgeType>) {
+)
+  {
+  useNodeOrEdgeTypesWarning(() => p.nodeTypes);
+  useNodeOrEdgeTypesWarning(() => p.edgeTypes);
 
-  useOnInitHandler(onInit);
-  useViewportSync(viewport);
+  useOnInitHandler(() => p.onInit);
+  useViewportSync(() => p.viewport);
 
   return (
     <FlowRenderer<NodeType>
-      onPaneClick={onPaneClick}
-      onPaneMouseEnter={onPaneMouseEnter}
-      onPaneMouseMove={onPaneMouseMove}
-      onPaneMouseLeave={onPaneMouseLeave}
-      onPaneContextMenu={onPaneContextMenu}
-      onPaneScroll={onPaneScroll}
-      deleteKeyCode={deleteKeyCode}
-      selectionKeyCode={selectionKeyCode}
-      selectionOnDrag={selectionOnDrag}
-      selectionMode={selectionMode}
-      onSelectionStart={onSelectionStart}
-      onSelectionEnd={onSelectionEnd}
-      multiSelectionKeyCode={multiSelectionKeyCode}
-      panActivationKeyCode={panActivationKeyCode}
-      zoomActivationKeyCode={zoomActivationKeyCode}
-      elementsSelectable={elementsSelectable}
-      zoomOnScroll={zoomOnScroll}
-      zoomOnPinch={zoomOnPinch}
-      zoomOnDoubleClick={zoomOnDoubleClick}
-      panOnScroll={panOnScroll}
-      panOnScrollSpeed={panOnScrollSpeed}
-      panOnScrollMode={panOnScrollMode}
-      panOnDrag={panOnDrag}
-      defaultViewport={defaultViewport}
-      translateExtent={translateExtent}
-      minZoom={minZoom}
-      maxZoom={maxZoom}
-      onSelectionContextMenu={onSelectionContextMenu}
-      preventScrolling={preventScrolling}
-      noDragClassName={noDragClassName}
-      noWheelClassName={noWheelClassName}
-      noPanClassName={noPanClassName}
-      disableKeyboardA11y={disableKeyboardA11y}
-      onViewportChange={onViewportChange}
-      isControlledViewport={!!viewport}
+      onPaneClick={p.onPaneClick}
+      onPaneMouseEnter={p.onPaneMouseEnter}
+      onPaneMouseMove={p.onPaneMouseMove}
+      onPaneMouseLeave={p.onPaneMouseLeave}
+      onPaneContextMenu={p.onPaneContextMenu}
+      onPaneScroll={p.onPaneScroll}
+      deleteKeyCode={p.deleteKeyCode}
+      selectionKeyCode={p.selectionKeyCode}
+      selectionOnDrag={p.selectionOnDrag}
+      selectionMode={p.selectionMode}
+      onSelectionStart={p.onSelectionStart}
+      onSelectionEnd={p.onSelectionEnd}
+      multiSelectionKeyCode={p.multiSelectionKeyCode}
+      panActivationKeyCode={p.panActivationKeyCode}
+      zoomActivationKeyCode={p.zoomActivationKeyCode}
+      elementsSelectable={p.elementsSelectable}
+      zoomOnScroll={p.zoomOnScroll}
+      zoomOnPinch={p.zoomOnPinch}
+      zoomOnDoubleClick={p.zoomOnDoubleClick}
+      panOnScroll={p.panOnScroll}
+      panOnScrollSpeed={p.panOnScrollSpeed}
+      panOnScrollMode={p.panOnScrollMode}
+      panOnDrag={p.panOnDrag}
+      defaultViewport={p.defaultViewport}
+      translateExtent={p.translateExtent}
+      minZoom={p.minZoom}
+      maxZoom={p.maxZoom}
+      onSelectionContextMenu={p.onSelectionContextMenu}
+      preventScrolling={p.preventScrolling}
+      noDragClassName={p.noDragClassName}
+      noWheelClassName={p.noWheelClassName}
+      noPanClassName={p.noPanClassName}
+      disableKeyboardA11y={p.disableKeyboardA11y}
+      onViewportChange={p.onViewportChange}
+      isControlledViewport={!!p.viewport}
     >
       <Viewport>
         <EdgeRenderer<EdgeType>
-          edgeTypes={edgeTypes}
-          onEdgeClick={onEdgeClick}
-          onEdgeDoubleClick={onEdgeDoubleClick}
-          onEdgeUpdate={onEdgeUpdate}
-          onlyRenderVisibleElements={onlyRenderVisibleElements}
-          onEdgeContextMenu={onEdgeContextMenu}
-          onEdgeMouseEnter={onEdgeMouseEnter}
-          onEdgeMouseMove={onEdgeMouseMove}
-          onEdgeMouseLeave={onEdgeMouseLeave}
-          onEdgeUpdateStart={onEdgeUpdateStart}
-          onEdgeUpdateEnd={onEdgeUpdateEnd}
-          edgeUpdaterRadius={edgeUpdaterRadius}
-          defaultMarkerColor={defaultMarkerColor}
-          noPanClassName={noPanClassName}
-          disableKeyboardA11y={disableKeyboardA11y}
-          rfId={rfId}
+          edgeTypes={p.edgeTypes}
+          onEdgeClick={p.onEdgeClick}
+          onEdgeDoubleClick={p.onEdgeDoubleClick}
+          onEdgeUpdate={p.onEdgeUpdate}
+          onlyRenderVisibleElements={p.onlyRenderVisibleElements}
+          onEdgeContextMenu={p.onEdgeContextMenu}
+          onEdgeMouseEnter={p.onEdgeMouseEnter}
+          onEdgeMouseMove={p.onEdgeMouseMove}
+          onEdgeMouseLeave={p.onEdgeMouseLeave}
+          onEdgeUpdateStart={p.onEdgeUpdateStart}
+          onEdgeUpdateEnd={p.onEdgeUpdateEnd}
+          edgeUpdaterRadius={p.edgeUpdaterRadius}
+          defaultMarkerColor={p.defaultMarkerColor}
+          noPanClassName={p.noPanClassName}
+          disableKeyboardA11y={p.disableKeyboardA11y}
+          rfId={p.rfId}
         />
         <ConnectionLineWrapper
-          style={connectionLineStyle}
-          type={connectionLineType}
-          component={connectionLineComponent}
-          containerStyle={connectionLineContainerStyle}
+          style={p.connectionLineStyle}
+          type={p.connectionLineType}
+          component={p.connectionLineComponent}
+          containerStyle={p.connectionLineContainerStyle}
         />
-        <div className="react-flow__edgelabel-renderer" />
+        <div class="react-flow__edgelabel-renderer" />
         <NodeRenderer<NodeType>
-          nodeTypes={nodeTypes}
-          onNodeClick={onNodeClick}
-          onNodeDoubleClick={onNodeDoubleClick}
-          onNodeMouseEnter={onNodeMouseEnter}
-          onNodeMouseMove={onNodeMouseMove}
-          onNodeMouseLeave={onNodeMouseLeave}
-          onNodeContextMenu={onNodeContextMenu}
-          onlyRenderVisibleElements={onlyRenderVisibleElements}
-          noPanClassName={noPanClassName}
-          noDragClassName={noDragClassName}
-          disableKeyboardA11y={disableKeyboardA11y}
-          nodeOrigin={nodeOrigin}
-          nodeExtent={nodeExtent}
-          rfId={rfId}
+          nodeTypes={p.nodeTypes}
+          onNodeClick={p.onNodeClick}
+          onNodeDoubleClick={p.onNodeDoubleClick}
+          onNodeMouseEnter={p.onNodeMouseEnter}
+          onNodeMouseMove={p.onNodeMouseMove}
+          onNodeMouseLeave={p.onNodeMouseLeave}
+          onNodeContextMenu={p.onNodeContextMenu}
+          onlyRenderVisibleElements={p.onlyRenderVisibleElements}
+          noPanClassName={p.noPanClassName}
+          noDragClassName={p.noDragClassName}
+          disableKeyboardA11y={p.disableKeyboardA11y}
+          nodeOrigin={p.nodeOrigin}
+          nodeExtent={p.nodeExtent}
+          rfId={p.rfId}
         />
-        <div className="react-flow__viewport-portal" />
+        <div class="react-flow__viewport-portal" />
       </Viewport>
     </FlowRenderer>
   );
@@ -196,4 +200,4 @@ function GraphViewComponent<NodeType extends Node = Node, EdgeType extends Edge 
 
 GraphViewComponent.displayName = 'GraphView';
 
-export const GraphView = memo(GraphViewComponent) as typeof GraphViewComponent;
+export const GraphView = GraphViewComponent;

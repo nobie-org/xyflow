@@ -306,7 +306,7 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
    * This might improve performance when you have a large number of nodes and edges but also adds an overhead.
    * @default false
    */
-  onlyRenderVisibleElements?: boolean;
+  onlyRenderVisibleElements?: boolean | undefined;
   /** Controls if all nodes should be draggable
    * @default true
    */
@@ -417,7 +417,7 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
   /** Controls if the viewport should zoom by double clicking somewhere on the flow */
   zoomOnDoubleClick?: boolean;
   edgeUpdaterRadius?: number;
-  noDragClassName?: string;
+  noDragClassName?: string | undefined;
   noWheelClassName?: string;
   noPanClassName?: string;
   /** If set, initial viewport will show all nodes & edges */

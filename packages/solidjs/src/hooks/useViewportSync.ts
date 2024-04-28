@@ -13,11 +13,12 @@ const selector = (state: SolidFlowState) => () => state.panZoom.get()?.syncViewp
  * @internal
  * @param viewport
  */
-export function useViewportSync(viewport?: Viewport) {
+export function useViewportSync(getViewport?: () => Viewport | undefined) {
   const syncViewport = useStore(selector);
   const store = useStoreApi();
 
   createEffect(() => {
+    const viewport = getViewport?.();
     if (viewport) {
       syncViewport()?.(viewport);
       store.transform.set([viewport.x, viewport.y, viewport.zoom]);

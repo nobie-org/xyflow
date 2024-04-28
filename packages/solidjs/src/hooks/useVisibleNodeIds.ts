@@ -4,8 +4,8 @@ import { getNodesInside } from '@xyflow/system';
 import { useStore } from './useStore';
 import type { Node, SolidFlowState } from '../types';
 
-const selector = (onlyRenderVisible: boolean) => (s: SolidFlowState) => {
-  return () => onlyRenderVisible
+const selector = (onlyRenderVisible: () => boolean) => (s: SolidFlowState) => {
+  return () => onlyRenderVisible()
     ? getNodesInside<Node>(s.nodeLookup, { x: 0, y: 0, width: s.width.get(), height: s.height.get() }, s.transform.get(), true).map(
         (node) => node.id
       )
@@ -19,7 +19,7 @@ const selector = (onlyRenderVisible: boolean) => (s: SolidFlowState) => {
  * @param onlyRenderVisible
  * @returns array with visible node ids
  */
-export function useVisibleNodeIds(onlyRenderVisible: boolean) {
+export function useVisibleNodeIds(onlyRenderVisible: () => boolean): () => string[] {
   const nodeIds = useStore(useCallback(selector(onlyRenderVisible), [onlyRenderVisible]));
 
   return nodeIds;

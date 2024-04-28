@@ -50,7 +50,7 @@ export function ZoomPane(_p: ZoomPaneProps) {
 // }: ZoomPaneProps) {
 
 const p = mergeProps({
-zoomOnScoll: true,
+zoomOnScroll: true,
 zoomOnPinch: true,
 panOnScroll: false,
 panOnScrollSpeed: 0.5,
@@ -58,7 +58,8 @@ panOnScrollMode: PanOnScrollMode.Free,
 zoomOnDoubleClick: true,
 panOnDrag: true,
 preventScrolling: true,
-}, _p);
+} satisfies Partial<ZoomPaneProps>
+, _p);
 
   const store = useStoreApi();
   const [getZoomPane, setZoomPane] = createSignal<HTMLDivElement| null>(null);
@@ -124,19 +125,19 @@ preventScrolling: true,
       panOnScroll: p.panOnScroll,
       panOnScrollSpeed: p.panOnScrollSpeed,
       panOnScrollMode: p.panOnScrollMode,
-      zoomOnDoubleClick,
-      panOnDrag,
-      zoomActivationKeyPressed,
-      preventScrolling,
-      noPanClassName,
-      userSelectionActive,
-      noWheelClassName,
-      lib,
+      zoomOnDoubleClick: p.zoomOnDoubleClick,
+      panOnDrag: p.panOnDrag,
+      zoomActivationKeyPressed: zoomActivationKeyPressed(),
+      preventScrolling: p.preventScrolling,
+      noPanClassName: p.noPanClassName,
+      userSelectionActive: userSelectionActive.get(),
+      noWheelClassName: p.noWheelClassName,
+      lib: lib.get(),
     });
   })
 
   return (
-    <div class="react-flow__renderer" ref={setZoomPane} style={p.containerStyle}>
+    <div class="react-flow__renderer" ref={setZoomPane} style={containerStyle}>
       {p.children}
     </div>
   );

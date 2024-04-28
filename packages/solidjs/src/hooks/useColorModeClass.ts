@@ -15,14 +15,24 @@ function getMediaQuery() {
  * @internal
  * @param colorMode - The color mode to use ('dark', 'light' or 'system')
  */
-export function useColorModeClass(colorMode: ColorMode): () => ColorModeClass {
+export function useColorModeClass(colorMode: () => ColorMode): () => ColorModeClass {
+  const initialColorMode = () => { 
+    const mode = colorMode();
+    if (mode === 'system') {
+      return null
+    } else { 
+      return mode
+    }
+  }
+
   const [colorModeClass, setColorModeClass] = createSignal<ColorModeClass | null>(
-    colorMode === 'system' ? null : colorMode
+    initialColorMode()
   );
 
   createEffect(() => {
-    if (colorMode !== 'system') {
-      setColorModeClass(colorMode);
+    const mode = colorMode();
+    if (mode !== 'system') {
+      setColorModeClass(mode);
       return;
     }
 

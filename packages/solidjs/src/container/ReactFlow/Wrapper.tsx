@@ -1,20 +1,22 @@
-import { useContext, type ReactNode } from 'react';
+// import { useContext, type ReactNode } from 'react';
 
 import StoreContext from '../../contexts/StoreContext';
 import { ReactFlowProvider } from '../../components/ReactFlowProvider';
 import type { Node, Edge } from '../../types';
+import { ParentProps, Show, useContext } from 'solid-js';
 
-export function Wrapper({
-  children,
-  nodes,
-  edges,
-  defaultNodes,
-  defaultEdges,
-  width,
-  height,
-  fitView,
-}: {
-  children: ReactNode;
+export function Wrapper(p: 
+//   {
+//   children,
+//   nodes,
+//   edges,
+//   defaultNodes,
+//   defaultEdges,
+//   width,
+//   height,
+//   fitView,
+// }: {
+  ParentProps<{
   nodes?: Node[];
   edges?: Edge[];
   defaultNodes?: Node[];
@@ -22,26 +24,34 @@ export function Wrapper({
   width?: number;
   height?: number;
   fitView?: boolean;
-}) {
+}>) {
   const isWrapped = useContext(StoreContext);
 
-  if (isWrapped) {
-    // we need to wrap it with a fragment because it's not allowed for children to be a ReactNode
-    // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/18051
-    return <>{children}</>;
-  }
+  // if (isWrapped) {
+  //   return <>{children}</>;
+  // }
 
   return (
+    <Show when={!isWrapped} fallback={
+      // TODO: not sure if this apples to solid? 
+    // we need to wrap it with a fragment because it's not allowed for children to be a ReactNode
+    // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/18051
+      <>
+      {p.children}
+      </>
+    }>
+
     <ReactFlowProvider
-      initialNodes={nodes}
-      initialEdges={edges}
-      defaultNodes={defaultNodes}
-      defaultEdges={defaultEdges}
-      initialWidth={width}
-      initialHeight={height}
-      fitView={fitView}
+      initialNodes={p.nodes}
+      initialEdges={p.edges}
+      defaultNodes={p.defaultNodes}
+      defaultEdges={p.defaultEdges}
+      initialWidth={p.width}
+      initialHeight={p.height}
+      fitView={p.fitView}
     >
-      {children}
+      {p.children}
     </ReactFlowProvider>
+    </Show>
   );
 }

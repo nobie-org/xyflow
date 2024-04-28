@@ -33,7 +33,7 @@ function AriaLiveMessage(p: { rfId: string }) {
   );
 }
 
-export function A11yDescriptions(p: { rfId: string; disableKeyboardA11y: boolean }) {
+export function A11yDescriptions(p: { rfId: string; disableKeyboardA11y?: boolean }) {
   return (
     <>
       <div id={`${ARIA_NODE_DESC_KEY}-${p.rfId}`} style={style}>

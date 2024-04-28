@@ -62,7 +62,7 @@ const changeSelector = (s: SolidFlowState) => !!s.onSelectionChangeHandlers;
 export function SelectionListener(p: SelectionListenerProps) {
   const storeHasSelectionChangeHandlers = useStore(changeSelector);
 
-  <Show when={storeHasSelectionChangeHandlers && p.onSelectionChange}>
+  return <Show when={storeHasSelectionChangeHandlers && p.onSelectionChange}>
   {(onSelectionChange) => {
     return <SelectionListenerInner onSelectionChange={onSelectionChange} />;
   }}
