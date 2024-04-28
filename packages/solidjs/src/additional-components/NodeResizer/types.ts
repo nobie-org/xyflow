@@ -22,11 +22,11 @@ export type NodeResizerProps = {
   /** ClassName applied to handle */
   handleClassName?: string;
   /** Style applied to handle */
-  handleStyle?: CSSProperties;
+  handleStyle?: JSX.CSSProperties;
   /** ClassName applied to line */
   lineClassName?: string;
   /** Style applied to line */
-  lineStyle?: CSSProperties;
+  lineStyle?: JSX.CSSProperties;
   /** Are the controls visible */
   isVisible?: boolean;
   /** Minimum width of node */

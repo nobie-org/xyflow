@@ -1,7 +1,8 @@
-import type { HTMLAttributes } from 'react';
+// import type { HTMLAttributes } from 'react';
 import type { Position, Align } from '@xyflow/system';
+import { JSX } from 'solid-js';
 
-export type NodeToolbarProps = HTMLAttributes<HTMLDivElement> & {
+export type NodeToolbarProps = JSX.HTMLAttributes<HTMLDivElement> & {
   /** Id of the node, or array of ids the toolbar should be displayed at */
   nodeId?: string | string[];
   /** If true, node toolbar is visible even if node is not selected */

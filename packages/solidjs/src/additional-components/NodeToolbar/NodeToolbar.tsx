@@ -1,13 +1,13 @@
-import { useCallback, CSSProperties } from 'react';
+// import { useCallback, CSSProperties } from 'react';
 import cc from 'classcat';
-import { shallow } from 'zustand/shallow';
-import { Rect, Position, getNodeToolbarTransform, getNodesBounds } from '@xyflow/system';
+import { Rect, Position, getNodeToolbarTransform, getNodesBounds, Align } from '@xyflow/system';
 
 import { InternalNode, SolidFlowState } from '../../types';
 import { useStore } from '../../hooks/useStore';
 import { useNodeId } from '../../contexts/NodeIdContext';
 import { NodeToolbarPortal } from './NodeToolbarPortal';
 import type { NodeToolbarProps } from './types';
+import { mergeProps, JSX, splitProps, Show } from 'solid-js';
 
 const nodeEqualityFn = (a?: InternalNode, b?: InternalNode) =>
   a?.internals.positionAbsolute.x !== b?.internals.positionAbsolute.x ||
@@ -26,31 +26,35 @@ const nodesEqualityFn = (a: InternalNode[], b: InternalNode[]) => {
 };
 
 const storeSelector = (state: SolidFlowState) => ({
-  viewport: {
-    x: state.transform[0],
-    y: state.transform[1],
-    zoom: state.transform[2],
-  },
-  nodeOrigin: state.nodeOrigin,
-  selectedNodesCount: state.nodes.filter((node) => node.selected).length,
+  viewport: () => ({
+    x: state.transform.get()[0],
+    y: state.transform.get()[1],
+    zoom: state.transform.get()[2],
+  }),
+  nodeOrigin: state.nodeOrigin.get(),
+  selectedNodesCount: state.nodes.get().filter((node) => node.selected).length,
 });
 
-export function NodeToolbar({
-  nodeId,
-  children,
-  className,
-  style,
-  isVisible,
-  position = Position.Top,
-  offset = 10,
-  align = 'center',
-  ...rest
-}: NodeToolbarProps) {
-  const contextNodeId = useNodeId();
+export function NodeToolbar(_p: NodeToolbarProps) {
+//   nodeId,
+//   children,
+//   className,
+//   style,
+//   isVisible,
+//   position = Position.Top,
+//   offset = 10,
+//   align = 'center',
+//   ...rest
+// }: NodeToolbarProps) {
+  const p = mergeProps({ position: Position.Top, offset: 10, align: 'center' as Align }, _p);
 
-  const nodesSelector = useCallback(
-    (state: SolidFlowState): InternalNode[] => {
-      const nodeIds = Array.isArray(nodeId) ? nodeId : [nodeId || contextNodeId || ''];
+  const [_, rest] = splitProps(p, ['nodeId', 'children', 'class', 'style', 'isVisible', 'position', 'offset', 'align']);
+
+  const getContextNodeId = useNodeId();
+
+  const nodesSelector =
+    (state: SolidFlowState): () => InternalNode[] => () => {
+      const nodeIds = Array.isArray(p.nodeId) ? p.nodeId : [p.nodeId || getContextNodeId() || ''];
 
       return nodeIds.reduce<InternalNode[]>((acc, id) => {
         const node = state.nodeLookup.get(id);
@@ -59,40 +63,40 @@ export function NodeToolbar({
         }
         return acc;
       }, []);
-    },
-    [nodeId, contextNodeId]
-  );
-  const nodes = useStore(nodesSelector, nodesEqualityFn);
-  const { viewport, nodeOrigin, selectedNodesCount } = useStore(storeSelector, shallow);
+    };
+  const nodes = useStore(nodesSelector);
+  const { viewport, nodeOrigin, selectedNodesCount } = useStore(storeSelector);
 
   // if isVisible is not set, we show the toolbar only if its node is selected and no other node is selected
-  const isActive =
-    typeof isVisible === 'boolean' ? isVisible : nodes.length === 1 && nodes[0].selected && selectedNodesCount === 1;
+  const isActive = () => 
+    typeof p.isVisible === 'boolean' ? p.isVisible : nodes.length === 1 && nodes()[0].selected && selectedNodesCount === 1;
 
-  if (!isActive || !nodes.length) {
-    return null;
-  }
+  // if (!isActive || !nodes.length) {
+  //   return null;
+  // }
 
-  const nodeRect: Rect = getNodesBounds(nodes, { nodeOrigin });
-  const zIndex: number = Math.max(...nodes.map((node) => node.internals.z + 1));
+  const nodeRect = (): Rect => getNodesBounds(nodes(), { nodeOrigin });
+  const zIndex = (): number => Math.max(...nodes().map((node) => node.internals.z + 1));
 
-  const wrapperStyle: CSSProperties = {
+  const wrapperStyle = (): JSX.CSSProperties => ({
     position: 'absolute',
-    transform: getNodeToolbarTransform(nodeRect, viewport, position, offset, align),
-    zIndex,
-    ...style,
-  };
+    transform: getNodeToolbarTransform(nodeRect(), viewport(), p.position, p.offset, p.align),
+    "z-index": zIndex(),
+    ...(typeof p.style === "object" ? p.style : {})
+  });
 
   return (
+    <Show when={isActive() && nodes().length > 0}>
     <NodeToolbarPortal>
       <div
-        style={wrapperStyle}
-        className={cc(['react-flow__node-toolbar', className])}
+        style={wrapperStyle()}
+        class={cc(['react-flow__node-toolbar', p.class])}
         {...rest}
-        data-id={nodes.reduce((acc, node) => `${acc}${node.id} `, '').trim()}
+        data-id={nodes().reduce((acc, node) => `${acc}${node.id} `, '').trim()}
       >
-        {children}
+        {p.children}
       </div>
     </NodeToolbarPortal>
+    </Show>
   );
 }

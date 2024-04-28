@@ -45,10 +45,10 @@ function ResizeControl(_p: ResizeControlProps) {
 
   const p = mergeProps({ variant: ResizeControlVariant.Handle, minWidth: 10, minHeight: 10, maxWidth: Number.MAX_VALUE, maxHeight: Number.MAX_VALUE, keepAspectRatio: false }, _p);
 
-  const contextNodeId = useNodeId();
-  const getId = () => { if (typeof p.nodeId === 'string') { return p.nodeId } else { return contextNodeId } };
+  const getContextNodeId = useNodeId();
+  const getId = () => { if (typeof p.nodeId === 'string') { return p.nodeId } else { return getContextNodeId() } };
   const store = useStoreApi();
-  const resizeControlRef = useRef<HTMLDivElement>(null);
+  const resizeControlRef = useRef<HTMLDivElement | null>(null);
   const defaultPosition = () => p.variant === ResizeControlVariant.Line ? 'right' : 'bottom-right';
   const controlPosition = () => p.position ?? defaultPosition();
 
@@ -66,17 +66,17 @@ function ResizeControl(_p: ResizeControlProps) {
         domNode: resizeControlRef.current,
         nodeId: id,
         getStoreItems: () => {
-          const { nodeLookup, transform, snapGrid, snapToGrid, nodeOrigin } = store().getState();
+          const { nodeLookup, transform, snapGrid, snapToGrid, nodeOrigin } = store;
           return {
-            nodeLookup,
-            transform,
-            snapGrid,
-            snapToGrid,
-            nodeOrigin,
+            nodeLookup: nodeLookup,
+            transform: transform.get(),
+            snapGrid: snapGrid.get(),
+            snapToGrid: snapToGrid.get(),
+            nodeOrigin: nodeOrigin.get(),
           };
         },
         onChange: (change: XYResizerChange, childChanges: XYResizerChildChange[]) => {
-          const { triggerNodeChanges, nodeLookup, parentLookup, nodeOrigin } = store().getState();
+          const { triggerNodeChanges, nodeLookup, parentLookup, nodeOrigin } = store;
 
           const changes: NodeChange[] = [];
           const nextPosition = { x: change.x, y: change.y };
@@ -96,12 +96,12 @@ function ResizeControl(_p: ResizeControlProps) {
                   },
                   node.parentId,
                   nodeLookup,
-                  node.origin ?? nodeOrigin
+                  node.origin ?? nodeOrigin.get()
                 ),
               },
             };
 
-            const parentExpandChanges = handleExpandParent([child], nodeLookup, parentLookup, nodeOrigin);
+            const parentExpandChanges = handleExpandParent([child], nodeLookup, parentLookup, nodeOrigin.get());
             changes.push(...parentExpandChanges);
 
             // when the parent was expanded by the child node, its position will be clamped at 0,0
@@ -150,7 +150,7 @@ function ResizeControl(_p: ResizeControlProps) {
             type: 'dimensions',
             resizing: false,
           };
-          store().getState().triggerNodeChanges([dimensionChange]);
+          store.triggerNodeChanges([dimensionChange]);
         },
       });
     }

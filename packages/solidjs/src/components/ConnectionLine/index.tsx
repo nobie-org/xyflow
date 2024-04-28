@@ -44,16 +44,16 @@ const ConnectionLine = (_p: ConnectionLineProps) => {
 
   const { fromNode, handleId, toX, toY, connectionMode } = useStore((s: SolidFlowStore) => ({
     fromNode: s.nodeLookup.get(p.nodeId),
-    handleId: s.connectionStartHandle?.handleId,
-    toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],
-    toY: (s.connectionPosition.y - s.transform[1]) / s.transform[2],
+    handleId: s.connectionStartHandle.get()?.handleId,
+    toX: () => (s.connectionPosition.get().x - s.transform.get()[0]) / s.transform.get()[2],
+    toY: () => (s.connectionPosition.get().y - s.transform.get()[1]) / s.transform.get()[2],
     connectionMode: s.connectionMode,
   }));
   // p.shallow
   const fromHandleBounds = () => fromNode?.internals.handleBounds;
   const handleBounds = () => {
     const x = fromHandleBounds()?.[p.handleType];
-    if (connectionMode === ConnectionMode.Loose) {
+    if (connectionMode.get() === ConnectionMode.Loose) {
       return x ? x : fromHandleBounds()?.[p.handleType === 'source' ? 'target' : 'source'];
     } else {
       return x;
@@ -99,8 +99,8 @@ const ConnectionLine = (_p: ConnectionLineProps) => {
         sourceX: fromX(),
         sourceY: fromY(),
         sourcePosition: fromPosition()!,
-        targetX: toX,
-        targetY: toY,
+        targetX: toX(),
+        targetY: toY(),
         targetPosition: toPosition()!,
       };
 
@@ -129,17 +129,17 @@ const ConnectionLine = (_p: ConnectionLineProps) => {
   return (
     <Show when={fromNode && handleBounds() && fromPosition() && toPosition()}>
       <Show when={p.CustomComponent} keyed fallback={<DefaultComponent />}>
-        {(CustomComponent) => {
+        {(Comp) => {
           return (
-            <CustomComponent
+            <Comp
               connectionLineType={p.type}
               connectionLineStyle={p.style}
               fromNode={fromNode}
               fromHandle={fromHandle()}
               fromX={fromX()}
               fromY={fromY()}
-              toX={toX}
-              toY={toY}
+              toX={toX()}
+              toY={toY()}
               fromPosition={fromPosition()!}
               toPosition={toPosition()!}
               connectionStatus={p.connectionStatus}
@@ -179,10 +179,10 @@ type ConnectionLineWrapperProps = {
 };
 
 const selector = (s: SolidFlowState) => ({
-  nodeId: s.connectionStartHandle?.nodeId,
-  handleType: s.connectionStartHandle?.type,
-  nodesConnectable: s.nodesConnectable,
-  connectionStatus: s.connectionStatus,
+  nodeId: () => s.connectionStartHandle.get()?.nodeId,
+  handleType: () => s.connectionStartHandle.get()?.type,
+  nodesConnectable: () => s.nodesConnectable.get(),
+  connectionStatus: () => s.connectionStatus.get(),
   width: s.width,
   height: s.height,
 });
@@ -193,17 +193,19 @@ export function ConnectionLineWrapper(p: ConnectionLineWrapperProps) {
   const { nodeId, handleType, nodesConnectable, width, height, connectionStatus } = useStore(selector);
 
   const innerProps = () => {
-    const isValid = !!(nodeId && handleType && width && nodesConnectable);
+    const nId = nodeId();
+    const hType = handleType();
+    const isValid = !!(nId && hType && width.get() && nodesConnectable());
     if (!isValid) {
       return null;
     }
     return {
-      nodeId,
-      handleType,
+      nodeId: nId,
+      handleType: hType,
       type: p.type,
       style: p.style,
       CustomComponent: p.component,
-      connectionStatus,
+      connectionStatus: connectionStatus(),
     };
   };
 
@@ -213,8 +215,8 @@ export function ConnectionLineWrapper(p: ConnectionLineWrapperProps) {
         return (
           <svg
             style={p.containerStyle}
-            width={width}
-            height={height}
+            width={width.get()}
+            height={height.get()}
             class="react-flow__connectionline react-flow__container"
           >
             <g class={cc(['react-flow__connection', connectionStatus])}>
@@ -224,7 +226,7 @@ export function ConnectionLineWrapper(p: ConnectionLineWrapperProps) {
                 style={props().style}
                 type={props().type}
                 CustomComponent={props().CustomComponent}
-                connectionStatus={connectionStatus}
+                connectionStatus={props().connectionStatus}
               />
             </g>
           </svg>
