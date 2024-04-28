@@ -6,7 +6,7 @@ import { createEffect, createSignal } from 'solid-js';
 import { useRef } from '../utils/hooks';
 
 type UseDragParams = {
-  nodeRef: HTMLDivElement;
+  nodeRef?: () => HTMLDivElement | undefined;
   disabled?: boolean;
   noDragClassName?: string;
   handleSelector?: string;
@@ -60,7 +60,7 @@ export function useDrag({
         handleNodeClick({
           id,
           store,
-          nodeRef,
+          nodeRef: nodeRef?.(),
         });
       },
       onDragStart: () => {
@@ -73,13 +73,14 @@ export function useDrag({
   });
 
   createEffect(() => {
+    const domNode = nodeRef?.();
     if (disabled) {
       xyDrag.current?.destroy();
-    } else if (nodeRef) {
+    } else if (domNode) {
       xyDrag.current?.update({
         noDragClassName,
         handleSelector,
-        domNode: nodeRef,
+        domNode,
         isSelectable,
         nodeId,
       });

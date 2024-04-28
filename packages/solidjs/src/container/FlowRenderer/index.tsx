@@ -7,7 +7,7 @@ import { ZoomPane } from '../ZoomPane';
 import { Pane } from '../Pane';
 import { NodesSelection } from '../../components/NodesSelection';
 import type { SolidFlowState, Node } from '../../types';
-import { ParentProps } from 'solid-js';
+import { ParentProps, Show } from 'solid-js';
 
 export type FlowRendererProps<NodeType extends Node = Node> = ParentProps<Omit<
   GraphViewProps<NodeType>,
@@ -109,16 +109,16 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
         onPaneMouseMove={p.onPaneMouseMove}
         onPaneMouseLeave={p.onPaneMouseLeave}
         onPaneContextMenu={p.onPaneContextMenu}
-        onPaneScroll={onPaneScroll()}
+        onPaneScroll={p.onPaneScroll}
         panOnDrag={panOnDrag()}
         isSelecting={!!isSelecting()}
         selectionMode={p.selectionMode}
       >
         {p.children}
-        <Show when={nodesSelectionActive.get()}
+        <Show when={nodesSelectionActive.get()}>
           <NodesSelection
-            onSelectionContextMenu={onSelectionContextMenu}
-            noPanClassName={noPanClassName}
+            onSelectionContextMenu={p.onSelectionContextMenu}
+            noPanClassName={p.noPanClassName}
             disableKeyboardA11y={disableKeyboardA11y}
           />
         </Show>

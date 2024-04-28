@@ -44,6 +44,7 @@ import type {
   OnNodeDrag,
   OnBeforeDelete,
   IsValidConnection,
+  SolidEvent,
 } from '.';
 
 import { JSX } from 'solid-js'
@@ -182,7 +183,7 @@ export interface ReactFlowProps<NodeType extends Node = Node, EdgeType extends E
   onSelectionDragStop?: SelectionDragHandler<NodeType>;
   onSelectionStart?: (event: MouseEvent) => void;
   onSelectionEnd?: (event: MouseEvent) => void;
-  onSelectionContextMenu?: (event: MouseEvent, nodes: NodeType[]) => void;
+  onSelectionContextMenu?: <T,>(event: SolidEvent<T, MouseEvent>, nodes: NodeType[]) => void;
   /** When a connection line is completed and two nodes are connected by the user, this event fires with the new connection.
    *
    * You can use the addEdge utility to convert the connection to a complete edge.
