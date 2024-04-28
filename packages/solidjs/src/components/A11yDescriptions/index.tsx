@@ -28,7 +28,7 @@ function AriaLiveMessage(p: { rfId: string }) {
 
   return (
     <div id={`${ARIA_LIVE_MESSAGE}-${p.rfId}`} aria-live="assertive" aria-atomic="true" style={ariaLiveStyle}>
-      {ariaLiveMessage}
+      {ariaLiveMessage.get()}
     </div>
   );
 }
