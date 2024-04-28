@@ -63,7 +63,7 @@ export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>(
       rfId: flowId,
       panBy,
       updateConnection,
-    } = store().getState();
+    } = store;
     const nodeId = () => (isSourceHandle ? p.edge.target : p.edge.source);
     const handleId = () => (isSourceHandle ? p.targetHandleId : p.sourceHandleId) || null;
     const handleType = () => (isSourceHandle ? 'target' : 'source');
@@ -81,17 +81,17 @@ export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>(
     const onConnectEdge = (connection: Connection) => p.onEdgeUpdate?.(p.edge, connection);
 
     XYHandle.onPointerDown(event, {
-      autoPanOnConnect,
-      connectionMode,
-      connectionRadius,
-      domNode,
+      autoPanOnConnect: autoPanOnConnect.get(),
+      connectionMode: connectionMode.get(),
+      connectionRadius: connectionRadius.get(),
+      domNode: domNode.get(),
       handleId: handleId(),
       nodeId: nodeId(),
       nodeLookup,
       isTarget,
       edgeUpdaterType: handleType(),
-      lib,
-      flowId,
+      lib: lib.get(),
+      flowId: flowId.get(),
       cancelConnection,
       panBy,
       isValidConnection,
@@ -100,8 +100,8 @@ export function EdgeUpdateAnchors<EdgeType extends Edge = Edge>(
       onConnectEnd,
       onEdgeUpdateEnd: _onEdgeUpdateEnd,
       updateConnection,
-      getTransform: () => store().getState().transform,
-      getConnectionStartHandle: () => store().getState().connectionStartHandle,
+      getTransform: () => store.transform.get(),
+      getConnectionStartHandle: () => store.connectionStartHandle.get(),
     });
   };
 
