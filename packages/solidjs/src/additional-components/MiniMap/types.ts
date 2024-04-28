@@ -7,7 +7,7 @@ import { Component, JSX } from 'solid-js';
 
 export type GetMiniMapNodeAttribute<NodeType extends Node = Node> = (node: NodeType) => string;
 
-export type MiniMapProps<NodeType extends Node = Node> = Omit<JSX.HTMLAttributes<SVGSVGElement>, 'onClick'> & {
+export type MiniMapProps<NodeType extends Node = Node> = Omit<JSX.HTMLAttributes<SVGSVGElement>, 'onClick' | "style"> & {
   /** Color of nodes on minimap */
   nodeColor?: string | GetMiniMapNodeAttribute<NodeType>;
   /** Stroke color of nodes on minimap */
@@ -49,6 +49,7 @@ export type MiniMapProps<NodeType extends Node = Node> = Omit<JSX.HTMLAttributes
   zoomStep?: number;
   /** Offset the viewport on the minmap, acts like a padding */
   offsetScale?: number;
+  style?: Omit<JSX.CSSProperties, "height" | "width"> & { height?: number, width?: number };
 };
 
 export type MiniMapNodes<NodeType extends Node = Node> = Pick<
@@ -70,7 +71,7 @@ export type MiniMapNodeProps = {
   "shape-rendering"?: "auto" | "optimizeSpeed" | "crispEdges" | "geometricPrecision" | "inherit";
   strokeColor?: string;
   strokeWidth?: JSX.CSSProperties['stroke-width'];
-  style?: JSX.CSSProperties;
+  style?: Omit<JSX.CSSProperties, "height" | "width"> & { height?: number, width?: number };
   selected: boolean;
   onClick?: (event: MouseEvent, id: string) => void;
 };

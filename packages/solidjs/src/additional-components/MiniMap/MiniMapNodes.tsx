@@ -130,7 +130,7 @@ function NodeComponentWrapperInner<NodeType extends Node>(
       y={pos(node()).y}
       width={getNodeDimensions(node()).width}
       height={getNodeDimensions(node()).height}
-      style={node().style}
+      style={assertMinimapPropsCompatibleStyle(node().style)}
       selected={!!node().selected}
       className={p.nodeClassNameFunc(node())}
       color={p.nodeColorFunc(node())}
@@ -151,3 +151,20 @@ function NodeComponentWrapperInner<NodeType extends Node>(
 const NodeComponentWrapper = NodeComponentWrapperInner as typeof NodeComponentWrapperInner;
 
 export default MiniMapNodes;
+
+
+function assertMinimapPropsCompatibleStyle(style?: JSX.CSSProperties): Omit<JSX.CSSProperties, "height" | "width"> & { height?: number, width?: number } | undefined{
+  if (!style) {
+    return undefined
+  }
+
+  if (typeof style.height !== "undefined" || typeof style.height !== 'number') {
+    throw new Error('if defined, height must be a number');
+  }
+
+  if (typeof style.width !== "undefined" || typeof style.width !== 'number') {
+    throw new Error('if defined, width must be a number');
+  }
+
+  return style as Omit<JSX.CSSProperties, "height" | "width"> & { height?: number, width?: number };
+}
