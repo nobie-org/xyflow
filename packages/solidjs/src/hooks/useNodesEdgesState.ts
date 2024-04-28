@@ -1,7 +1,8 @@
-import { useState, useCallback, type Dispatch, type SetStateAction } from 'react';
+// import { useState, useCallback, type Dispatch, type SetStateAction } from 'react';
 
 import { applyNodeChanges, applyEdgeChanges } from '../utils/changes';
 import type { Node, Edge, OnNodesChange, OnEdgesChange } from '../types';
+import { Accessor, Setter, createSignal } from 'solid-js';
 
 /**
  * Hook for managing the state of nodes - should only be used for prototyping / simple use cases.
@@ -12,12 +13,10 @@ import type { Node, Edge, OnNodesChange, OnEdgesChange } from '../types';
  */
 export function useNodesState<NodeType extends Node>(
   initialNodes: NodeType[]
-): [NodeType[], Dispatch<SetStateAction<NodeType[]>>, OnNodesChange<NodeType>] {
-  const [nodes, setNodes] = useState(initialNodes);
-  const onNodesChange: OnNodesChange<NodeType> = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    []
-  );
+): [Accessor<NodeType[]>, Setter<NodeType[]>, OnNodesChange<NodeType>] {
+  const [nodes, setNodes] = createSignal(initialNodes);
+  const onNodesChange: OnNodesChange<NodeType> =
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds));
 
   return [nodes, setNodes, onNodesChange];
 }
@@ -31,12 +30,10 @@ export function useNodesState<NodeType extends Node>(
  */
 export function useEdgesState<EdgeType extends Edge = Edge>(
   initialEdges: EdgeType[]
-): [EdgeType[], Dispatch<SetStateAction<EdgeType[]>>, OnEdgesChange<EdgeType>] {
-  const [edges, setEdges] = useState(initialEdges);
-  const onEdgesChange: OnEdgesChange<EdgeType> = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
-  );
+): [Accessor<EdgeType[]>,Setter<EdgeType[]>, OnEdgesChange<EdgeType>] {
+  const [edges, setEdges] = createSignal(initialEdges);
+  const onEdgesChange: OnEdgesChange<EdgeType> =
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds));
 
   return [edges, setEdges, onEdgesChange];
 }

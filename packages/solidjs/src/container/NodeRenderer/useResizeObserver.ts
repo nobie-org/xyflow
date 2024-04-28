@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
 
 import { SolidFlowState } from '../../types';
 import { useStore } from '../../hooks/useStore';
 import { InternalNodeUpdate } from '@xyflow/system';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 const selector = (s: SolidFlowState) => s.updateNodeInternals;
 
 export function useResizeObserver() {
   const updateNodeInternals = useStore(selector);
-  const [resizeObserver] = useState(() => {
+  const createInitial = () => {
     if (typeof ResizeObserver === 'undefined') {
       return null;
     }
@@ -25,13 +25,13 @@ export function useResizeObserver() {
 
       updateNodeInternals(updates);
     });
-  });
+  };
 
-  useEffect(() => {
-    return () => {
-      resizeObserver?.disconnect();
-    };
-  }, [resizeObserver]);
+  const [resizeObserver] = createSignal(createInitial());
+
+  onCleanup(() => {
+      resizeObserver()?.disconnect();
+  });
 
   return resizeObserver;
 }

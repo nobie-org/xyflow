@@ -83,7 +83,7 @@ function NodeRendererComponent<NodeType extends Node>(props: NodeRendererProps<N
             noPanClassName={props.noPanClassName}
             rfId={props.rfId}
             disableKeyboardA11y={props.disableKeyboardA11y}
-            resizeObserver={resizeObserver}
+            resizeObserver={resizeObserver()}
             nodesDraggable={nodesDraggable.get()}
             nodesConnectable={nodesConnectable.get()}
             nodesFocusable={nodesFocusable.get()}
