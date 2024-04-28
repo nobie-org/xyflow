@@ -10,9 +10,9 @@ import { Writable } from '../../store/initialState';
 
 const BatchContext = createContext<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  nodeQueue: Writable<Queue<any>>;
+  nodeQueue: Queue<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  edgeQueue: Writable<Queue<any>>;
+  edgeQueue: Queue<any>;
 } | null>(null);
 
 /**

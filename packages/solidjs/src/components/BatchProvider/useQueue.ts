@@ -32,16 +32,16 @@ export function useQueue<T>(runQueue: (items: QueueItem<T>[]) => void) {
     // updates should have been processed by now and we can safely clear the queue
     // and bail early.
     if (!shouldFlush()) {
-      queue.get().reset();
+      queue.reset();
       return;
     }
 
-    const queueItems = queue().get();
+    const queueItems = queue.get();
 
     if (queueItems.length) {
       runQueue(queueItems);
 
-      queue().reset();
+      queue.reset();
     }
 
     // Beacuse we're using reactive state to trigger this effect, we need to flip
@@ -61,7 +61,7 @@ function createQueue<T>(cb: () => void): Queue<T> {
       queue.set( []);
     },
     push: (item) => {
-      queue.set((prev) => [...prev, item]);
+      queue.setFromPrev((prev) => [...prev, item]);
       cb();
     },
   };

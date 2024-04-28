@@ -173,5 +173,5 @@ export type ReactFlowInstance<NodeType extends Node = Node, EdgeType extends Edg
    * updateNodeData('node-1', { label: 'A new label' });
    */
   updateNodeData: Instance.UpdateNodeData<NodeType>;
-  viewportInitialized: boolean;
+  viewportInitialized: () => boolean;
 } & Omit<ViewportHelperFunctions, 'initialized'>;

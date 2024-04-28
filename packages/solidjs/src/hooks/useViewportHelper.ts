@@ -9,7 +9,7 @@ import {
 import { useStoreApi, useStore } from './useStore';
 import type { ViewportHelperFunctions, SolidFlowState } from '../types';
 
-const selector = (s: SolidFlowState) => !!s.panZoom;
+const selector = (s: SolidFlowState) => () => !!s.panZoom.get();
 
 /**
  * Hook for getting viewport helper functions.
@@ -17,7 +17,7 @@ const selector = (s: SolidFlowState) => !!s.panZoom;
  * @internal
  * @returns viewport helper functions
  */
-const useViewportHelper = (): (() => ViewportHelperFunctions) => {
+const useViewportHelper = (): ViewportHelperFunctions => {
   const store = useStoreApi();
   const panZoomInitialized = useStore(selector);
 
@@ -132,7 +132,7 @@ const useViewportHelper = (): (() => ViewportHelperFunctions) => {
     };
   };
 
-  return viewportHelperFunctions;
+  return viewportHelperFunctions();
 };
 
 export default useViewportHelper;
