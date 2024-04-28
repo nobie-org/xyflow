@@ -1,8 +1,11 @@
-import { useEffect, useRef } from 'react';
+// import { useEffect, useRef } from 'react';
 
 import type { InternalNode } from '../../types';
 import { useStoreApi } from '../../hooks/useStore';
+import { useRef } from '../../utils/hooks';
+import { createEffect, onCleanup } from 'solid-js';
 
+// TODO: this seems wrong - nodeRef is never updated? 
 /**
  * Hook to handle the resize observation + internal updates for the passed node.
  *
@@ -10,44 +13,46 @@ import { useStoreApi } from '../../hooks/useStore';
  * @returns nodeRef - reference to the node element
  */
 export function useNodeObserver({
-  node,
-  nodeType,
+  node: getNode,
+  nodeType: getNodeType,
   hasDimensions,
-  resizeObserver,
+  resizeObserver: getResizeObserver,
 }: {
-  node: InternalNode;
-  nodeType: string;
-  hasDimensions: boolean;
-  resizeObserver: ResizeObserver | null;
+  node: () => InternalNode;
+  nodeType: () => string;
+  hasDimensions: () => boolean;
+  resizeObserver: () => ResizeObserver | null;
 }) {
   const store = useStoreApi();
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const observedNode = useRef<HTMLDivElement | null>(null);
-  const prevSourcePosition = useRef(node.sourcePosition);
-  const prevTargetPosition = useRef(node.targetPosition);
-  const prevType = useRef(nodeType);
-  const isInitialized = hasDimensions && !!node.internals.handleBounds && !node.hidden;
+  const prevSourcePosition = useRef(getNode().sourcePosition);
+  const prevTargetPosition = useRef(getNode().targetPosition);
+  const prevType = useRef(getNodeType());
+  const isInitialized = () => hasDimensions() && !!getNode().internals.handleBounds && !getNode().hidden;
 
-  useEffect(() => {
-    if (nodeRef.current && (!isInitialized || observedNode.current !== nodeRef.current)) {
+  createEffect(() => {
+    const resizeObserver = getResizeObserver();
+    if (nodeRef.current && (!isInitialized() || observedNode.current !== nodeRef.current)) {
       if (observedNode.current) {
         resizeObserver?.unobserve(observedNode.current);
       }
       resizeObserver?.observe(nodeRef.current);
       observedNode.current = nodeRef.current;
     }
-  }, [isInitialized]);
+  });
 
-  useEffect(() => {
-    return () => {
-      if (observedNode.current) {
-        resizeObserver?.unobserve(observedNode.current);
-        observedNode.current = null;
-      }
-    };
-  }, []);
+  onCleanup(() => {
+    const resizeObserver = getResizeObserver();
+    if (observedNode.current) {
+      resizeObserver?.unobserve(observedNode.current);
+      observedNode.current = null;
+    }
+  });
 
-  useEffect(() => {
+  createEffect(() => {
+    const node = getNode();
+    const nodeType = getNodeType();
     if (nodeRef.current) {
       // when the user programmatically changes the source or handle position, we need to update the internals
       // to make sure the edges are updated correctly
@@ -61,11 +66,10 @@ export function useNodeObserver({
         prevTargetPosition.current = node.targetPosition;
 
         store
-          .getState()
           .updateNodeInternals(new Map([[node.id, { id: node.id, nodeElement: nodeRef.current, force: true }]]));
       }
     }
-  }, [node.id, nodeType, node.sourcePosition, node.targetPosition]);
+  });
 
   return nodeRef;
 }

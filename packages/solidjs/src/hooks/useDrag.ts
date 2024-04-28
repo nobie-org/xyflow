@@ -7,11 +7,11 @@ import { useRef } from '../utils/hooks';
 
 type UseDragParams = {
   nodeRef?: () => HTMLDivElement | undefined;
-  disabled?: boolean;
-  noDragClassName?: string;
-  handleSelector?: string;
-  nodeId?: string;
-  isSelectable?: boolean;
+  disabled?: () => boolean;
+  noDragClassName?: () => string | undefined;
+  handleSelector?: () => string | undefined;
+  nodeId?: () => string | undefined;
+  isSelectable?: () => boolean | undefined;
 };
 
 /**
@@ -21,7 +21,8 @@ type UseDragParams = {
  */
 export function useDrag({
   nodeRef,
-  disabled = false,
+  disabled: getDisabled,
+  // disabled = false,
   noDragClassName,
   handleSelector,
   nodeId,
@@ -30,6 +31,7 @@ export function useDrag({
   const store = useStoreApi();
   const [dragging, setDragging] = createSignal<boolean>(false);
   const xyDrag = useRef<XYDragInstance | undefined>(undefined);
+  const disabled = () => getDisabled?.() || false;
 
   createEffect(() => {
     xyDrag.current = XYDrag({
@@ -74,15 +76,15 @@ export function useDrag({
 
   createEffect(() => {
     const domNode = nodeRef?.();
-    if (disabled) {
+    if (disabled()) {
       xyDrag.current?.destroy();
     } else if (domNode) {
       xyDrag.current?.update({
-        noDragClassName,
-        handleSelector,
+        noDragClassName: noDragClassName?.(),
+        handleSelector: handleSelector?.(),
         domNode,
-        isSelectable,
-        nodeId,
+        isSelectable: isSelectable?.(),
+        nodeId: nodeId?.(),
       });
       return () => {
         xyDrag.current?.destroy();
