@@ -15,39 +15,61 @@ import { builtinEdgeTypes, nullPosition } from './utils';
 import { EdgeUpdateAnchors } from './EdgeUpdateAnchors';
 import type { Edge, EdgeWrapperProps } from '../../types';
 
-export function EdgeWrapper<EdgeType extends Edge = Edge>({
-  id,
-  edgesFocusable,
-  edgesUpdatable,
-  elementsSelectable,
-  onClick,
-  onDoubleClick,
-  onContextMenu,
-  onMouseEnter,
-  onMouseMove,
-  onMouseLeave,
-  edgeUpdaterRadius,
-  onEdgeUpdate,
-  onEdgeUpdateStart,
-  onEdgeUpdateEnd,
-  rfId,
-  edgeTypes,
-  noPanClassName,
-  onError,
-  disableKeyboardA11y,
-}: EdgeWrapperProps<EdgeType>): JSX.Element | null {
-  let edge = useStore((s) => s.edgeLookup.get(id)!) as EdgeType;
+export function EdgeWrapper<EdgeType extends Edge = Edge>(
+  p: EdgeWrapperProps<EdgeType>
+  
+//   {
+//   id,
+//   edgesFocusable,
+//   edgesUpdatable,
+//   elementsSelectable,
+//   onClick,
+//   onDoubleClick,
+//   onContextMenu,
+//   onMouseEnter,
+//   onMouseMove,
+//   onMouseLeave,
+//   edgeUpdaterRadius,
+//   onEdgeUpdate,
+//   onEdgeUpdateStart,
+//   onEdgeUpdateEnd,
+//   rfId,
+//   edgeTypes,
+//   noPanClassName,
+//   onError,
+//   disableKeyboardA11y,
+// }: EdgeWrapperProps<EdgeType>): JSX.Element | null {
+){
+  const storeEdge = useStore((s) => () => s.edgeLookup.get(p.id)!) as () => EdgeType;
   const defaultEdgeOptions = useStore((s) => s.defaultEdgeOptions);
-  edge = defaultEdgeOptions ? { ...defaultEdgeOptions, ...edge } : edge;
+  const edge = () =>defaultEdgeOptions ? { ...defaultEdgeOptions, ...storeEdge() } : storeEdge();
 
-  let edgeType = edge.type || 'default';
-  let EdgeComponent = edgeTypes?.[edgeType] || builtinEdgeTypes[edgeType];
+  const initialEdgeType = () => edge().type || 'default';
+  const initialEdgeComponent = () => p.edgeTypes?.[initialEdgeType()] || builtinEdgeTypes[initialEdgeType()];
 
-  if (EdgeComponent === undefined) {
-    onError?.('011', errorMessages['error011'](edgeType));
-    edgeType = 'default';
-    EdgeComponent = builtinEdgeTypes.default;
+  const EdgeComponent = () => { 
+    const comp = initialEdgeComponent();
+    if (comp === undefined) {
+      p.onError?.('011', errorMessages['error011'](initialEdgeType()));
+      return builtinEdgeTypes.default;
+    } else { 
+      return comp
+    }
   }
+
+  const edgeType = () => { 
+    if (initialEdgeComponent() === undefined) {
+      return 'default';
+    } else { 
+      return initialEdgeType();
+    }
+  }
+
+  // if (EdgeComponent === undefined) {
+  //   onError?.('011', errorMessages['error011'](edgeType));
+  //   edgeType = 'default';
+  //   EdgeComponent = builtinEdgeTypes.default;
+  // }
 
   const isFocusable = !!(edge.focusable || (edgesFocusable && typeof edge.focusable === 'undefined'));
   const isUpdatable =
