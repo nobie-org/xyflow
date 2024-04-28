@@ -40,8 +40,8 @@
     "directory": "packages/solidjs"
   },
   "scripts": {
-    "dev": "concurrently \"rollup --config node:@xyflow/rollup-config --watch\" pnpm:css-watch",
-    "build": "rollup --config node:@xyflow/rollup-config --environment NODE_ENV:production && npm run css",
+    "dev": "concurrently \"rollup --config --watch\" pnpm:css-watch",
+    "build": "rollup --config --environment NODE_ENV:production && npm run css",
     "css": "postcss src/styles/{base,style}.css --config ./../../tooling/postcss-config/ --dir dist ",
     "css-watch": "pnpm css --watch",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
@@ -56,6 +56,12 @@
     "solid-js": ">=1.8"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.23.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "babel-preset-solid": "^1.8.15",
+    "rollup": "^4.12.1",
     "@types/node": "^18.7.16",
     "@xyflow/eslint-config": "workspace:*",
     "@xyflow/rollup-config": "workspace:*",

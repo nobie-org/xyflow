@@ -11,7 +11,7 @@ import { GraphView } from '../GraphView';
 import { Wrapper } from './Wrapper';
 import type { Edge, Node, ReactFlowProps } from '../../types';
 import { defaultViewport as initViewport, defaultNodeOrigin } from './init-values';
-import { fixedForwardRef } from '../../utils/general';
+// import { fixedForwardRef } from '../../utils/general';
 import { mergeProps, splitProps, JSX } from 'solid-js';
 
 const wrapperStyle: JSX.CSSProperties = {
@@ -22,9 +22,9 @@ const wrapperStyle: JSX.CSSProperties = {
   'z-index': 0,
 };
 
-function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(
-  _p: ReactFlowProps<NodeType, EdgeType> & { ref: (node: HTMLDivElement) => void }
-) {
+type UsedProps<N extends Node, E extends Edge> = ReactFlowProps<N, E> & { ref: (node: HTMLDivElement) => void };
+
+function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(_p: UsedProps<NodeType, EdgeType>) {
   //   {
   //     nodes,
   //     edges,
@@ -280,6 +280,7 @@ function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(
       style={{ ...(typeof p.style === 'object' ? p.style : null), ...wrapperStyle }}
       ref={p.ref}
       class={cc(['react-flow', p.class, colorModeClassName])}
+      // class={cc(['react-flow', p.class, colorModeClassName])}
       data-testid="rf__wrapper"
       id={p.id}
     >
@@ -338,9 +339,9 @@ function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(
           onEdgeUpdateEnd={p.onEdgeUpdateEnd}
           edgeUpdaterRadius={p.edgeUpdaterRadius}
           defaultMarkerColor={p.defaultMarkerColor}
-          noDragClassName={p.noDragClassName || ""}
-          noWheelClassName={p.noWheelClassName  || ""}
-          noPanClassName={p.noPanClassName || ""}
+          noDragClassName={p.noDragClassName || ''}
+          noWheelClassName={p.noWheelClassName || ''}
+          noPanClassName={p.noPanClassName || ''}
           rfId={rfId()}
           disableKeyboardA11y={p.disableKeyboardA11y || false}
           nodeOrigin={p.nodeOrigin}
