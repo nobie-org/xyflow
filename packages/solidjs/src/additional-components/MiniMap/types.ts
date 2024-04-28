@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ComponentType, CSSProperties, HTMLAttributes, MouseEvent } from 'react';
+// import type { ComponentType, CSSProperties, HTMLAttributes, MouseEvent } from 'react';
 import type { PanelPosition, XYPosition } from '@xyflow/system';
 
 import type { Node } from '../../types';
+import { Component, JSX } from 'solid-js';
 
 export type GetMiniMapNodeAttribute<NodeType extends Node = Node> = (node: NodeType) => string;
 
-export type MiniMapProps<NodeType extends Node = Node> = Omit<HTMLAttributes<SVGSVGElement>, 'onClick'> & {
+export type MiniMapProps<NodeType extends Node = Node> = Omit<JSX.HTMLAttributes<SVGSVGElement>, 'onClick'> & {
   /** Color of nodes on minimap */
   nodeColor?: string | GetMiniMapNodeAttribute<NodeType>;
   /** Stroke color of nodes on minimap */
@@ -16,9 +17,9 @@ export type MiniMapProps<NodeType extends Node = Node> = Omit<HTMLAttributes<SVG
   /** Border radius of nodes on minimap */
   nodeBorderRadius?: number;
   /** Stroke width of nodes on minimap */
-  nodeStrokeWidth?: number;
+  nodeStrokeWidth?: JSX.CSSProperties['stroke-width'];
   /** Component used to render nodes on minimap */
-  nodeComponent?: ComponentType<MiniMapNodeProps>;
+  nodeComponent?: Component<MiniMapNodeProps>;
   /** Background color of minimap */
   bgColor?: string;
   /** Color of mask representing viewport */
@@ -66,10 +67,10 @@ export type MiniMapNodeProps = {
   borderRadius: number;
   className: string;
   color?: string;
-  shapeRendering: string;
+  "shape-rendering"?: "auto" | "optimizeSpeed" | "crispEdges" | "geometricPrecision" | "inherit";
   strokeColor?: string;
-  strokeWidth?: number;
-  style?: CSSProperties;
+  strokeWidth?: JSX.CSSProperties['stroke-width'];
+  style?: JSX.CSSProperties;
   selected: boolean;
   onClick?: (event: MouseEvent, id: string) => void;
 };

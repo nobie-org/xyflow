@@ -1,126 +1,153 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ComponentType, memo } from 'react';
+// import { ComponentType, memo } from 'react';
 import { NodeOrigin, getNodeDimensions, getNodePositionWithOrigin, nodeHasDimensions } from '@xyflow/system';
-import { shallow } from 'zustand/shallow';
+// import { shallow } from 'zustand/shallow';
 
 import { useStore } from '../../hooks/useStore';
 import { MiniMapNode } from './MiniMapNode';
 import type { SolidFlowState, Node, InternalNode } from '../../types';
 import type { MiniMapNodes as MiniMapNodesProps, GetMiniMapNodeAttribute, MiniMapNodeProps } from './types';
+import { Component, For, Show, mergeProps, JSX } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 declare const window: any;
 
 const selector = (s: SolidFlowState) => s.nodeOrigin;
-const selectorNodeIds = (s: SolidFlowState) => s.nodes.map((node) => node.id);
+const selectorNodeIds = (s: SolidFlowState) => () => s.nodes.get().map((node) => node.id);
 const getAttrFunction = <NodeType extends Node>(func: any): GetMiniMapNodeAttribute<NodeType> =>
   func instanceof Function ? func : () => func;
 
-function MiniMapNodes<NodeType extends Node>({
-  nodeStrokeColor,
-  nodeColor,
-  nodeClassName = '',
-  nodeBorderRadius = 5,
-  nodeStrokeWidth,
-  // We need to rename the prop to be `CapitalCase` so that JSX will render it as
-  // a component properly.
-  nodeComponent: NodeComponent = MiniMapNode,
-  onClick,
-}: MiniMapNodesProps<NodeType>) {
-  const nodeIds = useStore(selectorNodeIds, shallow);
+function MiniMapNodes<NodeType extends Node>(
+  _p: MiniMapNodesProps<NodeType>) {
+//   {
+//   nodeStrokeColor,
+//   nodeColor,
+//   nodeClassName = '',
+//   nodeBorderRadius = 5,
+//   nodeStrokeWidth,
+//   // We need to rename the prop to be `CapitalCase` so that JSX will render it as
+//   // a component properly.
+//   nodeComponent: NodeComponent = MiniMapNode,
+//   onClick,
+// }: MiniMapNodesProps<NodeType>) {
+  const p = mergeProps({
+    
+    
+    nodeClassName: '',
+    nodeBorderRadius: 5,
+    nodeComponent: MiniMapNode,
+  }, _p);
+
+  const nodeIds = useStore(selectorNodeIds);
   const nodeOrigin = useStore(selector);
-  const nodeColorFunc = getAttrFunction<NodeType>(nodeColor);
-  const nodeStrokeColorFunc = getAttrFunction<NodeType>(nodeStrokeColor);
-  const nodeClassNameFunc = getAttrFunction<NodeType>(nodeClassName);
+  const nodeColorFunc = () => getAttrFunction<NodeType>(p.nodeColor);
+  const nodeStrokeColorFunc = () => getAttrFunction<NodeType>(p.nodeStrokeColor);
+  const nodeClassNameFunc = () => getAttrFunction<NodeType>(p.nodeClassName);
 
-  const shapeRendering = typeof window === 'undefined' || !!window.chrome ? 'crispEdges' : 'geometricPrecision';
+  const shapeRendering = () => typeof window === 'undefined' || !!window.chrome ? 'crispEdges' : 'geometricPrecision';
 
-  return (
-    <>
-      {nodeIds.map((nodeId) => (
         // The split of responsibilities between MiniMapNodes and
         // NodeComponentWrapper may appear weird. However, it’s designed to
         // minimize the cost of updates when individual nodes change.
         //
         // For more details, see a similar commit in `NodeRenderer/index.tsx`.
-        <NodeComponentWrapper<NodeType>
-          key={nodeId}
+
+  return (
+    <For each={nodeIds()}>
+      {(nodeId) => { 
+
+        return <NodeComponentWrapper<NodeType>
           id={nodeId}
-          nodeOrigin={nodeOrigin}
-          nodeColorFunc={nodeColorFunc}
-          nodeStrokeColorFunc={nodeStrokeColorFunc}
-          nodeClassNameFunc={nodeClassNameFunc}
-          nodeBorderRadius={nodeBorderRadius}
-          nodeStrokeWidth={nodeStrokeWidth}
-          NodeComponent={NodeComponent}
-          onClick={onClick}
-          shapeRendering={shapeRendering}
+          nodeOrigin={nodeOrigin.get()}
+          nodeColorFunc={nodeColorFunc()}
+          nodeStrokeColorFunc={nodeStrokeColorFunc()}
+          nodeClassNameFunc={nodeClassNameFunc()}
+          nodeBorderRadius={p.nodeBorderRadius}
+          nodeStrokeWidth={p.nodeStrokeWidth}
+          NodeComponent={p.nodeComponent}
+          onClick={p.onClick}
+          shape-rendering={shapeRendering()}
         />
-      ))}
-    </>
+      }}
+    </For>
   );
 }
 
-function NodeComponentWrapperInner<NodeType extends Node>({
-  id,
-  nodeOrigin,
-  nodeColorFunc,
-  nodeStrokeColorFunc,
-  nodeClassNameFunc,
-  nodeBorderRadius,
-  nodeStrokeWidth,
-  shapeRendering,
-  NodeComponent,
-  onClick,
-}: {
+function NodeComponentWrapperInner<NodeType extends Node>(
+  p: 
+{
   id: string;
   nodeOrigin: NodeOrigin;
   nodeColorFunc: GetMiniMapNodeAttribute<NodeType>;
   nodeStrokeColorFunc: GetMiniMapNodeAttribute<NodeType>;
   nodeClassNameFunc: GetMiniMapNodeAttribute<NodeType>;
   nodeBorderRadius: number;
-  nodeStrokeWidth?: number;
-  NodeComponent: ComponentType<MiniMapNodeProps>;
+  nodeStrokeWidth?: JSX.CSSProperties['stroke-width'];
+  NodeComponent: Component<MiniMapNodeProps>;
   onClick: MiniMapNodesProps['onClick'];
-  shapeRendering: string;
+    "shape-rendering"?: "auto" | "optimizeSpeed" | "crispEdges" | "geometricPrecision" | "inherit";
 }) {
-  const { node, x, y } = useStore((s) => {
-    const node = s.nodeLookup.get(id) as InternalNode<NodeType>;
-    const { x, y } = getNodePositionWithOrigin(node, nodeOrigin).positionAbsolute;
+//   {
+//   id,
+//   nodeOrigin,
+//   nodeColorFunc,
+//   nodeStrokeColorFunc,
+//   nodeClassNameFunc,
+//   nodeBorderRadius,
+//   nodeStrokeWidth,
+//   shapeRendering,
+//   NodeComponent,
+//   onClick,
+// }: ) {
+
+    const pos = (node: InternalNode<NodeType>) => getNodePositionWithOrigin(node, p.nodeOrigin).positionAbsolute;
+
+  const { node  } = useStore((s) => {
+    const node = () => s.nodeLookup.get(p.id) as InternalNode<NodeType> | undefined;
 
     return {
       node,
-      x,
-      y,
+      // x: () => pos().x,
+      // y: () => pos().y,
     };
-  }, shallow);
+  });
 
-  if (!node || node.hidden || !nodeHasDimensions(node)) {
-    return null;
-  }
+  // if (!node || node.hidden || !nodeHasDimensions(node)) {
+  //   return null;
+  // }
 
-  const { width, height } = getNodeDimensions(node);
+  // const { width, height } = getNodeDimensions(node);
 
   return (
-    <NodeComponent
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      style={node.style}
-      selected={!!node.selected}
-      className={nodeClassNameFunc(node)}
-      color={nodeColorFunc(node)}
-      borderRadius={nodeBorderRadius}
-      strokeColor={nodeStrokeColorFunc(node)}
-      strokeWidth={nodeStrokeWidth}
-      shapeRendering={shapeRendering}
-      onClick={onClick}
-      id={node.id}
+    <Show when={node() && !node()?.hidden && nodeHasDimensions(node()!) && node()}>
+    {(node) => {
+
+      return <Dynamic
+      component={p.NodeComponent}
+
+      x={pos(node()).x}
+      y={pos(node()).y}
+      width={getNodeDimensions(node()).width}
+      height={getNodeDimensions(node()).height}
+      style={node().style}
+      selected={!!node().selected}
+      className={p.nodeClassNameFunc(node())}
+      color={p.nodeColorFunc(node())}
+      borderRadius={p.nodeBorderRadius}
+      strokeColor={p.nodeStrokeColorFunc(node())}
+      strokeWidth={p.nodeStrokeWidth}
+      shape-rendering={p["shape-rendering"]}
+      onClick={p.onClick}
+      id={node().id}
     />
+
+    }}
+    </Show>
+
   );
 }
 
-const NodeComponentWrapper = memo(NodeComponentWrapperInner) as typeof NodeComponentWrapperInner;
+const NodeComponentWrapper = NodeComponentWrapperInner as typeof NodeComponentWrapperInner;
 
-export default memo(MiniMapNodes) as typeof MiniMapNodes;
+export default MiniMapNodes;
