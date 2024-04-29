@@ -137,12 +137,12 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
 
   createEffect(
     () => {
-      console.log("props", props)
+      // console.log("props", props)
       for (const fieldName of fieldsToTrack) {
-        console.log("fieldName", fieldName)
+        // console.log("fieldName", fieldName)
 
         const fieldValue = props[fieldName];
-        console.log("fieldValue", fieldValue)
+        // console.log("fieldValue", fieldValue)
         const previousFieldValue = previousFields.current[fieldName];
 
         if (fieldValue === previousFieldValue) continue;

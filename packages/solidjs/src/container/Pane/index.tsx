@@ -10,7 +10,7 @@ import { containerStyle } from '../../styles/utils';
 import { useStore, useStoreApi } from '../../hooks/useStore';
 import { getSelectionChanges } from '../../utils';
 import type { ReactFlowProps, SolidEvent, SolidFlowState } from '../../types';
-import { mergeProps, JSX, ParentProps } from 'solid-js';
+import { mergeProps, JSX, ParentProps, batch, createEffect } from 'solid-js';
 import { useRef, RefObject } from '../../utils/hooks';
 
 type PaneProps = {
@@ -31,10 +31,10 @@ type PaneProps = {
   >
 >;
 
-const wrapHandler = <T,E extends Event>(
+const wrapHandler = <T, E extends Event>(
   handler: ((event: SolidEvent<T, E>) => void) | undefined,
   containerRef: RefObject<T | null>
-): (event: SolidEvent<T, E>) => void => {
+): ((event: SolidEvent<T, E>) => void) => {
   return (event: E) => {
     if (event.target !== containerRef.current) {
       return;
@@ -49,25 +49,28 @@ const selector = (s: SolidFlowState) => ({
   dragging: s.paneDragging,
 });
 
-export function Pane(_p: ParentProps<PaneProps>){
-//   {
-//   isSelecting,
-//   selectionMode = SelectionMode.Full,
-//   panOnDrag,
-//   onSelectionStart,
-//   onSelectionEnd,
-//   onPaneClick,
-//   onPaneContextMenu,
-//   onPaneScroll,
-//   onPaneMouseEnter,
-//   onPaneMouseMove,
-//   onPaneMouseLeave,
-//   children,
-// }: PaneProps) {
+export function Pane(_p: ParentProps<PaneProps>) {
+  //   {
+  //   isSelecting,
+  //   selectionMode = SelectionMode.Full,
+  //   panOnDrag,
+  //   onSelectionStart,
+  //   onSelectionEnd,
+  //   onPaneClick,
+  //   onPaneContextMenu,
+  //   onPaneScroll,
+  //   onPaneMouseEnter,
+  //   onPaneMouseMove,
+  //   onPaneMouseLeave,
+  //   children,
+  // }: PaneProps) {
 
-  const p = mergeProps({
-    selectionMode: SelectionMode.Full,
-  }, _p);
+  const p = mergeProps(
+    {
+      selectionMode: SelectionMode.Full,
+    },
+    _p
+  );
 
   const container = useRef<HTMLDivElement | null>(null);
   const store = useStoreApi();
@@ -82,16 +85,18 @@ export function Pane(_p: ParentProps<PaneProps>){
     store.batch((store) => {
       store.userSelectionActive.set(false);
       store.userSelectionRect.set(null);
-    })
+    });
 
     prevSelectedNodesCount.current = 0;
     prevSelectedEdgesCount.current = 0;
   };
 
   const onClick = (event: MouseEvent) => {
-    p.onPaneClick?.(event);
-    store.resetSelectedElements();
-    store.nodesSelectionActive.set(false);
+    batch(() => {
+      p.onPaneClick?.(event);
+      store.resetSelectedElements();
+      store.nodesSelectionActive.set(false);
+    });
   };
 
   const onContextMenu = (event: MouseEvent) => {
@@ -103,35 +108,38 @@ export function Pane(_p: ParentProps<PaneProps>){
     p.onPaneContextMenu?.(event);
   };
 
-  const onWheel = () => p.onPaneScroll ? (event: WheelEvent) => p.onPaneScroll?.(event) : undefined;
+  const onWheel = () => (p.onPaneScroll ? (event: WheelEvent) => p.onPaneScroll?.(event) : undefined);
 
   const onMouseDown = (event: MouseEvent): void => {
-    const { resetSelectedElements, domNode, edgeLookup } = store;
-    containerBounds.current = domNode.get()?.getBoundingClientRect() ?? null;
+    console.log("mouse down")
+    batch(() => {
+      const { resetSelectedElements, domNode, edgeLookup } = store;
+      containerBounds.current = domNode.get()?.getBoundingClientRect() ?? null;
 
-    if (
-      !elementsSelectable ||
-      !p.isSelecting ||
-      event.button !== 0 ||
-      event.target !== container.current ||
-      !containerBounds.current
-    ) {
-      return;
-    }
+      if (
+        !elementsSelectable.get() ||
+        !p.isSelecting ||
+        event.button !== 0 ||
+        event.target !== container.current ||
+        !containerBounds.current
+      ) {
+        console.log("returning from mouse down")
+        return;
+      }
 
-    edgeIdLookup.current = new Map();
+      edgeIdLookup.current = new Map();
 
-    for (const [id, edge] of edgeLookup) {
-      edgeIdLookup.current.set(edge.source, edgeIdLookup.current.get(edge.source)?.add(id) || new Set([id]));
-      edgeIdLookup.current.set(edge.target, edgeIdLookup.current.get(edge.target)?.add(id) || new Set([id]));
-    }
+      for (const [id, edge] of edgeLookup) {
+        edgeIdLookup.current.set(edge.source, edgeIdLookup.current.get(edge.source)?.add(id) || new Set([id]));
+        edgeIdLookup.current.set(edge.target, edgeIdLookup.current.get(edge.target)?.add(id) || new Set([id]));
+      }
 
-    const { x, y } = getEventPosition(event, containerBounds.current);
+      const { x, y } = getEventPosition(event, containerBounds.current);
 
-    resetSelectedElements();
+      resetSelectedElements();
 
-    store.
-      userSelectionRect.set({
+      console.log("setting user selection rect")
+      store.userSelectionRect.set({
         width: 0,
         height: 0,
         startX: x,
@@ -140,89 +148,93 @@ export function Pane(_p: ParentProps<PaneProps>){
         y,
       });
 
-    p.onSelectionStart?.(event);
+      p.onSelectionStart?.(event);
+    });
   };
 
   const onMouseMove = (event: MouseEvent): void => {
-    const { edgeLookup, transform, nodeOrigin, nodeLookup, triggerNodeChanges, triggerEdgeChanges } =
-      store;
+    batch(() => {
+      const { edgeLookup, transform, nodeOrigin, nodeLookup, triggerNodeChanges, triggerEdgeChanges } = store;
 
-    const userSelectionRect = store.userSelectionRect.get();
+      const userSelectionRect = store.userSelectionRect.get();
 
-    if (!p.isSelecting || !containerBounds.current || !userSelectionRect) {
-      return;
-    }
+      if (!p.isSelecting || !containerBounds.current || !userSelectionRect) {
+        return;
+      }
 
-    const { x: mouseX, y: mouseY } = getEventPosition(event, containerBounds.current);
-    const { startX, startY } = userSelectionRect;
+      const { x: mouseX, y: mouseY } = getEventPosition(event, containerBounds.current);
+      const { startX, startY } = userSelectionRect;
 
-    const nextUserSelectRect = {
-      startX,
-      startY,
-      x: mouseX < startX ? mouseX : startX,
-      y: mouseY < startY ? mouseY : startY,
-      width: Math.abs(mouseX - startX),
-      height: Math.abs(mouseY - startY),
-    };
+      const nextUserSelectRect = {
+        startX,
+        startY,
+        x: mouseX < startX ? mouseX : startX,
+        y: mouseY < startY ? mouseY : startY,
+        width: Math.abs(mouseX - startX),
+        height: Math.abs(mouseY - startY),
+      };
 
-    const selectedNodes = getNodesInside(
-      nodeLookup,
-      nextUserSelectRect,
-      transform.get(),
-      p.selectionMode === SelectionMode.Partial,
-      true,
-      nodeOrigin.get(),
+      const selectedNodes = getNodesInside(
+        nodeLookup,
+        nextUserSelectRect,
+        transform.get(),
+        p.selectionMode === SelectionMode.Partial,
+        true,
+        nodeOrigin.get()
       );
 
-    const selectedEdgeIds = new Set<string>();
-    const selectedNodeIds = new Set<string>();
+      const selectedEdgeIds = new Set<string>();
+      const selectedNodeIds = new Set<string>();
 
-    for (const selectedNode of selectedNodes) {
-      selectedNodeIds.add(selectedNode.id);
+      for (const selectedNode of selectedNodes) {
+        selectedNodeIds.add(selectedNode.id);
 
-      const edgeIds = edgeIdLookup.current.get(selectedNode.id);
+        const edgeIds = edgeIdLookup.current.get(selectedNode.id);
 
-      if (edgeIds) {
-        for (const edgeId of edgeIds) {
-          selectedEdgeIds.add(edgeId);
+        if (edgeIds) {
+          for (const edgeId of edgeIds) {
+            selectedEdgeIds.add(edgeId);
+          }
         }
       }
-    }
 
-    if (prevSelectedNodesCount.current !== selectedNodeIds.size) {
-      prevSelectedNodesCount.current = selectedNodeIds.size;
-      const changes = getSelectionChanges(nodeLookup, selectedNodeIds, true) as NodeChange[];
-      triggerNodeChanges(changes);
-    }
+      if (prevSelectedNodesCount.current !== selectedNodeIds.size) {
+        prevSelectedNodesCount.current = selectedNodeIds.size;
+        const changes = getSelectionChanges(nodeLookup, selectedNodeIds, true) as NodeChange[];
+        triggerNodeChanges(changes);
+      }
 
-    if (prevSelectedEdgesCount.current !== selectedEdgeIds.size) {
-      prevSelectedEdgesCount.current = selectedEdgeIds.size;
-      const changes = getSelectionChanges(edgeLookup, selectedEdgeIds) as EdgeChange[];
-      triggerEdgeChanges(changes);
-    }
+      if (prevSelectedEdgesCount.current !== selectedEdgeIds.size) {
+        prevSelectedEdgesCount.current = selectedEdgeIds.size;
+        const changes = getSelectionChanges(edgeLookup, selectedEdgeIds) as EdgeChange[];
+        triggerEdgeChanges(changes);
+      }
 
-    store.batch((store) => {
-      store.userSelectionRect.set(nextUserSelectRect);
-      store.userSelectionActive.set(true);
-      store.nodesSelectionActive.set(false);
+      store.batch((store) => {
+        store.userSelectionRect.set(nextUserSelectRect);
+        store.userSelectionActive.set(true);
+        store.nodesSelectionActive.set(false);
+      });
     });
   };
 
   const onMouseUp = (event: MouseEvent) => {
-    if (event.button !== 0) {
-      return;
-    }
-    const { userSelectionRect } = store;
-    // We only want to trigger click functions when in selection mode if
-    // the user did not move the mouse.
-    if (!userSelectionActive.get() && userSelectionRect.get() && event.target === container.current) {
-      onClick?.(event);
-    }
+    batch(() => {
+      if (event.button !== 0) {
+        return;
+      }
+      const { userSelectionRect } = store;
+      // We only want to trigger click functions when in selection mode if
+      // the user did not move the mouse.
+      if (!userSelectionActive.get() && userSelectionRect.get() && event.target === container.current) {
+        onClick?.(event);
+      }
 
-    store.nodesSelectionActive.set(prevSelectedNodesCount.current > 0);
+      store.nodesSelectionActive.set(prevSelectedNodesCount.current > 0);
 
-    resetUserSelection();
-    p.onSelectionEnd?.(event);
+      resetUserSelection();
+      p.onSelectionEnd?.(event);
+    });
   };
 
   const onMouseLeave = (event: MouseEvent) => {
@@ -236,59 +248,64 @@ export function Pane(_p: ParentProps<PaneProps>){
 
   const hasActiveSelection = () => elementsSelectable.get() && (p.isSelecting || userSelectionActive.get());
 
+  createEffect(() => { 
+    console.log("elements selectable", elementsSelectable.get());
+    console.log("is selecting", p.isSelecting);
+    console.log("user selection active", userSelectionActive.get());
+  })
+
   const handleClick = () => {
     if (hasActiveSelection()) {
       // do nothing
     } else {
-      wrapHandler(onClick, container)
+      wrapHandler(onClick, container);
     }
-  }
+  };
 
   const handleMouseEnter: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent> = (e) => {
-
     if (hasActiveSelection()) {
       // do nothing
     } else {
-      p.onPaneMouseEnter?.(e)
+      p.onPaneMouseEnter?.(e);
     }
-  }
+  };
 
   const handleMouseDown = (e: MouseEvent) => {
     if (hasActiveSelection()) {
-      onMouseDown(e)
-    } else {
-      // do nothing 
-    }
-  }
-
-  const onPaneMouseMove = (e: MouseEvent) => {
-    if (hasActiveSelection()) {
-      onMouseMove(e)
-    } else {
-      p.onPaneMouseMove?.(e)
-    }
-  }
-
-  const onPaneMouseLeave = (e: MouseEvent) => {
-    if (hasActiveSelection()) {
-      onMouseLeave(e)
-    } else {
-      p.onPaneMouseLeave?.(e)
-    }
-  }
-
-  const handleMouseUp = (e: MouseEvent) => {
-    if (hasActiveSelection()) {
-      onMouseUp(e)
+      onMouseDown(e);
     } else {
       // do nothing
     }
-  }
+  };
 
+  const onPaneMouseMove = (e: MouseEvent) => {
+    console.log('onPaneMouseMove', hasActiveSelection());
+    if (hasActiveSelection()) {
+      onMouseMove(e);
+    } else {
+      p.onPaneMouseMove?.(e);
+    }
+  };
+
+  const onPaneMouseLeave = (e: MouseEvent) => {
+    if (hasActiveSelection()) {
+      onMouseLeave(e);
+    } else {
+      p.onPaneMouseLeave?.(e);
+    }
+  };
+
+  const handleMouseUp = (e: MouseEvent) => {
+    if (hasActiveSelection()) {
+      onMouseUp(e);
+    } else {
+      // do nothing
+    }
+  };
 
   return (
     <div
-      class={cc(['react-flow__pane', { draggable: p.panOnDrag, dragging, selection: p.isSelecting }])}
+      class={cc(['react-flow__pane', { draggable: p.panOnDrag, dragging: dragging.get(), selection: p.isSelecting }])}
       onClick={handleClick}
       onContextMenu={wrapHandler(onContextMenu, container)}
       onWheel={wrapHandler(onWheel(), container)}
@@ -297,7 +314,7 @@ export function Pane(_p: ParentProps<PaneProps>){
       onMouseMove={onPaneMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={onPaneMouseLeave}
-      ref={(node) => container.current = node}
+      ref={(node) => (container.current = node)}
       style={containerStyle}
     >
       {p.children}

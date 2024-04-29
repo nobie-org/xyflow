@@ -85,7 +85,7 @@ export const BasicExample = () => {
           height: '90vh',
           width: '90vw',
         }}>
-      <ReactFlow nodes={nodes()} edges={edges()} fitView>
+      <ReactFlow nodes={nodes()} edges={edges()} fitView panOnDrag>
         <Controls />
         <Background variant={BackgroundVariant.Dots} />
         <MiniMap />

@@ -86,7 +86,7 @@ const getInitialState = ({
     connectionStatus: new Writable<ConnectionStatus | null>(null),
     connectionMode: new Writable<ConnectionMode>(ConnectionMode.Strict),
     domNode: new Writable<HTMLDivElement | null>(null),
-    paneDragging: new Writable(false),
+    paneDragging: new Writable(false, "paneDragging"),
     noPanClassName: new Writable('nopan'),
     nodeOrigin: new Writable([0, 0]),
     nodeDragThreshold: new Writable(1),
@@ -142,14 +142,19 @@ export class Writable<T> {
 
   private s: Signal<T>
 
-  constructor(initial: T) {
-    this.s = createSignal(initial);
+  constructor(initial: T, private debugName?: string) {
+    this.s = createSignal(initial, { 
+      name: debugName
+    });
   }
 
   get() {
     return this.s[0]();
   }
   set(v: T) {
+    if (this.debugName) { 
+      console.log("setting", this.debugName, v)
+    }
     this.s[1](() => {
       return v;
     });

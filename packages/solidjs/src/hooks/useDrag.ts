@@ -2,7 +2,7 @@ import { XYDrag, type XYDragInstance } from '@xyflow/system';
 
 import { handleNodeClick } from '../components/Nodes/utils';
 import { useStoreApi } from './useStore';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { useRef } from '../utils/hooks';
 
 type UseDragParams = {
@@ -35,7 +35,6 @@ export function useDrag({
 
   createEffect(() => {
     xyDrag.current = XYDrag({
-
       getStoreItems: () => {
         return {
           nodes: store.nodes.get(),
@@ -54,7 +53,7 @@ export function useDrag({
           nodeDragThreshold: store.nodeDragThreshold.get(),
           unselectNodesAndEdges: store.unselectNodesAndEdges,
           updateNodePositions: store.updateNodePositions,
-          panBy: store.panBy
+          panBy: store.panBy,
         };
       },
 
@@ -66,6 +65,7 @@ export function useDrag({
         });
       },
       onDragStart: () => {
+        console.log('drag start');
         setDragging(true);
       },
       onDragStop: () => {
@@ -76,6 +76,8 @@ export function useDrag({
 
   createEffect(() => {
     const domNode = nodeRef?.();
+    console.log('disabled', disabled());
+    console.log('domNode', domNode);
     if (disabled()) {
       xyDrag.current?.destroy();
     } else if (domNode) {
@@ -86,15 +88,15 @@ export function useDrag({
         isSelectable: isSelectable?.(),
         nodeId: nodeId?.(),
       });
-      return () => {
+      onCleanup(() => {
         xyDrag.current?.destroy();
-      };
+      });
     }
   });
 
-  createEffect(() => { 
-    console.log("isDragging", dragging());
-  })
+  createEffect(() => {
+    console.log('isDragging', dragging());
+  });
 
   return dragging;
 }

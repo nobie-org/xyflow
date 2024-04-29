@@ -13,7 +13,7 @@ export interface PanelProps extends JSX.HTMLAttributes<HTMLDivElement> {
   position?: PanelPosition;
 }
 
-const selector = (s: SolidFlowState) => (s.userSelectionActive ? 'none' : 'all');
+const selector = (s: SolidFlowState) => () => (s.userSelectionActive.get() ? 'none' : 'all');
 
 export function Panel(_p: ParentProps<PanelProps>) {
   const p = mergeProps({ position: 'top-left' }, _p);
@@ -26,10 +26,10 @@ export function Panel(_p: ParentProps<PanelProps>) {
     if (typeof s === 'object') {
       return {
         ...s,
-        'pointer-events': pointerEvents,
+        'pointer-events': pointerEvents(),
       };
     } else {
-      return { 'pointer-events': pointerEvents };
+      return { 'pointer-events': pointerEvents() };
     }
   };
 

@@ -7,7 +7,7 @@ import { ZoomPane } from '../ZoomPane';
 import { Pane } from '../Pane';
 import { NodesSelection } from '../../components/NodesSelection';
 import type { SolidFlowState, Node } from '../../types';
-import { ParentProps, Show } from 'solid-js';
+import { ParentProps, Show, createEffect } from 'solid-js';
 
 export type FlowRendererProps<NodeType extends Node = Node> = ParentProps<Omit<
   GraphViewProps<NodeType>,
@@ -78,6 +78,10 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
   const isSelecting = () => selectionKeyPressed() || userSelectionActive.get() || (p.selectionOnDrag && panOnDrag() !== true);
 
   useGlobalKeyHandler({ deleteKeyCode: () => p.deleteKeyCode, multiSelectionKeyCode: () => p.multiSelectionKeyCode });
+
+  createEffect(() => {
+    console.log("paneOnDrag", panOnDrag())
+  });
 
   return (
     <ZoomPane
