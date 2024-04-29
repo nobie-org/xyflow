@@ -7,7 +7,7 @@ import { useStore, useStoreApi } from '../../hooks/useStore';
 import { containerStyle } from '../../styles/utils';
 import type { FlowRendererProps } from '../FlowRenderer';
 import type { SolidFlowState } from '../../types';
-import { createEffect, createSignal, mergeProps } from 'solid-js';
+import { createEffect, createSignal, mergeProps, onCleanup } from 'solid-js';
 import { useRef } from '../../utils/hooks';
 
 type ZoomPaneProps = Omit<
@@ -111,9 +111,9 @@ preventScrolling: true,
         store.domNode.set(zoomPane.closest('.react-flow') as HTMLDivElement);
       });
 
-      return () => {
+      onCleanup(() => {
         panZoom.current?.destroy();
-      };
+      });
     }
   });
 
