@@ -1,6 +1,6 @@
 {
-  "name": "@xyflow/solidjs",
-  "version": "12.0.0-next.16",
+  "name": "@matthewgapp/solidjs-flow",
+  "version": "0.1.5",
   "description": "React Flow - A highly customizable React library for building node-based editors and interactive flow charts.",
   "keywords": [
     "solidjs",
@@ -16,10 +16,15 @@
     "src"
   ],
   "source": "src/index.ts",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
     "./dist/base.css": "./dist/base.css",
     "./dist/style.css": "./dist/style.css"
   },
@@ -45,7 +50,7 @@
   },
   "dependencies": {
     "@solid-primitives/map": "^0.4.11",
-    "@xyflow/system": "workspace:*",
+    "@xyflow/system": "^0.0.24",
     "classcat": "^5.0.3"
   },
   "peerDependencies": {
