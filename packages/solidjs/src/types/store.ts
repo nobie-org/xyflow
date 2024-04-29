@@ -65,8 +65,8 @@ export type SolidFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
   edges: Writable<Edge[]>;
   edgeLookup: ReactiveEdgeLookup<EdgeType>;
   connectionLookup: ReactiveConnectionLookup;
-  onNodesChange: OnNodesChange<NodeType> | null;
-  onEdgesChange: OnEdgesChange<EdgeType> | null;
+  onNodesChange: Writable<OnNodesChange<NodeType> | null>;
+  onEdgesChange: Writable<OnEdgesChange<EdgeType> | null>;
   hasDefaultNodes: Writable<boolean>;
   hasDefaultEdges: Writable<boolean>;
   domNode: Writable<HTMLDivElement | null>;
@@ -120,7 +120,7 @@ export type SolidFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
   onMove?: OnMove;
   onMoveEnd?: OnMoveEnd;
 
-  onConnect?: OnConnect;
+  onConnect: Writable<OnConnect | undefined>;
   onConnectStart?: OnConnectStart;
   onConnectEnd?: OnConnectEnd;
 
@@ -134,10 +134,10 @@ export type SolidFlowStore<NodeType extends Node = Node, EdgeType extends Edge =
   fitViewDone: Writable<boolean>;
   fitViewOnInitOptions: Writable<FitViewOptions | undefined>;
 
-  onNodesDelete?: OnNodesDelete<NodeType>;
-  onEdgesDelete?: OnEdgesDelete<EdgeType>;
-  onDelete?: OnDelete;
-  onError?: OnError;
+  onNodesDelete:Writable<OnNodesDelete<NodeType> | undefined>;
+  onEdgesDelete: Writable<OnEdgesDelete<EdgeType> | undefined>;
+  onDelete: Writable<OnDelete | undefined>;
+  onError: Writable<OnError | undefined>;
 
   // event handlers
   onViewportChangeStart: Writable<OnViewportChange | undefined>;

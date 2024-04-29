@@ -88,7 +88,7 @@ function NodeRendererComponent<NodeType extends Node>(props: NodeRendererProps<N
             nodesConnectable={nodesConnectable.get()}
             nodesFocusable={nodesFocusable.get()}
             elementsSelectable={elementsSelectable.get()}
-            onError={onError}
+            onError={onError.get()}
           />
         );
       }}

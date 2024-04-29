@@ -28,7 +28,7 @@ export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edg
   const store = useStoreApi<NodeType, EdgeType>();
 
   const nodeQueueHandler = (queueItems: QueueItem<NodeType>[]) => {
-    const { nodes, setNodes, hasDefaultNodes, onNodesChange, nodeLookup } = store;
+    const { nodes, setNodes, hasDefaultNodes, onNodesChange: getOnNodesChange, nodeLookup } = store;
 
     // This is essentially an `Array.reduce` in imperative clothing. Processing
     // this queue is a relatively hot path so we'd like to avoid the overhead of
@@ -38,7 +38,9 @@ export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edg
       next = typeof payload === 'function' ? payload(next) : payload;
     }
 
-    if (hasDefaultNodes) {
+    const onNodesChange = getOnNodesChange.get();
+
+    if (hasDefaultNodes.get()) {
       setNodes(next);
     } else if (onNodesChange) {
       onNodesChange(
@@ -52,14 +54,16 @@ export function BatchProvider<NodeType extends Node = Node, EdgeType extends Edg
   const nodeQueue = useQueue<NodeType>(nodeQueueHandler);
 
   const edgeQueueHandler = (queueItems: QueueItem<EdgeType>[]) => {
-    const { edges, setEdges, hasDefaultEdges, onEdgesChange, edgeLookup } = store;
+    const { edges, setEdges, hasDefaultEdges, onEdgesChange: getOnEdgesChange, edgeLookup } = store;
 
     let next = edges.get() as EdgeType[];
     for (const payload of queueItems) {
       next = typeof payload === 'function' ? payload(next) : payload;
     }
 
-    if (hasDefaultEdges) {
+    const onEdgesChange = getOnEdgesChange.get();
+
+    if (hasDefaultEdges.get()) {
       setEdges(next);
     } else if (onEdgesChange) {
       onEdgesChange(

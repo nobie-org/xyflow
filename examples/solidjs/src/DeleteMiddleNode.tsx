@@ -1,0 +1,82 @@
+import {
+  ReactFlow,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  getIncomers,
+  getOutgoers,
+  getConnectedEdges,
+  BackgroundVariant,
+  ReactFlowProvider,
+} from '@xyflow/solidjs';
+
+import '@xyflow/solidjs/dist/style.css';
+import { batch } from 'solid-js';
+import { untrack } from 'solid-js/web';
+
+const initialNodes = [
+  { id: '1', type: 'input', data: { label: 'Start here...' }, position: { x: -150, y: 0 } },
+  { id: '2', type: 'input', data: { label: '...or here!' }, position: { x: 150, y: 0 } },
+  { id: '3', data: { label: 'Delete me.' }, position: { x: 0, y: 100 } },
+  { id: '4', data: { label: 'Then me!' }, position: { x: 0, y: 200 } },
+  { id: '5', type: 'output', data: { label: 'End here!' }, position: { x: 0, y: 300 } },
+];
+
+const initialEdges = [
+  { id: '1->3', source: '1', target: '3' },
+  { id: '2->3', source: '2', target: '3' },
+  { id: '3->4', source: '3', target: '4' },
+  { id: '4->5', source: '4', target: '5' },
+];
+
+export default function Flow() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = (params: any) => setEdges(addEdge(params, edges()));
+  const onNodesDelete = (deleted: any) => {
+    batch(() => {
+      console.log('onNodesDelete', deleted);
+      setEdges(
+        deleted.reduce((acc: any, node: any) => {
+          const incomers = getIncomers(node, nodes(), edges());
+          const outgoers = getOutgoers(node, nodes(), edges());
+          const connectedEdges = getConnectedEdges([node], edges());
+
+          const remainingEdges = acc.filter((edge: any) => !connectedEdges.includes(edge));
+
+          const createdEdges = incomers.flatMap(({ id: source }) =>
+            outgoers.map(({ id: target }) => ({ id: `${source}->${target}`, source, target }))
+          );
+
+          return [...remainingEdges, ...createdEdges];
+        }, edges())
+      );
+    });
+  };
+
+  return (
+    <ReactFlowProvider>
+      <div
+        style={{
+          width: '100%',
+          height: '100vh',
+        }}
+      >
+        <ReactFlow
+          nodes={nodes()}
+          edges={edges()}
+          onNodesChange={onNodesChange}
+          onNodesDelete={onNodesDelete}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          attributionPosition="top-right"
+        >
+          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        </ReactFlow>
+      </div>
+    </ReactFlowProvider>
+  );
+}

@@ -114,7 +114,7 @@ function HandleComponent(
 
   createEffect(() => {
     if (!getNodeId()) {
-      store.onError?.('010', errorMessages['error010']());
+      store.onError.get()?.('010', errorMessages['error010']());
     }
   });
 
@@ -130,7 +130,7 @@ function HandleComponent(
       setEdges(addEdge(edgeParams, edges.get()));
     }
 
-    onConnectAction?.(edgeParams);
+    onConnectAction.get()?.(edgeParams);
     p.onConnect?.(edgeParams);
   };
 

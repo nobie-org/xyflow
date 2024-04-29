@@ -49,7 +49,7 @@ export function useMoveSelectedNodes() {
         nodeLookup,
         nodeExtent: nodeExtent.get(),
         nodeOrigin: nodeOrigin.get(),
-        onError,
+        onError: onError.get(),
       });
 
       node.position = position;

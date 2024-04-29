@@ -12,6 +12,7 @@ import { useStoreApi } from './useStore';
 import { useBatchContext } from '../components/BatchProvider';
 import { isNode } from '../utils';
 import type { ReactFlowInstance, Instance, Node, Edge, InternalNode } from '../types';
+import { batch } from 'solid-js';
 
 /**
  * Hook for accessing the ReactFlow instance.
@@ -27,17 +28,15 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
   const store = useStoreApi();
   const batchContext = useBatchContext();
 
-  const getNodes =
-    () => store.nodes.get().map((n) => ({ ...n })) as NodeType[];
+  const getNodes = () => store.nodes.get().map((n) => ({ ...n })) as NodeType[];
 
-  const getInternalNode: Instance.GetInternalNode<NodeType> =
-    (id) => store.nodeLookup.get(id) as InternalNode<NodeType>;
+  const getInternalNode: Instance.GetInternalNode<NodeType> = (id) =>
+    store.nodeLookup.get(id) as InternalNode<NodeType>;
 
-  const getNode: Instance.GetNode<NodeType> =
-    (id) => getInternalNode(id)?.internals.userNode as NodeType;
+  const getNode: Instance.GetNode<NodeType> = (id) => getInternalNode(id)?.internals.userNode as NodeType;
 
   const getEdges: Instance.GetEdges<EdgeType> = () => {
-    const { edges } = store
+    const { edges } = store;
     return edges.get().map((e) => ({ ...e })) as EdgeType[];
   };
 
@@ -75,28 +74,31 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
     };
   };
 
-  const deleteElements: Instance.DeleteElements =
-    async ({ nodes: nodesToRemove = [], edges: edgesToRemove = [] }) => {
-      const {
-        nodes,
-        edges,
-        hasDefaultNodes,
-        hasDefaultEdges,
-        onNodesDelete,
-        onEdgesDelete,
-        onNodesChange,
-        onEdgesChange,
-        onDelete,
-        onBeforeDelete,
-      } = store;
-      const { nodes: matchingNodes, edges: matchingEdges } = await getElementsToRemove({
-        nodesToRemove,
-        edgesToRemove,
-        nodes: nodes.get(),
-        edges: edges.get(),
-        onBeforeDelete: onBeforeDelete.get(),
-      });
+  const deleteElements: Instance.DeleteElements = async ({ nodes: nodesToRemove = [], edges: edgesToRemove = [] }) => {
+    const {
+      nodes,
+      edges,
+      hasDefaultNodes,
+      hasDefaultEdges,
+      onNodesDelete,
+      onEdgesDelete,
+      onNodesChange,
+      onEdgesChange,
+      onDelete,
+      onBeforeDelete,
+    } = store;
+    const { nodes: matchingNodes, edges: matchingEdges } = await getElementsToRemove({
+      nodesToRemove,
+      edgesToRemove,
+      nodes: nodes.get(),
+      edges: edges.get(),
+      onBeforeDelete: onBeforeDelete.get(),
+    });
 
+    console.log('matchingNodes', matchingNodes);
+    console.log('matchingEdges', matchingEdges);
+
+    return batch(() => {
       const hasMatchingEdges = matchingEdges.length > 0;
       const hasMatchingNodes = matchingNodes.length > 0;
 
@@ -106,8 +108,8 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
           store.setEdges(nextEdges);
         }
 
-        onEdgesDelete?.(matchingEdges);
-        onEdgesChange?.(
+        onEdgesDelete.get()?.(matchingEdges);
+        onEdgesChange.get()?.(
           matchingEdges.map((edge) => ({
             id: edge.id,
             type: 'remove',
@@ -121,16 +123,17 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
           store.setNodes(nextNodes);
         }
 
-        onNodesDelete?.(matchingNodes);
-        onNodesChange?.(matchingNodes.map((node) => ({ id: node.id, type: 'remove' })));
+        onNodesDelete.get()?.(matchingNodes);
+        onNodesChange.get()?.(matchingNodes.map((node) => ({ id: node.id, type: 'remove' })));
       }
 
       if (hasMatchingNodes || hasMatchingEdges) {
-        onDelete?.({ nodes: matchingNodes, edges: matchingEdges });
+        onDelete.get()?.({ nodes: matchingNodes, edges: matchingEdges });
       }
 
       return { deletedNodes: matchingNodes, deletedEdges: matchingEdges };
-    };
+    });
+  };
 
   const getNodeRect = (node: NodeType | { id: string }): Rect | null => {
     const { nodeLookup, nodeOrigin } = store;
@@ -151,88 +154,84 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
     return nodeToRect(nodeWithPosition);
   };
 
-  const getIntersectingNodes: Instance.GetIntersectingNodes<NodeType> =
-    (nodeOrRect, partially = true, nodes) => {
-      const isRect = isRectObject(nodeOrRect);
-      const nodeRect = isRect ? nodeOrRect : getNodeRect(nodeOrRect);
-      const hasNodesOption = nodes !== undefined;
+  const getIntersectingNodes: Instance.GetIntersectingNodes<NodeType> = (nodeOrRect, partially = true, nodes) => {
+    const isRect = isRectObject(nodeOrRect);
+    const nodeRect = isRect ? nodeOrRect : getNodeRect(nodeOrRect);
+    const hasNodesOption = nodes !== undefined;
 
-      if (!nodeRect) {
-        return [];
-      }
+    if (!nodeRect) {
+      return [];
+    }
 
-      return (nodes || store.nodes.get()).filter((n) => {
-        const internalNode = store.nodeLookup.get(n.id);
+    return (nodes || store.nodes.get()).filter((n) => {
+      const internalNode = store.nodeLookup.get(n.id);
 
-        if (internalNode && !isRect && (n.id === nodeOrRect!.id || !internalNode.internals.positionAbsolute)) {
-          return false;
-        }
-
-        const currNodeRect = nodeToRect(hasNodesOption ? n : internalNode!);
-        const overlappingArea = getOverlappingArea(currNodeRect, nodeRect);
-        const partiallyVisible = partially && overlappingArea > 0;
-
-        return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
-      }) as NodeType[];
-    };
-
-  const isNodeIntersecting: Instance.IsNodeIntersecting<NodeType> =
-    (nodeOrRect, area, partially = true) => {
-      const isRect = isRectObject(nodeOrRect);
-      const nodeRect = isRect ? nodeOrRect : getNodeRect(nodeOrRect);
-
-      if (!nodeRect) {
+      if (internalNode && !isRect && (n.id === nodeOrRect!.id || !internalNode.internals.positionAbsolute)) {
         return false;
       }
 
-      const overlappingArea = getOverlappingArea(nodeRect, area);
+      const currNodeRect = nodeToRect(hasNodesOption ? n : internalNode!);
+      const overlappingArea = getOverlappingArea(currNodeRect, nodeRect);
       const partiallyVisible = partially && overlappingArea > 0;
 
       return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
-    };
+    }) as NodeType[];
+  };
 
-  const updateNode: Instance.UpdateNode<NodeType> =
-    (id, nodeUpdate, options = { replace: false }) => {
-      setNodes((prevNodes) =>
-        prevNodes.map((node) => {
-          if (node.id === id) {
-            const nextNode = typeof nodeUpdate === 'function' ? nodeUpdate(node as NodeType) : nodeUpdate;
-            return options.replace && isNode(nextNode) ? (nextNode as NodeType) : { ...node, ...nextNode };
-          }
+  const isNodeIntersecting: Instance.IsNodeIntersecting<NodeType> = (nodeOrRect, area, partially = true) => {
+    const isRect = isRectObject(nodeOrRect);
+    const nodeRect = isRect ? nodeOrRect : getNodeRect(nodeOrRect);
 
-          return node;
-        })
-      );
-    };
+    if (!nodeRect) {
+      return false;
+    }
 
-  const updateNodeData: Instance.UpdateNodeData<NodeType> =
-    (id, dataUpdate, options = { replace: false }) => {
-      updateNode(
-        id,
-        (node) => {
-          const nextData = typeof dataUpdate === 'function' ? dataUpdate(node) : dataUpdate;
-          return options.replace ? { ...node, data: nextData } : { ...node, data: { ...node.data, ...nextData } };
-        },
-        options
-      );
-    };
+    const overlappingArea = getOverlappingArea(nodeRect, area);
+    const partiallyVisible = partially && overlappingArea > 0;
 
-    return {
-      ...viewportHelper,
-      getNodes,
-      getNode,
-      getInternalNode,
-      getEdges,
-      getEdge,
-      setNodes,
-      setEdges,
-      addNodes,
-      addEdges,
-      toObject,
-      deleteElements,
-      getIntersectingNodes,
-      isNodeIntersecting,
-      updateNode,
-      updateNodeData,
-    };
+    return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
+  };
+
+  const updateNode: Instance.UpdateNode<NodeType> = (id, nodeUpdate, options = { replace: false }) => {
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => {
+        if (node.id === id) {
+          const nextNode = typeof nodeUpdate === 'function' ? nodeUpdate(node as NodeType) : nodeUpdate;
+          return options.replace && isNode(nextNode) ? (nextNode as NodeType) : { ...node, ...nextNode };
+        }
+
+        return node;
+      })
+    );
+  };
+
+  const updateNodeData: Instance.UpdateNodeData<NodeType> = (id, dataUpdate, options = { replace: false }) => {
+    updateNode(
+      id,
+      (node) => {
+        const nextData = typeof dataUpdate === 'function' ? dataUpdate(node) : dataUpdate;
+        return options.replace ? { ...node, data: nextData } : { ...node, data: { ...node.data, ...nextData } };
+      },
+      options
+    );
+  };
+
+  return {
+    ...viewportHelper,
+    getNodes,
+    getNode,
+    getInternalNode,
+    getEdges,
+    getEdge,
+    setNodes,
+    setEdges,
+    addNodes,
+    addEdges,
+    toObject,
+    deleteElements,
+    getIntersectingNodes,
+    isNodeIntersecting,
+    updateNode,
+    updateNodeData,
+  };
 }

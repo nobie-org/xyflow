@@ -70,7 +70,7 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
 // }: FlowRendererProps<NodeType>) {
 
   const { nodesSelectionActive, userSelectionActive } = useStore(selector);
-  console.log("selectionKeyCode", p.selectionKeyCode)
+  // console.log("selectionKeyCode", p.selectionKeyCode)
   const selectionKeyPressed = useKeyPress(() => p.selectionKeyCode);
   const panActivationKeyPressed = useKeyPress(() => p.panActivationKeyCode);
 

@@ -87,7 +87,7 @@ function EdgeRendererComponent<EdgeType extends Edge = Edge>(p: ParentProps<Edge
             onEdgeUpdateStart={p.onEdgeUpdateStart}
             onEdgeUpdateEnd={p.onEdgeUpdateEnd}
             rfId={p.rfId}
-            onError={onError}
+            onError={onError.get()}
             edgeTypes={p.edgeTypes}
             disableKeyboardA11y={p.disableKeyboardA11y}
           />

@@ -21,7 +21,7 @@ export function useNodeOrEdgeTypesWarning(nodeOrEdgeTypes: () => NodeTypes | Edg
     const _types = nodeOrEdgeTypes();
     if (process.env.NODE_ENV === 'development') {
       if (updateCount.current > 1) {
-        store.onError?.('002', errorMessages['error002']());
+        store.onError.get()?.('002', errorMessages['error002']());
       }
       updateCount.current += 1;
     }

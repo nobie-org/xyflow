@@ -4,7 +4,7 @@
 import { errorMessages } from '@xyflow/system';
 
 import StoreContext from '../contexts/StoreContext';
-import type { Edge, Node, SolidFlowState, SolidFlowStore } from '../types';
+import type { Edge, Node, SolidFlowState } from '../types';
 import { batch, useContext } from 'solid-js';
 
 const zustandErrorMessage = errorMessages['error001']();

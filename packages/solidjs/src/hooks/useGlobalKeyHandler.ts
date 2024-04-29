@@ -4,7 +4,7 @@ import { useStoreApi } from './useStore';
 import { useKeyPress, UseKeyPressOptions } from './useKeyPress';
 import { useSolidFlow } from './useReactFlow';
 import { Edge, Node } from '../types';
-import { createEffect } from 'solid-js';
+import { createEffect, untrack } from 'solid-js';
 
 const selected = (item: Node | Edge) => item.selected;
 
@@ -27,9 +27,12 @@ export function useGlobalKeyHandler(config: {
 
   createEffect(() => {
     if (deleteKeyPressed()) {
-      const { edges, nodes } = store;
-      deleteElements({ nodes: nodes.get().filter(selected), edges: edges.get().filter(selected) });
+      untrack(() => {
+        // console.log('deleteKeyPressed');
+        const { edges, nodes } = store;
+        deleteElements({ nodes: nodes.get().filter(selected), edges: edges.get().filter(selected) });
       store.nodesSelectionActive.set(false);
+      })
     }
   });
 

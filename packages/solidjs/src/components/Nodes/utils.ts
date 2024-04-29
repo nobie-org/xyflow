@@ -22,7 +22,7 @@ export function handleNodeClick({
   const node = nodeLookup.get(id);
 
   if (!node) {
-    onError?.('012', errorMessages['error012'](id));
+    onError.get()?.('012', errorMessages['error012'](id));
     return;
   }
 

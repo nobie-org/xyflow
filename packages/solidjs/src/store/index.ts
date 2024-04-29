@@ -60,6 +60,7 @@ const createStore = ({
   };
   const setEdges = (edges: Edge[]) => {
     return batch(() => {
+      console.log('setEdges', edges);
       const { connectionLookup, edgeLookup, edges: storeEdges } = store;
 
       updateConnectionLookup(connectionLookup, edgeLookup, edges);
@@ -134,7 +135,7 @@ const createStore = ({
         if (debug) {
           console.log('React Flow: trigger node changes', changes);
         }
-        onNodesChange?.(changes);
+        onNodesChange.get()?.(changes);
       }
     });
   };
@@ -193,7 +194,7 @@ const createStore = ({
           console.log('React Flow: trigger node changes', changes);
         }
 
-        onNodesChange?.(changes);
+        onNodesChange.get()?.(changes);
       }
     });
   };
@@ -211,7 +212,7 @@ const createStore = ({
           console.log('React Flow: trigger edge changes', changes);
         }
 
-        onEdgesChange?.(changes);
+        onEdgesChange.get()?.(changes);
       }
     });
   };

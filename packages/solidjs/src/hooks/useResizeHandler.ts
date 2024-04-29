@@ -20,7 +20,7 @@ export function useResizeHandler(getDomNode: () => HTMLDivElement | null): void 
       const size = getDimensions(domNode);
 
       if (size.height === 0 || size.width === 0) {
-        store.onError?.('004', errorMessages['error004']());
+        store.onError.get()?.('004', errorMessages['error004']());
       }
 
       store.batch((store) => {

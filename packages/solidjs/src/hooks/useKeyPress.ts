@@ -1,7 +1,7 @@
 // import { useState, useEffect, useRef, useMemo } from 'react';
 import { isInputDOMNode, type KeyCode } from '@xyflow/system';
 import { useRef } from '../utils/hooks';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 type Keys = Array<string>;
 type PressedKeys = Set<string>;
@@ -58,10 +58,12 @@ export function useKeyPress(
     return [[], []] as [string[][], string[]]
   };
 
-  const keyCodes = () => keyStuff()[0];
-  const keysToWatch = () => keyStuff()[1];
 
   createEffect(() => {
+
+    const keyCodes = () => keyStuff()[0];
+    const keysToWatch = () => keyStuff()[1];
+    
     const target = options()?.target || defaultDoc;
     const keyCodeValue = keyCode?.() ?? null;
 
@@ -119,12 +121,12 @@ export function useKeyPress(
       window.addEventListener('blur', resetHandler);
       window.addEventListener('contextmenu', resetHandler);
 
-      return () => {
+      onCleanup(() => {
         target?.removeEventListener('keydown', downHandler as EventListenerOrEventListenerObject);
         target?.removeEventListener('keyup', upHandler as EventListenerOrEventListenerObject);
         window.removeEventListener('blur', resetHandler);
         window.removeEventListener('contextmenu', resetHandler);
-      };
+      });
     }
   });
 

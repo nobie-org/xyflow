@@ -11,6 +11,7 @@ import {
   SelectionRect,
   ConnectionStatus,
   ConnectingHandle,
+  OnError,
 } from '@xyflow/system';
 
 import { FitViewOptions, type Edge, type InternalNode, type Node, type SolidFlowStore, OnSelectionChangeFunc } from '../types';
@@ -70,8 +71,8 @@ const getInitialState = ({
     edges: new Writable(storeEdges),
     edgeLookup: new ReactiveMap(),
     connectionLookup: new ReactiveMap(),
-    onNodesChange: null,
-    onEdgesChange: null,
+    onNodesChange: wNullable(),
+    onEdgesChange: wNullable(),
     hasDefaultNodes: new Writable(defaultNodes !== undefined),
     hasDefaultEdges: new Writable(defaultEdges !== undefined),
     panZoom: new Writable<PanZoomInstance | null>(null),
@@ -118,9 +119,16 @@ const getInitialState = ({
     autoPanOnConnect: w(true),
     autoPanOnNodeDrag: w(true),
     connectionRadius: w(20),
-    onError: devWarn,
+    onError: w<OnError | undefined>(devWarn),
     isValidConnection: undefined,
     onSelectionChangeHandlers: w<OnSelectionChangeFunc[]>([]),
+
+    onConnect: wEmpty(),
+
+    onDelete: wEmpty(),
+    onEdgesDelete: wEmpty(),
+    onNodesDelete: wEmpty(),
+
 
     onBeforeDelete: wEmpty(),
     onViewportChange: wEmpty(),
