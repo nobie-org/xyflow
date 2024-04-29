@@ -53,14 +53,13 @@ const createStore = ({
     adoptUserNodes(newNodes, nodeLookup, parentLookup, {
       nodeOrigin: nodeOrigin.get(),
       elevateNodesOnSelect: elevateNodesOnSelect.get(),
-      checkEquality: true,
+      checkEquality: false,
     });
 
     nodes.set(newNodes);
   };
   const setEdges = (edges: Edge[]) => {
     return batch(() => {
-      console.log('setEdges', edges);
       const { connectionLookup, edgeLookup, edges: storeEdges } = store;
 
       updateConnectionLookup(connectionLookup, edgeLookup, edges);
