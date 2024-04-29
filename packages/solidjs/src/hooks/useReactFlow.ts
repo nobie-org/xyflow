@@ -98,9 +98,14 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
     console.log('matchingNodes', matchingNodes);
     console.log('matchingEdges', matchingEdges);
 
+
     return batch(() => {
       const hasMatchingEdges = matchingEdges.length > 0;
       const hasMatchingNodes = matchingNodes.length > 0;
+
+      if (hasMatchingEdges) {
+        onNodesDelete.get()?.(matchingNodes);
+      }
 
       if (hasMatchingEdges) {
         if (hasDefaultEdges.get()) {
