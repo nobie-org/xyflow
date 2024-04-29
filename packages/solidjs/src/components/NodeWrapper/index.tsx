@@ -19,7 +19,7 @@ import { handleNodeClick } from '../Nodes/utils';
 import { arrowKeyDiffs, builtinNodeTypes, getNodeInlineStyleDimensions } from './utils';
 import { useNodeObserver } from './useNodeObserver';
 import type { InternalNode, Node, NodeWrapperProps } from '../../types';
-import { Show, JSX } from 'solid-js';
+import { Show, JSX, createEffect } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 export function NodeWrapper<NodeType extends Node>(p: NodeWrapperProps<NodeType>): JSX.Element {

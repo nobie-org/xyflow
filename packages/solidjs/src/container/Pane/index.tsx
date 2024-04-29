@@ -200,7 +200,7 @@ export function Pane(_p: ParentProps<PaneProps>) {
 
       if (prevSelectedNodesCount.current !== selectedNodeIds.size) {
         prevSelectedNodesCount.current = selectedNodeIds.size;
-        const changes = getSelectionChanges(nodeLookup, selectedNodeIds, true) as NodeChange[];
+        const changes = getSelectionChanges(nodeLookup, selectedNodeIds) as NodeChange[];
         triggerNodeChanges(changes);
       }
 
@@ -279,7 +279,6 @@ export function Pane(_p: ParentProps<PaneProps>) {
   };
 
   const onPaneMouseMove = (e: MouseEvent) => {
-    console.log('onPaneMouseMove', hasActiveSelection());
     if (hasActiveSelection()) {
       onMouseMove(e);
     } else {

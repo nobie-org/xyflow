@@ -76,8 +76,6 @@ export function useDrag({
 
   createEffect(() => {
     const domNode = nodeRef?.();
-    console.log('disabled', disabled());
-    console.log('domNode', domNode);
     if (disabled()) {
       xyDrag.current?.destroy();
     } else if (domNode) {
@@ -92,10 +90,6 @@ export function useDrag({
         xyDrag.current?.destroy();
       });
     }
-  });
-
-  createEffect(() => {
-    console.log('isDragging', dragging());
   });
 
   return dragging;

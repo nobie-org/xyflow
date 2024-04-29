@@ -62,12 +62,6 @@ function BackgroundComponent(_p: BackgroundProps) {
 
   };
 
-  console.log('BackgroundComponent');
-
-  createEffect(() => { 
-    console.log("scaled gap", scaledGap());
-    console.log("transform", transform.get())
-  })
 
   return (
     <svg

@@ -180,16 +180,17 @@ const createStore = ({
     });
   };
   const triggerNodeChanges: DefaultActions['triggerNodeChanges'] = (changes) => {
+    console.log('triggerNodeChanges', changes);
     return batch(() => {
       const { onNodesChange, nodes, hasDefaultNodes, debug } = store;
 
       if (changes?.length) {
-        if (hasDefaultNodes) {
+        if (hasDefaultNodes.get()) {
           const updatedNodes = applyNodeChanges(changes, nodes.get());
           setNodes(updatedNodes);
         }
 
-        if (debug) {
+        if (debug.get()) {
           console.log('React Flow: trigger node changes', changes);
         }
 
@@ -219,13 +220,14 @@ const createStore = ({
     return batch(() => {
       const { multiSelectionActive, edgeLookup, nodeLookup } = store;
 
-      if (multiSelectionActive) {
+
+      if (multiSelectionActive.get()) {
         const nodeChanges = selectedNodeIds.map((nodeId) => createSelectionChange(nodeId, true));
         triggerNodeChanges(nodeChanges as NodeSelectionChange[]);
         return;
       }
 
-      triggerNodeChanges(getSelectionChanges(nodeLookup, new Set([...selectedNodeIds]), true));
+      triggerNodeChanges(getSelectionChanges(nodeLookup, new Set([...selectedNodeIds])));
       triggerEdgeChanges(getSelectionChanges(edgeLookup));
     });
   };
@@ -240,7 +242,7 @@ const createStore = ({
       }
 
       triggerEdgeChanges(getSelectionChanges(edgeLookup, new Set([...selectedEdgeIds])));
-      triggerNodeChanges(getSelectionChanges(nodeLookup, new Set(), true));
+      triggerNodeChanges(getSelectionChanges(nodeLookup, new Set()));
     });
   };
   const unselectNodesAndEdges = ({ nodes, edges }: UnselectNodesAndEdgesParams = {}) => {

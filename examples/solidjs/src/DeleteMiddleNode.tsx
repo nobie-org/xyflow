@@ -17,11 +17,11 @@ import { batch, createEffect } from 'solid-js';
 import { untrack } from 'solid-js/web';
 
 const initialNodes = [
-  { id: '1', type: 'input', data: { label: 'Start here...' }, position: { x: -150, y: 0 } },
-  { id: '2', type: 'input', data: { label: '...or here!' }, position: { x: 150, y: 0 } },
-  { id: '3', data: { label: 'Delete me.' }, position: { x: 0, y: 100 } },
-  { id: '4', data: { label: 'Then me!' }, position: { x: 0, y: 200 } },
-  { id: '5', type: 'output', data: { label: 'End here!' }, position: { x: 0, y: 300 } },
+  { id: '1', type: 'input', data: { label: '1' }, position: { x: -150, y: 0 } },
+  { id: '2', type: 'input', data: { label: '2' }, position: { x: 150, y: 0 } },
+  { id: '3', data: { label: '3' }, position: { x: 0, y: 100 } },
+  { id: '4', data: { label: '4' }, position: { x: 0, y: 200 } },
+  { id: '5', type: 'output', data: { label: '5' }, position: { x: 0, y: 300 } },
 ];
 
 const initialEdges = [
