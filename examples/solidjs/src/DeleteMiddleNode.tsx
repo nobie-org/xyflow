@@ -9,10 +9,11 @@ import {
   getConnectedEdges,
   BackgroundVariant,
   ReactFlowProvider,
+  Node,
 } from '@xyflow/solidjs';
 
 import '@xyflow/solidjs/dist/style.css';
-import { batch } from 'solid-js';
+import { batch, createEffect } from 'solid-js';
 import { untrack } from 'solid-js/web';
 
 const initialNodes = [
@@ -35,26 +36,37 @@ export default function Flow() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = (params: any) => setEdges(addEdge(params, edges()));
-  const onNodesDelete = (deleted: any) => {
-    batch(() => {
-      console.log('onNodesDelete', deleted);
+  const onNodesDelete = (deleted: Node[]) => {
+    // batch(() => {
       setEdges(
-        deleted.reduce((acc: any, node: any) => {
+        deleted.reduce((acc, node) => {
+          console.log("node", node)
+          console.log("nodes", nodes())
+          console.log("edges", edges())
           const incomers = getIncomers(node, nodes(), edges());
           const outgoers = getOutgoers(node, nodes(), edges());
+          console.log('incomers', incomers);
+          console.log('outgoers', outgoers);
+
           const connectedEdges = getConnectedEdges([node], edges());
 
-          const remainingEdges = acc.filter((edge: any) => !connectedEdges.includes(edge));
+          const remainingEdges = acc.filter((edge) => !connectedEdges.includes(edge));
 
           const createdEdges = incomers.flatMap(({ id: source }) =>
             outgoers.map(({ id: target }) => ({ id: `${source}->${target}`, source, target }))
           );
 
+          console.log('createdEdges', createdEdges);
+
           return [...remainingEdges, ...createdEdges];
         }, edges())
       );
-    });
+    // });
   };
+
+  createEffect(() => { 
+    console.log('edges', edges());
+  })
 
   return (
     <ReactFlowProvider>

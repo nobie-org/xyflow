@@ -139,7 +139,6 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
     () => {
       // console.log("props", props)
       for (const fieldName of fieldsToTrack) {
-        // console.log("fieldName", fieldName)
 
         const fieldValue = props[fieldName];
         // console.log("fieldValue", fieldValue)
@@ -147,6 +146,7 @@ export function StoreUpdater<NodeType extends Node = Node, EdgeType extends Edge
 
         if (fieldValue === previousFieldValue) continue;
         if (typeof props[fieldName] === 'undefined') continue;
+        console.log("fieldName changed", fieldName)
         // Custom handling with dedicated setters for some fields
         if (fieldName === 'nodes') setNodes(fieldValue as Node[]);
         else if (fieldName === 'edges') setEdges(fieldValue as Edge[]);

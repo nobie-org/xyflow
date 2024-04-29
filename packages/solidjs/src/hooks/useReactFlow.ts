@@ -104,6 +104,7 @@ export function useSolidFlow<NodeType extends Node = Node, EdgeType extends Edge
 
       if (hasMatchingEdges) {
         if (hasDefaultEdges.get()) {
+
           const nextEdges = edges.get().filter((e) => !matchingEdges.some((mE) => mE.id === e.id));
           store.setEdges(nextEdges);
         }
