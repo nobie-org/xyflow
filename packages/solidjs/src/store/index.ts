@@ -18,6 +18,7 @@ import {
 import { applyEdgeChanges, applyNodeChanges, createSelectionChange, getSelectionChanges } from '../utils/changes';
 import getInitialState from './initialState';
 import type {  Node, Edge, UnselectNodesAndEdgesParams, FitViewOptions, ReactFlowActions } from '../types';
+import { batch } from 'solid-js';
 
 const createStore = ({
   nodes,
@@ -58,12 +59,15 @@ const createStore = ({
     nodes.set(newNodes);
   };
   const setEdges = (edges: Edge[]) => {
+    batch(() => { 
     const { connectionLookup, edgeLookup, edges: storeEdges } = store;
 
     console.log('setEdges', edges);
     updateConnectionLookup(connectionLookup, edgeLookup, edges);
 
     storeEdges.set(edges);
+
+    })
   };
   const setDefaultNodesAndEdges = (nodes?: Node[], edges?: Edge[]) => {
     if (nodes) {

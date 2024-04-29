@@ -1,4 +1,3 @@
-
 import {
   ReactFlow,
   MiniMap,
@@ -90,15 +89,15 @@ const BasicFlowImpl = () => {
     );
   };
 
-    const deleteSelectedElements = () => {
-        const selectedNodes = getNodes().filter((node) => node.selected);
-        const selectedEdges = getEdges().filter((edge) => edge.selected);
-        deleteElements({ nodes: selectedNodes, edges: selectedEdges });
-    };
+  const deleteSelectedElements = () => {
+    const selectedNodes = getNodes().filter((node) => node.selected);
+    const selectedEdges = getEdges().filter((edge) => edge.selected);
+    deleteElements({ nodes: selectedNodes, edges: selectedEdges });
+  };
 
-    const deleteSomeElements = () => {
-        deleteElements({ nodes: [{ id: '2' }], edges: [{ id: 'e1-3' }] });
-    };
+  const deleteSomeElements = () => {
+    deleteElements({ nodes: [{ id: '2' }], edges: [{ id: 'e1-3' }] });
+  };
 
   const onSetNodes = () => {
     setNodes([
@@ -168,13 +167,14 @@ const BasicFlowImpl = () => {
 export default function BasicFlow() {
   return (
     <ReactFlowProvider>
-          <div style={{
-              height: '100vh',
-                width: '100vw',
-          }}>
-
-      <BasicFlowImpl />
-        </div>
+      <div
+        style={{
+          height: '100vh',
+          width: '100vw',
+        }}
+      >
+        <BasicFlowImpl />
+      </div>
     </ReactFlowProvider>
   );
 }

@@ -173,6 +173,9 @@ function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(_
       zoomOnDoubleClick: true,
       panOnDrag: true,
       nodeOrigin: defaultNodeOrigin,
+      noWheelClassName: 'nowheel',
+      noPanClassName: 'nopan',
+      noDragClassName: 'nodrag',
     } satisfies Partial<ReactFlowProps<NodeType, EdgeType>>,
     _p
   );
@@ -339,9 +342,9 @@ function ReactFlow<NodeType extends Node = Node, EdgeType extends Edge = Edge>(_
           onEdgeUpdateEnd={p.onEdgeUpdateEnd}
           edgeUpdaterRadius={p.edgeUpdaterRadius}
           defaultMarkerColor={p.defaultMarkerColor}
-          noDragClassName={p.noDragClassName || ''}
-          noWheelClassName={p.noWheelClassName || ''}
-          noPanClassName={p.noPanClassName || ''}
+          noDragClassName={p.noDragClassName}
+          noWheelClassName={p.noWheelClassName}
+          noPanClassName={p.noPanClassName}
           rfId={rfId()}
           disableKeyboardA11y={p.disableKeyboardA11y || false}
           nodeOrigin={p.nodeOrigin}
