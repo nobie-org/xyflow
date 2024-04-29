@@ -87,6 +87,7 @@ preventScrolling: true,
         },
         onDraggingChange: (paneDragging: boolean) => store.paneDragging.set(paneDragging),
         onPanZoomStart: (event, vp) => {
+          console.log("onPanZoomStart", event, vp);
           const { onViewportChangeStart, onMoveStart } = store;
           onMoveStart?.(event, vp);
           onViewportChangeStart.get()?.(vp);
@@ -118,6 +119,7 @@ preventScrolling: true,
   });
 
   createEffect(() => {
+    console.log("panOnDrag", p.panOnDrag);
     panZoom.current?.update({
       onPaneContextMenu: p.onPaneContextMenu,
       zoomOnScroll: p.zoomOnScroll,

@@ -34,6 +34,7 @@ export const BasicExample = () => {
       // type: 'text',
       data: {
         text: 'hello',
+        label: "hello",
       },
       position: { x: -100, y: -50 },
     },
@@ -60,7 +61,7 @@ export const BasicExample = () => {
       data: {},
       position: { x: 300, y: 50 },
     },
-  ]);
+  ] satisfies Node[]);
 
   const [edges] = createSignal<Edge[]>([
     {

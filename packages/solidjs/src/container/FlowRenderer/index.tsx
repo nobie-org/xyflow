@@ -70,6 +70,7 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
 // }: FlowRendererProps<NodeType>) {
 
   const { nodesSelectionActive, userSelectionActive } = useStore(selector);
+  console.log("selectionKeyCode", p.selectionKeyCode)
   const selectionKeyPressed = useKeyPress(() => p.selectionKeyCode);
   const panActivationKeyPressed = useKeyPress(() => p.panActivationKeyCode);
 
@@ -83,6 +84,10 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
     console.log("paneOnDrag", panOnDrag())
   });
 
+  createEffect(() => { 
+    console.log("selection keypressed", selectionKeyPressed())  
+  })
+
   return (
     <ZoomPane
       onPaneContextMenu={p.onPaneContextMenu}
@@ -93,7 +98,7 @@ function FlowRendererComponent<NodeType extends Node = Node>(p: FlowRendererProp
       panOnScrollSpeed={p.panOnScrollSpeed}
       panOnScrollMode={p.panOnScrollMode}
       zoomOnDoubleClick={p.zoomOnDoubleClick}
-      panOnDrag={!selectionKeyPressed && panOnDrag}
+      panOnDrag={!selectionKeyPressed() && panOnDrag()}
       defaultViewport={p.defaultViewport}
       translateExtent={p.translateExtent}
       minZoom={p.minZoom}
