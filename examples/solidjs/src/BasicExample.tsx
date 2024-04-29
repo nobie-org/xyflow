@@ -8,10 +8,12 @@ import {
   type NodeTypes,
   type Edge,
   type Node,
-  BuiltInNode
+  BuiltInNode,
+  ReactFlowProvider,
 } from '@xyflow/solidjs';
 
 import '@xyflow/solidjs/dist/style.css';
+import '@xyflow/solidjs/dist/base.css';
 
 import { createSignal } from 'solid-js';
 
@@ -29,7 +31,7 @@ export const BasicExample = () => {
   const [nodes] = createSignal<Node[]>([
     {
       id: '1',
-      type: 'text',
+      // type: 'text',
       data: {
         text: 'hello',
       },
@@ -37,7 +39,7 @@ export const BasicExample = () => {
     },
     {
       id: '1a',
-      type: 'uppercase',
+      // type: 'uppercase',
       data: {
         text: '',
       },
@@ -45,7 +47,7 @@ export const BasicExample = () => {
     },
     {
       id: '2',
-      type: 'text',
+      // type: 'text',
       data: {
         text: 'world',
       },
@@ -54,7 +56,7 @@ export const BasicExample = () => {
 
     {
       id: '3',
-      type: 'result',
+      // type: 'result',
       data: {},
       position: { x: 300, y: 50 },
     },
@@ -78,11 +80,18 @@ export const BasicExample = () => {
     },
   ]);
   return (
-    <ReactFlow nodes={nodes()} edges={edges()} fitView>
-      <Controls />
-      <Background variant={BackgroundVariant.Dots} />
-      <MiniMap />
-    </ReactFlow>
+    <ReactFlowProvider>
+        <div style={{
+          height: '90vh',
+          width: '90vw',
+        }}>
+      <ReactFlow nodes={nodes()} edges={edges()} fitView>
+        <Controls />
+        <Background variant={BackgroundVariant.Dots} />
+        <MiniMap />
+      </ReactFlow>
+      </div>
+    </ReactFlowProvider>
   );
   // </script>
 };

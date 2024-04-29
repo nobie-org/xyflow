@@ -1,4 +1,4 @@
-import { JSX, Show, splitProps } from 'solid-js';
+import { JSX, Show, createEffect, mergeProps, splitProps } from 'solid-js';
 import cc from 'classcat';
 
 import { useStore } from '../../hooks/useStore';
@@ -14,27 +14,27 @@ const defaultSize = {
   [BackgroundVariant.Cross]: 6,
 };
 
-const selector = (s: SolidFlowState) => ({ transform: s.transform, patternId: `pattern-${s.rfId}` });
+const selector = (s: SolidFlowState) => ({ transform: s.transform, patternId: `pattern-${s.rfId.get()}` });
 
 function BackgroundComponent(_p: BackgroundProps) {
-  const lineWidth = () => _p.lineWidth || 1;
-  const offset = () => _p.offset || 2;
-  const gap = () => _p.gap || 20;
-  const variant = () => _p.variant || BackgroundVariant.Dots;
-
-  const [_ignored, p] = splitProps(_p, ['gap', 'lineWidth', 'offset', 'variant']);
+  const p = mergeProps({
+    gap: 20,
+    lineWidth: 1,
+    offset: 2,
+    variant: BackgroundVariant.Dots,
+  }, _p);
 
   const ref = useRef<SVGSVGElement | null>(null);
   const { transform, patternId } = useStore(selector);
-  const patternSize = () => p.size || defaultSize[variant()];
-  const isDots = () => variant() === BackgroundVariant.Dots;
-  const isCross = () => variant() === BackgroundVariant.Cross;
+  const patternSize = () => p.size || defaultSize[p.variant];
+  const isDots = () => p.variant === BackgroundVariant.Dots;
+  const isCross = () => p.variant === BackgroundVariant.Cross;
   const gapXY = () => {
-    const g = gap();
-    if (Array.isArray(g)) {
-      return g;
+    const gap = p.gap;
+    if (Array.isArray(gap)) {
+      return gap;
     } else {
-      return [g, g];
+      return [gap, gap];
     }
   };
   const scaledGap: () => [number, number] = () => [gapXY()[0] * transform.get()[2] || 1, gapXY()[1] * transform.get()[2] || 1];
@@ -44,9 +44,9 @@ function BackgroundComponent(_p: BackgroundProps) {
 
   const patternOffset = () => {
     if (isDots()) {
-      return [scaledSize() / offset(), scaledSize() / offset()];
+      return [scaledSize() / p.offset, scaledSize() / p.offset];
     } else {
-      return [patternDimensions()[0] / offset(), patternDimensions()[1] / offset()];
+      return [patternDimensions()[0] / p.offset, patternDimensions()[1] / p.offset];
     }
   };
 
@@ -59,7 +59,15 @@ function BackgroundComponent(_p: BackgroundProps) {
       '--xy-background-color-props': p.bgColor,
       '--xy-background-pattern-color-props': p.color,
     } as JSX.CSSProperties;
+
   };
+
+  console.log('BackgroundComponent');
+
+  createEffect(() => { 
+    console.log("scaled gap", scaledGap());
+    console.log("transform", transform.get())
+  })
 
   return (
     <svg
@@ -82,13 +90,13 @@ function BackgroundComponent(_p: BackgroundProps) {
           fallback={
             <LinePattern
               dimensions={patternDimensions()}
-              lineWidth={lineWidth()}
-              variant={variant()}
+              lineWidth={p.lineWidth}
+              variant={p.variant}
               className={p.patternClassName}
             />
           }
         >
-          <DotPattern radius={scaledSize() / offset()} className={p.patternClassName} />
+          <DotPattern radius={scaledSize() / p.offset} className={p.patternClassName} />
         </Show>
       </pattern>
       <rect x="0" y="0" width="100%" height="100%" fill={`url(#${_patternId()})`} />

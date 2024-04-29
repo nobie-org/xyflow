@@ -92,5 +92,9 @@ export function useDrag({
     }
   });
 
+  createEffect(() => { 
+    console.log("isDragging", dragging());
+  })
+
   return dragging;
 }
