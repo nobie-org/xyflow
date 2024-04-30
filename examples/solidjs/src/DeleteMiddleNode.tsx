@@ -10,6 +10,8 @@ import {
   BackgroundVariant,
   ReactFlowProvider,
   Node,
+  MarkerType,
+  Edge,
 } from '@xyflow/solidjs';
 
 import '@xyflow/solidjs/dist/style.css';
@@ -25,11 +27,37 @@ const initialNodes = [
 ];
 
 const initialEdges = [
-  { id: '1->3', source: '1', target: '3' },
-  { id: '2->3', source: '2', target: '3' },
-  { id: '3->4', source: '3', target: '4' },
-  { id: '4->5', source: '4', target: '5' },
-];
+  {
+    id: "1->3",
+    source: "1",
+    target: "3",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+    },
+    markerStart: {
+      type: MarkerType.ArrowClosed,
+      orient: "auto-start-reverse",
+    },
+  },
+  {
+    id: "2->3",
+    source: "2",
+    target: "3",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: "#FF0072",
+    },
+    label: "marker size and color",
+    style: {
+      "stroke-width": "2px",
+      stroke: "#FF0072",
+    },
+  },
+  { id: "3->4", source: "3", target: "4" },
+  { id: "4->5", source: "4", target: "5" },
+] satisfies Edge[];
 
 export default function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);

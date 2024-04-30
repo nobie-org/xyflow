@@ -27,7 +27,7 @@ type EdgeRendererProps<EdgeType extends Edge = Edge> = Pick<
   | 'rfId'
   | 'disableKeyboardA11y'
   | 'edgeTypes'
->
+>;
 
 const selector = (s: SolidFlowState) => ({
   width: s.width,
@@ -39,24 +39,24 @@ const selector = (s: SolidFlowState) => ({
   onError: s.onError,
 });
 
-function EdgeRendererComponent<EdgeType extends Edge = Edge>(p: ParentProps<EdgeRendererProps<EdgeType>>){
-//   defaultMarkerColor,
-//   onlyRenderVisibleElements,
-//   rfId,
-//   edgeTypes,
-//   noPanClassName,
-//   onEdgeUpdate,
-//   onEdgeContextMenu,
-//   onEdgeMouseEnter,
-//   onEdgeMouseMove,
-//   onEdgeMouseLeave,
-//   onEdgeClick,
-//   edgeUpdaterRadius,
-//   onEdgeDoubleClick,
-//   onEdgeUpdateStart,
-//   onEdgeUpdateEnd,
-//   disableKeyboardA11y,
-// }: EdgeRendererProps<EdgeType>) {
+function EdgeRendererComponent<EdgeType extends Edge = Edge>(p: ParentProps<EdgeRendererProps<EdgeType>>) {
+  //   defaultMarkerColor,
+  //   onlyRenderVisibleElements,
+  //   rfId,
+  //   edgeTypes,
+  //   noPanClassName,
+  //   onEdgeUpdate,
+  //   onEdgeContextMenu,
+  //   onEdgeMouseEnter,
+  //   onEdgeMouseMove,
+  //   onEdgeMouseLeave,
+  //   onEdgeClick,
+  //   edgeUpdaterRadius,
+  //   onEdgeDoubleClick,
+  //   onEdgeUpdateStart,
+  //   onEdgeUpdateEnd,
+  //   disableKeyboardA11y,
+  // }: EdgeRendererProps<EdgeType>) {
   const { edgesFocusable, edgesUpdatable, elementsSelectable, onError } = useStore(selector);
   const edgeIds = useVisibleEdgeIds(() => p.onlyRenderVisibleElements);
 
@@ -64,35 +64,33 @@ function EdgeRendererComponent<EdgeType extends Edge = Edge>(p: ParentProps<Edge
     <div class="react-flow__edges">
       <MarkerDefinitions defaultColor={p.defaultMarkerColor} rfId={p.rfId} />
 
-<For each={edgeIds()}>
-        {(id) => { 
-
-      {/* {edgeIds.map((id) => { */}
-        return (
-          <EdgeWrapper<EdgeType>
-            // key={id}
-            id={id}
-            edgesFocusable={edgesFocusable.get()}
-            edgesUpdatable={edgesUpdatable.get()}
-            elementsSelectable={elementsSelectable.get()}
-            noPanClassName={p.noPanClassName}
-            onEdgeUpdate={p.onEdgeUpdate}
-            onContextMenu={p.onEdgeContextMenu}
-            onMouseEnter={p.onEdgeMouseEnter}
-            onMouseMove={p.onEdgeMouseMove}
-            onMouseLeave={p.onEdgeMouseLeave}
-            onClick={p.onEdgeClick}
-            edgeUpdaterRadius={p.edgeUpdaterRadius}
-            onDoubleClick={p.onEdgeDoubleClick}
-            onEdgeUpdateStart={p.onEdgeUpdateStart}
-            onEdgeUpdateEnd={p.onEdgeUpdateEnd}
-            rfId={p.rfId}
-            onError={onError.get()}
-            edgeTypes={p.edgeTypes}
-            disableKeyboardA11y={p.disableKeyboardA11y}
-          />
-        );
-      }}
+      <For each={edgeIds()}>
+        {(id) => {
+          console.log('rendering edge with id', id);
+          return (
+            <EdgeWrapper<EdgeType>
+              id={id}
+              edgesFocusable={edgesFocusable.get()}
+              edgesUpdatable={edgesUpdatable.get()}
+              elementsSelectable={elementsSelectable.get()}
+              noPanClassName={p.noPanClassName}
+              onEdgeUpdate={p.onEdgeUpdate}
+              onContextMenu={p.onEdgeContextMenu}
+              onMouseEnter={p.onEdgeMouseEnter}
+              onMouseMove={p.onEdgeMouseMove}
+              onMouseLeave={p.onEdgeMouseLeave}
+              onClick={p.onEdgeClick}
+              edgeUpdaterRadius={p.edgeUpdaterRadius}
+              onDoubleClick={p.onEdgeDoubleClick}
+              onEdgeUpdateStart={p.onEdgeUpdateStart}
+              onEdgeUpdateEnd={p.onEdgeUpdateEnd}
+              rfId={p.rfId}
+              onError={onError.get()}
+              edgeTypes={p.edgeTypes}
+              disableKeyboardA11y={p.disableKeyboardA11y}
+            />
+          );
+        }}
       </For>
     </div>
   );
